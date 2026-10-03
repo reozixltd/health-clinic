@@ -1,0 +1,72 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import { allSites, site } from '@/config';
+import '@/styles/console.css';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { configuredMarket, marketVariants } from '@/layouts/site';
+import { isOn } from '@/domain/modules';
+
+const variants = marketVariants(site, allSites());
+const services = (await getCollection('services')).map((s) => s.data);
+const providers = (await getCollection('providers')).map((p) => p.data);
+const prices = isOn('price-list', site) ? await getEntry('prices', 'prices') : undefined;
+const data = {
+  siteId: site.id,
+  preset: site.preset.id,
+  leadKinds: site.preset.leadKinds,
+  messages: site.messages,
+  clinicName: site.clinic.name,
+  demo: site.demoMode,
+  marketId: configuredMarket(site).id,
+  timeZones: Object.fromEntries(variants.map((v) => [v.id, v.clinic.timeZone])),
+  reviewUrls: Object.fromEntries(variants.map((v) => [v.id, v.clinic.reviewsUrl ?? ''])),
+  windows: site.booking.windows,
+  services: services.map(({ slug, title }) => ({ slug, title })),
+  providers: providers.map(({ slug, name }) => ({ slug, name })),
+  pricesReviewedAt: prices?.data.reviewedAt ?? null,
+};
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<BaseLayout title={`Clinic console | ${site.clinic.name}`} description="Demo clinic console for requests and message previews." noindex bare hideMobileBar>
+  <div class="console" id="console-root">
+    <form class="login" data-login novalidate aria-labelledby="login-title">
+      <h1 id="login-title">Clinic console</h1>
+      <p>This is a demo. Sign in with <strong>clinic@demo.reozix</strong> and password <strong>demo1234</strong>.</p>
+      <div class="field"><label for="console-email">Email</label><input id="console-email" name="email" type="email" autocomplete="username" required /></div>
+      <div class="field"><label for="console-password">Password</label><input id="console-password" name="password" type="password" autocomplete="current-password" required /></div>
+      <p class="login__error" data-login-error role="alert"></p>
+      <button type="submit" class="console-btn console-btn--primary">Sign in</button>
+    </form>
+
+    <div class="app" data-app hidden>
+      <header class="app__bar">
+        <h1>{site.clinic.name} console</h1>
+        <div class="app__tools">
+          <button type="button" class="console-btn console-btn--secondary" data-export>Export CSV</button>
+          <button type="button" class="console-btn console-btn--secondary" data-load>Load samples</button>
+          <button type="button" class="console-btn console-btn--secondary" data-clear>Clear</button>
+          <button type="button" class="console-btn console-btn--secondary" data-signout>Sign out</button>
+        </div>
+      </header>
+      <p class="warning" data-stale role="status" hidden></p>
+      <p class="app__message" data-message role="status"></p>
+      <div class="app__body">
+        <section class="app__list" aria-labelledby="inbox-title">
+          <h2 id="inbox-title">Requests</h2>
+          <div class="chips" data-chips role="group" aria-label="Filter by kind"></div>
+          <div class="field"><label for="status-filter">Status</label>
+            <select id="status-filter" data-status-filter><option value="">All statuses</option></select></div>
+          <ul class="inbox" data-inbox></ul>
+        </section>
+        <section class="app__detail" data-detail aria-label="Request details" aria-live="polite"></section>
+      </div>
+    </div>
+  </div>
+  <script type="application/json" id="console-data" set:html={json} is:inline></script>
+</BaseLayout>
+
+<script>
+  import { initConsole } from './_app';
+  initConsole();
+</script>
