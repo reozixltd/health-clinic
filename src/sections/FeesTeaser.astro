@@ -1,0 +1,39 @@
+---
+/** Fees teaser (allied health) or price-list teaser with its last reviewed date (vet). Nothing when neither module is on. */
+import type { MarketId, MarketPack } from '@/domain/markets';
+
+interface Props {
+  variants: { id: MarketId; market: MarketPack }[];
+  feesOn: boolean;
+  priceListOn: boolean;
+  reviewedLabel?: string;
+}
+const { variants, feesOn, priceListOn, reviewedLabel } = Astro.props;
+---
+
+{feesOn && (
+  <section id="fees" aria-labelledby="fees-title">
+    <h2 id="fees-title">Fees</h2>
+    <p>Our fees are listed for every service before you book.</p>
+    {variants.map((v) => {
+      const funding = Object.values(v.market.fundingLabels);
+      return funding.length > 0 && <p class="note" data-market-only={v.id}>{funding.join('. ')}.</p>;
+    })}
+    <p><a class="link" href="/fees/">See our fees</a></p>
+  </section>
+)}
+{!feesOn && priceListOn && (
+  <section id="prices" aria-labelledby="prices-title">
+    <h2 id="prices-title">Prices</h2>
+    <p>We publish what common treatments cost.</p>
+    {reviewedLabel && <p class="note">Last reviewed {reviewedLabel}.</p>}
+    <p><a class="link" href="/prices/">See our price list</a></p>
+  </section>
+)}
+
+<style>
+  section { display: grid; gap: var(--space-2); justify-items: start; }
+  p { max-width: var(--measure); margin: 0; }
+  .note { color: var(--color-ink-muted); }
+  .link { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: underline; }
+</style>

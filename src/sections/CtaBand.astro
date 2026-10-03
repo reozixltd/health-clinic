@@ -1,0 +1,29 @@
+---
+/** Closing prompt: book, or call. */
+import Button from '@/core/ui/Button.astro';
+import type { MarketId } from '@/domain/markets';
+import type { Clinic } from '@/domain/types';
+
+interface Props {
+  variants: { id: MarketId; clinic: Clinic; tel: string }[];
+  bookLabel: string;
+  bookingOn: boolean;
+}
+const { variants, bookLabel, bookingOn } = Astro.props;
+---
+
+<section class="cta" aria-labelledby="cta-title">
+  <h2 id="cta-title">Ready when you are</h2>
+  {variants.map((v) => (
+    <div class="actions" data-market-only={v.id}>
+      {bookingOn && <Button href="/book/">{bookLabel}</Button>}
+      <a class="phone" href={v.tel}>Call {v.clinic.phone}</a>
+    </div>
+  ))}
+</section>
+
+<style>
+  .cta { display: grid; gap: var(--space-3); padding: var(--space-6) 0; border-top: 1px solid var(--color-line); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+  .phone { display: inline-flex; align-items: center; min-height: var(--target); font-weight: 600; text-decoration: underline; }
+</style>

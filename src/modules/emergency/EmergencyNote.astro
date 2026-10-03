@@ -1,0 +1,23 @@
+---
+/** One-line after-hours note. Vet clinics link to the out of hours page. */
+import type { Preset } from '@/domain/presets';
+import type { Clinic } from '@/domain/types';
+
+interface Props {
+  clinic: Clinic;
+  preset: Preset;
+  compact?: boolean;
+}
+const { clinic, preset, compact = false } = Astro.props;
+---
+
+<p class:list={['emergency-note', { compact }]}>
+  {clinic.emergency.text}
+  {preset.emergencyPage && <> <a href="/out-of-hours/">Out of hours care</a></>}
+</p>
+
+<style>
+  .emergency-note { margin: 0; max-width: var(--measure); color: var(--color-ink-muted); }
+  .compact { font-size: var(--text-16); }
+  a { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: underline; color: var(--color-ink); }
+</style>

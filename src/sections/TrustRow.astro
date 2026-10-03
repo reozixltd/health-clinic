@@ -1,0 +1,33 @@
+---
+/** Plain statements of what a visitor can rely on, worded per market. */
+import type { MarketId, MarketPack } from '@/domain/markets';
+
+interface Props {
+  variants: { id: MarketId; market: MarketPack }[];
+  preset: 'allied-health' | 'vet';
+  pricesOn: boolean;
+  ownershipOn: boolean;
+}
+const { variants, preset, pricesOn, ownershipOn } = Astro.props;
+
+function lines(m: MarketPack): string[] {
+  if (preset === 'vet') {
+    return ['RCVS-registered vets and nurses', ...(pricesOn ? ['Price list published'] : []), ...(ownershipOn ? ['Ownership statement published'] : [])];
+  }
+  if (m.id === 'CA') {
+    return ['Registered with the relevant Ontario regulatory college', ...(m.fundingLabels.direct ? [m.fundingLabels.direct] : []), 'Accessible entrance'];
+  }
+  return ['Registered with AHPRA', ...(m.fundingLabels.fund ? ['Health funds accepted'] : []), 'Accessible entrance'];
+}
+---
+
+{variants.map((v) => (
+  <ul class="trust" data-market-only={v.id} aria-label="Why people trust us">
+    {lines(v.market).map((t) => <li>{t}</li>)}
+  </ul>
+))}
+
+<style>
+  .trust { list-style: none; margin: 0 auto; padding: var(--space-4); max-width: 72rem; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+  li { min-height: var(--target); display: flex; align-items: center; }
+</style>

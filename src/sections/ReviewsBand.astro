@@ -1,0 +1,22 @@
+---
+/** Reviews section: every market's mode is rendered so ?market= switching works. */
+import type { MarketId, MarketPack } from '@/domain/markets';
+import type { Clinic } from '@/domain/types';
+import Reviews from '@/modules/reviews/Reviews.astro';
+import { reviewMode, type Review } from '@/modules/reviews/reviews';
+
+interface Props {
+  items: Review[];
+  variants: { id: MarketId; market: MarketPack; clinic: Clinic }[];
+}
+const { items, variants } = Astro.props;
+---
+
+<section id="reviews" aria-labelledby="reviews-title">
+  <h2 id="reviews-title">What patients say</h2>
+  {variants.map((v) => (
+    <div data-market-only={v.id}>
+      <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl ?? '#'} locale={v.market.locale} />
+    </div>
+  ))}
+</section>
