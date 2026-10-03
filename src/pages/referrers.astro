@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import { site, allSites } from '@/config';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants } from '@/layouts/site';
+import ReferralForm from '@/modules/referrals/ReferralForm.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+
+if (!isOn('referrals', site)) return new Response(null, { status: 404 });
+const { clinic } = site;
+const services = (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order);
+const variants = marketVariants(site, allSites());
+---
+
+<BaseLayout title="For referrers" description={`Refer a patient to ${clinic.name}.`}>
+  <PageHeader title="For referrers" lede="Send us a patient and we will take it from there." />
+  <div class="wrap">
+    <section aria-labelledby="treat">
+      <h2 id="treat">What we treat</h2>
+      <ul>
+        {services.map((s) => <li><a href={`/services/${s.slug}/`}>{s.title}</a>: {s.summary}</li>)}
+      </ul>
+    </section>
+    <section aria-labelledby="how">
+      <h2 id="how">How to refer</h2>
+      <p>Fill in the form below with your details, the patient's first name and phone number, the service and how soon. We contact the patient to book them in.</p>
+      <p>
+        Prefer to call? Ring us on
+        {variants.map((v) => <a data-market-only={v.id} href={v.market.phone.href(v.clinic.phone)}>{v.clinic.phone}</a>)}.
+      </p>
+    </section>
+    <section aria-labelledby="secure">
+      <h2 id="secure">Clinical details</h2>
+      <p>This form does not take clinical details. Please send them through your secure channel or by fax, not here.</p>
+    </section>
+    <section aria-labelledby="form"><h2 id="form">Referral form</h2><ReferralForm siteId={site.id} services={services} variants={variants} /></section>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
+  .wrap > section { max-width: var(--measure); }
+  h2 { font-size: var(--text-22); margin-bottom: var(--space-3); }
+  p { margin: 0 0 var(--space-3); }
+  ul { padding-left: var(--space-5); display: grid; gap: var(--space-2); }
+  a { text-decoration: underline; }
+</style>
