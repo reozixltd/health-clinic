@@ -1,0 +1,41 @@
+---
+import { site } from '@/config';
+import { jsonLd, organizationSchema } from '@/core/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  schema?: object | object[];
+  noindex?: boolean;
+  rating?: { value: number; count: number };
+}
+
+const { title, description, schema, noindex = false, rating } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const { clinic, market, preset } = site;
+const showRating = rating && !site.demoMode && market.testimonials !== 'banned';
+const org = organizationSchema({
+  type: preset.schemaType,
+  name: clinic.name,
+  legalName: clinic.legalName,
+  url: new URL('/', Astro.site).href,
+  phone: clinic.phone,
+  email: clinic.email,
+  address: clinic.address,
+  hours: clinic.hours,
+  rating: showRating ? rating : undefined,
+});
+const graph = [org, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex" />}
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={clinic.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={market.locale.replace('-', '_')} />
+<script type="application/ld+json" set:html={jsonLd(graph)} />

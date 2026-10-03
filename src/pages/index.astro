@@ -1,6 +1,9 @@
 ---
+import { site } from '@/config';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/sections/PageHeader.astro';
 ---
-<html lang="en">
-  <head><meta charset="utf-8" /><title>Health clinic</title></head>
-  <body><h1>Health clinic</h1></body>
-</html>
+
+<BaseLayout title={site.clinic.name} description={site.preset.copy.heroLine}>
+  <PageHeader title={site.clinic.name} lede={site.preset.copy.heroLine} />
+</BaseLayout>

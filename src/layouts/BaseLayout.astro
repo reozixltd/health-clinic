@@ -1,0 +1,40 @@
+---
+import '@/styles/global.css';
+import { site } from '@/config';
+import DemoRibbon from './DemoRibbon.astro';
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+import MobileBar from './MobileBar.astro';
+import Seo from './Seo.astro';
+import ThemeBoot from './ThemeBoot.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  schema?: object | object[];
+  noindex?: boolean;
+  /** Skip header, footer and ribbon (console, print views). */
+  bare?: boolean;
+  hideMobileBar?: boolean;
+}
+
+const { title, description, schema, noindex, bare = false, hideMobileBar = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang={site.market.locale} data-theme={site.theme} data-market={site.market.id}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeBoot />
+    <Seo {title} {description} {schema} {noindex} />
+  </head>
+  <body data-mobile-bar={!bare && !hideMobileBar ? '' : undefined}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    {!bare && site.demoMode && <DemoRibbon />}
+    {!bare && <Header />}
+    <main id="main" tabindex="-1"><slot /></main>
+    {!bare && <Footer />}
+    {!bare && !hideMobileBar && <MobileBar />}
+  </body>
+</html>
