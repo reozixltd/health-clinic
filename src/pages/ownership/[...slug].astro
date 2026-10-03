@@ -1,11 +1,14 @@
 ---
 import { site } from '@/config';
-import { isOn } from '@/domain/modules';
+import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import OwnershipStatement from '@/modules/ownership/OwnershipStatement.astro';
 import PageHeader from '@/sections/PageHeader.astro';
 
-if (!isOn('ownership', site)) return new Response(null, { status: 404 });
+export function getStaticPaths() {
+  return indexPaths('ownership', site);
+}
+
 const { clinic } = site;
 ---
 

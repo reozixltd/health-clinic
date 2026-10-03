@@ -2,12 +2,15 @@
 import { getEntry } from 'astro:content';
 import { site } from '@/config';
 import { formatDay, formatMoney } from '@/core/format';
-import { isOn } from '@/domain/modules';
+import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PriceList from '@/modules/price-list/PriceList.astro';
 import PageHeader from '@/sections/PageHeader.astro';
 
-if (!isOn('price-list', site)) return new Response(null, { status: 404 });
+export function getStaticPaths() {
+  return indexPaths('price-list', site);
+}
+
 const { market, clinic } = site;
 const entry = await getEntry('prices', 'prices');
 if (!entry) throw new Error('Price list is on but prices.json is missing.');

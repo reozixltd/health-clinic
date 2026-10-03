@@ -1,0 +1,34 @@
+---
+import { site, allSites } from '@/config';
+import { hoursText, marketVariants, telHref } from '@/layouts/site';
+import PolicyPage from '@/layouts/PolicyPage.astro';
+
+const variants = marketVariants(site, allSites());
+---
+
+<PolicyPage policy="contact" lede="Where we are, when we are open and how to reach us.">
+  <div slot="before" class="details">
+    {variants.map((v) => (
+      <div class="detail" data-market-only={v.id}>
+        <h2>Find us</h2>
+        <address>{v.clinic.address.street}, {v.clinic.address.locality} {v.clinic.address.region} {v.clinic.address.postcode}</address>
+        <p><a href={telHref(v.clinic.phone, v.id)}>{v.clinic.phone}</a></p>
+        {v.clinic.mobile && <p><a href={telHref(v.clinic.mobile, v.id)}>{v.clinic.mobile}</a></p>}
+        <p><a href={`mailto:${v.clinic.email}`}>{v.clinic.email}</a></p>
+        <h2>Opening hours</h2>
+        <ul>{v.clinic.hours.map((h) => <li>{hoursText(h)}</li>)}</ul>
+        <p>{v.clinic.emergency.text}</p>
+      </div>
+    ))}
+  </div>
+</PolicyPage>
+
+<style>
+  .details { max-width: var(--measure); }
+  .detail { display: grid; gap: var(--space-2); }
+  h2 { margin: var(--space-3) 0 0; font-size: var(--text-22); }
+  address { font-style: normal; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  p { margin: 0; }
+  a { display: inline-flex; align-items: center; min-height: var(--target); }
+</style>

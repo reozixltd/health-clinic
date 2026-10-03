@@ -5,7 +5,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { hoursText, telHref } from '@/layouts/site';
 import PageHeader from '@/sections/PageHeader.astro';
 
-if (!routesFor(site).includes('/out-of-hours/')) return new Response(null, { status: 404 });
+export function getStaticPaths() {
+  return routesFor(site).includes('/out-of-hours/') ? [{ params: { slug: undefined } }] : [];
+}
+
 const { clinic, market } = site;
 const { emergency } = clinic;
 const number = emergency.phone ?? clinic.phone;
