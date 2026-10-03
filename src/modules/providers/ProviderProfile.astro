@@ -4,7 +4,7 @@ import Button from '@/core/ui/Button.astro';
 import Photo from '@/core/ui/Photo.astro';
 import type { MarketId } from '@/domain/markets';
 import type { Clinic } from '@/domain/types';
-import { firstName, registrationFor } from './registration';
+import { firstName, initials, registrationFor } from './registration';
 
 interface Props {
   provider: {
@@ -20,7 +20,7 @@ const first = firstName(provider.name);
 ---
 
 <div class="profile">
-  <Photo slot={provider.photoSlot} alt={`${provider.name}, ${provider.role}`} ratio="4 / 5" sizes="(min-width: 768px) 320px, 100vw" class="pic" />
+  <Photo slot={provider.photoSlot} alt={`${provider.name}, ${provider.role}`} initials={initials(provider.name)} ratio="4 / 5" sizes="(min-width: 768px) 320px, 100vw" class="pic" />
   <div class="text">
     <p class="role">{provider.role}</p>
     <p>{provider.bio}</p>

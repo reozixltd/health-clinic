@@ -14,8 +14,8 @@ export const photoSlots: Record<string, string[]> = {
     'provider-lucas-brandt',
   ],
   hollybank: [
-    'clinic-exterior',
-    'reception',
+    'vet-exterior',
+    'vet-reception',
     'consult-room',
     'prep-and-theatre',
     'provider-amelia-thornton',
@@ -24,3 +24,38 @@ export const photoSlots: Record<string, string[]> = {
     'provider-jess-moorcroft',
   ],
 };
+
+export type PhotoRole = 'hero' | 'exterior' | 'firstVisit';
+
+/** Which slot fills each fixed position on a page. A content folder with no entry shows no photo there. */
+export const photoRoles: Record<string, Record<PhotoRole, string>> = {
+  fernway: { hero: 'reception', exterior: 'clinic-exterior', firstVisit: 'treatment-room-physio' },
+  hollybank: { hero: 'vet-reception', exterior: 'vet-exterior', firstVisit: 'consult-room' },
+};
+
+/** Alt text for room slots. Provider photos take their alt from the clinician's name and role. */
+export const photoAlt: Record<string, string> = {
+  'clinic-exterior': 'Front entrance of the clinic',
+  reception: 'Reception desk and waiting area',
+  'treatment-room-physio': 'Physiotherapy treatment room with a treatment table',
+  'treatment-room-dental': 'Dental surgery with the chair set up',
+  'consulting-room-psychology': 'Quiet consulting room with two chairs',
+  'vet-exterior': 'Front entrance of the veterinary clinic',
+  'vet-reception': 'Reception desk and waiting area',
+  'consult-room': 'Veterinary consulting room with an exam table',
+  'prep-and-theatre': 'Veterinary theatre with the operating table',
+};
+
+export interface SlotPhoto {
+  slot: string;
+  alt: string;
+}
+
+export function slotPhoto(slot: string | undefined): SlotPhoto | undefined {
+  const alt = slot ? photoAlt[slot] : undefined;
+  return slot && alt ? { slot, alt } : undefined;
+}
+
+export function rolePhoto(contentDir: string, role: PhotoRole): SlotPhoto | undefined {
+  return slotPhoto(photoRoles[contentDir]?.[role]);
+}

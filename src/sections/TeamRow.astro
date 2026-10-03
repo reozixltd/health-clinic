@@ -2,7 +2,7 @@
 /** Team as ruled rows: photo slot, name, role, registration body and number. */
 import Photo from '@/core/ui/Photo.astro';
 import type { MarketId } from '@/domain/markets';
-import { registrationFor } from '@/modules/providers/registration';
+import { initials, registrationFor } from '@/modules/providers/registration';
 
 type Provider = Parameters<typeof registrationFor>[0] & { slug: string; name: string; role: string; photoSlot: string };
 interface Props {
@@ -17,7 +17,7 @@ const { providers, variants } = Astro.props;
   <ul class="rows">
     {providers.map((p) => (
       <li>
-        <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} ratio="1 / 1" sizes="72px" class="pic" />
+        <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="72px" class="pic" />
         <div>
           <h3><a href={`/team/${p.slug}/`}>{p.name}</a></h3>
           <p>{p.role}</p>
