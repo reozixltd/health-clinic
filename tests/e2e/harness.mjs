@@ -19,9 +19,20 @@ export async function step(name, fn) {
   }
 }
 
+class Finished extends Error {}
+// Anything else that escapes a test file still fails the run.
+process.on('uncaughtException', (e) => {
+  if (e instanceof Finished) return;
+  console.error(e);
+  process.exitCode = 1;
+});
+
 export function finish() {
-  // Windows: process.exit() while Playwright handles are closing trips a libuv assertion (exit 134). Let the loop drain.
+  // Guards use finish() as an early exit, so it must stop the script. process.exit() cannot be used: on Windows it printed
+  // "Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)" (libuv, async.c) and the runner exited non-zero, even when only
+  // fetch() had run. So set exitCode and throw a sentinel to unwind the script; the handler above swallows it and the loop drains.
   process.exitCode = failures ? 1 : 0;
+  throw new Finished();
 }
 
 export function skip(name) {
