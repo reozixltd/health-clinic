@@ -1,0 +1,102 @@
+---
+import Button from '@/core/ui/Button.astro';
+import ErrorSummary from '@/core/ui/ErrorSummary.astro';
+import Field from '@/core/ui/Field.astro';
+import type { MarketId, MarketPack } from '@/domain/markets';
+import { URGENCIES } from './referral';
+
+interface Props {
+  siteId: string;
+  services: { slug: string; title: string }[];
+  /** One entry per market the visitor can switch to; phone rules follow the active market. */
+  variants: { id: MarketId; market: MarketPack; clinic: { phone: string } }[];
+}
+const { siteId, services, variants } = Astro.props;
+const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: { source: v.market.phone.pattern.source, flags: v.market.phone.pattern.flags }, phone: v.clinic.phone }]));
+---
+
+<form class="referral" novalidate data-referral-form data-site-id={siteId} data-markets={JSON.stringify(markets)}>
+  <ErrorSummary id="referral-errors" />
+  <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+  <fieldset>
+    <legend>About you</legend>
+    <Field name="referrerName" label="Your name" required autocomplete="name" />
+    <Field name="practice" label="Practice" required autocomplete="organization" />
+    <Field name="referrerEmail" label="Your email" type="email" required autocomplete="email" />
+    <Field name="referrerPhone" label="Your phone" type="tel" autocomplete="tel" />
+  </fieldset>
+  <fieldset>
+    <legend>About the patient</legend>
+    <Field name="patientFirstName" label="Patient first name" required autocomplete="off" />
+    <Field name="patientPhone" label="Patient phone" type="tel" required autocomplete="off" />
+    <div class="field">
+      <label for="service">Service wanted</label>
+      <select id="service" name="service" required aria-describedby="service-error" aria-invalid="false">
+        <option value="">Choose one</option>
+        {services.map((s) => <option value={s.slug}>{s.title}</option>)}
+      </select>
+      <p class="field__error" id="service-error" data-error-for="service"></p>
+    </div>
+    <div class="field">
+      <label for="urgency">How soon</label>
+      <select id="urgency" name="urgency" required aria-describedby="urgency-error" aria-invalid="false">
+        <option value="">Choose one</option>
+        {URGENCIES.map((u) => <option value={u}>{u}</option>)}
+      </select>
+      <p class="field__error" id="urgency-error" data-error-for="urgency"></p>
+    </div>
+  </fieldset>
+  <p data-form-status role="alert"></p>
+  <Button type="submit" size="lg"><span>Send referral</span></Button>
+</form>
+
+<div class="done" data-referral-success hidden>
+  <h2>Referral sent</h2>
+  <p>Thank you. We will contact the patient and let you know when they are booked. Send clinical details through your secure channel.</p>
+</div>
+
+<script>
+  import { bindSimpleForm, type FormValues } from '@/core/forms';
+  import { getLeadRepository } from '@/core/leads';
+  import { buildReferralInput, referralRules } from './referral';
+
+  const form = document.querySelector<HTMLFormElement>('[data-referral-form]');
+  const success = document.querySelector<HTMLElement>('[data-referral-success]');
+  if (form && success) {
+    const markets: Record<string, { pattern: { source: string; flags: string }; phone: string }> = JSON.parse(form.dataset.markets ?? '{}');
+    const services = Array.from(form.querySelectorAll<HTMLOptionElement>('#service option')).map((o) => o.value).filter(Boolean);
+    const current = () => markets[document.documentElement.dataset.market ?? ''] ?? Object.values(markets)[0]!;
+    const patterns = new Map<string, RegExp>();
+    const pattern = () => {
+      const { source, flags } = current().pattern;
+      return patterns.get(source + flags) ?? patterns.set(source + flags, new RegExp(source, flags)).get(source + flags)!;
+    };
+    // The phone rule reads the active market each time it runs, so the ?market= switch applies without a reload.
+    const rules = referralRules({ phone: { pattern } }, services, { phoneExample: () => current().phone });
+    bindSimpleForm(form, {
+      rules,
+      toInput: (values: FormValues) => buildReferralInput(values, { clientRef: crypto.randomUUID(), now: new Date().toISOString() }),
+      repo: getLeadRepository(`health:v1:${form.dataset.siteId ?? ''}`),
+      success,
+      get fallbackPhone() { return current().phone; },
+    });
+  }
+</script>
+
+<style>
+  .referral { display: grid; gap: var(--space-5); max-width: 34rem; }
+  fieldset { display: grid; gap: var(--space-4); margin: 0; padding: 0; border: 0; }
+  legend { font-size: var(--text-22); font-weight: 700; margin-bottom: var(--space-3); padding: 0; }
+  .field { display: grid; gap: var(--space-1); }
+  label { font-weight: 600; }
+  select {
+    min-height: var(--target); padding: 0 var(--space-3); border: 1px solid var(--color-field-border);
+    border-radius: var(--radius-control); background: var(--color-card); color: var(--color-ink); font-size: var(--text-16);
+  }
+  select[aria-invalid='true'] { border-color: var(--color-danger); border-width: 2px; }
+  .field__error { margin: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }
+  .field__error:empty { display: none; }
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; opacity: 0; }
+  .done { max-width: 34rem; display: grid; gap: var(--space-3); padding: var(--space-5); border: 1px solid var(--color-success); background: var(--color-success-soft); border-radius: var(--radius-card); }
+  .done h2, .done p { margin: 0; }
+</style>
