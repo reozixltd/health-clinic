@@ -40,10 +40,10 @@ export const photoAlt: Record<string, string> = {
   'treatment-room-physio': 'Physiotherapy treatment room with a treatment table',
   'treatment-room-dental': 'Dental surgery with the chair set up',
   'consulting-room-psychology': 'Quiet consulting room with two chairs',
-  'vet-exterior': 'Front entrance of the veterinary clinic',
-  'vet-reception': 'Reception desk and waiting area',
-  'consult-room': 'Veterinary consulting room with an exam table',
-  'prep-and-theatre': 'Veterinary theatre with the operating table',
+  'vet-exterior': 'Small clinic building with a blue front door',
+  'vet-reception': 'Reception desk with lockers behind it',
+  'consult-room': 'Consulting room with an exam table',
+  'prep-and-theatre': 'Theatre with the operating table and surgical light',
 };
 
 export interface SlotPhoto {

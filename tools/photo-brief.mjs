@@ -25,6 +25,8 @@ function describe(slot) {
   const rooms = {
     'clinic-exterior': ['Front of the building and the entrance, daylight, no people, door and any step or ramp visible.', 'clinic building entrance daylight'],
     reception: ['Reception desk and waiting area, empty, tidy, natural light.', 'empty clinic reception waiting area'],
+    'vet-exterior': ['Front of the building and the entrance, daylight, no people, door and any step or ramp visible.', 'veterinary clinic entrance daylight'],
+    'vet-reception': ['Reception desk and waiting area, empty, tidy, natural light.', 'veterinary reception waiting room empty'],
     'treatment-room-physio': ['Physiotherapy treatment room with plinth and exercise equipment, empty.', 'physiotherapy treatment room empty'],
     'treatment-room-dental': ['Dental surgery with chair and instruments set out, empty.', 'dental surgery empty chair'],
     'consulting-room-psychology': ['Quiet consulting room with two chairs, soft light, empty.', 'counselling room two chairs empty'],
@@ -54,7 +56,7 @@ const sections = brands.map(({ brand, slots }) => {
 const md = `# Photo brief
 
 Save each photo as \`src/assets/photos/<slot>.jpg\`. It is optimised and cropped automatically. An empty slot shows a labelled placeholder.
-Slot names are shared by every brand, so one file fills the slot on any site that lists it.
+A slot name listed under two brands is one file, shown on both. Demo photo sources are in \`docs/photo-credits.md\`.
 
 Generated from \`src/config/photo-slots.ts\` by \`npm run photos:status\`. Do not edit by hand.
 
@@ -64,7 +66,7 @@ Generated from \`src/config/photo-slots.ts\` by \`npm run photos:status\`. Do no
 - Clinician portraits come from the real clinician, with their consent.
 - No patients, no pets in distress, no screens showing records.
 - Suggestion, not enforced: shoot landscape slots at 1600 px wide or more and portrait slots at 800 px or more.
-- Provider slots are the only ones pages render today. Room slots are listed so a shoot can cover them.
+- Pages show the room slots named in \`photoRoles\` (home, contact) and each service's \`photoSlot\`. A clinician slot with no file shows an initials tile.
 
 ${sections.join('\n')}`;
 writeFileSync('docs/photo-brief.md', md);
