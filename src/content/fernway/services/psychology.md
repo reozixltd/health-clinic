@@ -15,7 +15,7 @@ faqs:
   - q: Do I have to say why I want to come?
     a: Not when you book. This website never asks about your health. You talk with your psychologist in the room.
   - q: Is what I say private?
-    a: Yes. There are a few rare limits, and your psychologist explains them at the start.
+    a: Your psychologist explains how privacy works at the start of your first session. You can ask any questions then.
   - q: Can I see a psychologist online?
     a: Some sessions can be by video. Ask us when you book.
 seoDescription: Psychology at Fernway Health. Private sessions with a registered psychologist. You choose the pace.

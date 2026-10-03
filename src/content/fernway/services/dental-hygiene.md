@@ -11,10 +11,10 @@ whatToExpect:
 providers:
   - sam-whitlock
 faqs:
-  - q: Does a clean hurt?
-    a: Most people feel pressure, not pain. If your gums are sore, tell us and we will go slowly.
-  - q: Will my teeth feel different?
-    a: They may feel smooth and a little sensitive for a day. That is normal.
+  - q: What if I feel nervous?
+    a: Tell us when you book or at the visit. Your hygienist will go slowly and explain each step.
+  - q: What happens after a clean?
+    a: Your hygienist will tell you what to expect and what to do next.
   - q: Do I need a check-up first?
     a: Not always. We tell you when you book if we need to see the dentist as well.
 seoDescription: Dental hygiene at Fernway Health. A gentle clean and simple tips from a registered oral health therapist.

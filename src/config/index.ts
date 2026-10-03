@@ -31,7 +31,7 @@ export const DEFAULT_SITE_ID = 'fernway-au';
 export function selectedSiteId(): string {
   const fromVite = (import.meta.env as Record<string, string | undefined>).SITE_ID;
   const fromProcess = typeof process !== 'undefined' ? process.env.SITE : undefined;
-  const id = fromVite ?? fromProcess ?? DEFAULT_SITE_ID;
+  const id = fromVite || fromProcess || DEFAULT_SITE_ID;
   if (!(id in inputs)) throw new Error(`Unknown SITE "${id}". Use one of: ${Object.keys(inputs).join(', ')}`);
   return id;
 }

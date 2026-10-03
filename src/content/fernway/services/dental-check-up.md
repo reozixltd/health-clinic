@@ -12,11 +12,11 @@ providers:
   - elena-marsh
 faqs:
   - q: How often should I come?
-    a: Many people come every six to twelve months. We suggest a time that suits you.
-  - q: Is it painful?
-    a: A check-up should not hurt. Tell us at any point if you want a break.
-  - q: Do you do X-rays at every visit?
-    a: No. We only suggest them when they will help, and we explain why.
+    a: Your dentist will tell you when to come back. We can book it before you leave.
+  - q: What if I feel nervous?
+    a: Tell us when you book or at the visit. Your dentist will go at your pace and explain each step.
+  - q: Will I need X-rays?
+    a: Your dentist will tell you if they suggest any, and why, before they start.
 seoDescription: Dental check-ups at Fernway Health. Gentle care, plain explanations and fees agreed before treatment.
 ---
 

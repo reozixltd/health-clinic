@@ -40,14 +40,14 @@
   },
   {
     "q": "What should I bring to a visit?",
-    "a": "Bring your pet in a carrier or on a lead, and any medicine they take. We never ask about your pet's health on this website.",
+    "a": "Bring your pet in a carrier or on a lead. We never ask about your pet's health on this website.",
     "tags": [
       "booking"
     ]
   },
   {
     "q": "Can I pay in instalments?",
-    "a": "Ask us before treatment. We can talk about options and about our [pet health plans](/pet-health-plans/).",
+    "a": "Ask us before treatment. We can talk through options and about our [pet health plans](/pet-health-plans/).",
     "tags": [
       "prices"
     ]

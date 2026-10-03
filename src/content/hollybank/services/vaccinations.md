@@ -14,7 +14,7 @@ providers:
   - hannah-pickles
 faqs:
   - q: How often does my pet need a booster?
-    a: It depends on the vaccine and your pet. We tell you at each visit and send a reminder.
+    a: The vet or nurse will tell you at each visit, and we send a reminder.
   - q: Is a check included?
     a: Yes. A short health check is part of every vaccination visit.
   - q: Can I join a health plan?

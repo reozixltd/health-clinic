@@ -15,5 +15,6 @@ export const clinic: Clinic = {
   ],
   emergency: { text: 'For an emergency, call 000. For help that can wait, call us in opening hours.', phone: '000', href: 'tel:000' },
   registerUrl: 'https://www.ahpra.gov.au/Registration/Registers-of-Practitioners.aspx',
+  reviewsUrl: 'https://g.page/r/fernway-demo/review',
   map: { lat: -37.7998, lng: 144.978 },
 };

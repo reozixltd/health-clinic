@@ -14,9 +14,9 @@ providers:
   - jess-moorcroft
 faqs:
   - q: When is the best time to neuter?
-    a: It depends on the animal. The vet gives advice at a short chat before you book.
+    a: Ask a vet. Book a consultation and they will talk it through with you.
   - q: Will my pet stay overnight?
-    a: Most go home the same day. We tell you if yours needs to stay.
+    a: The vet will tell you on the day how long your pet will be with us.
   - q: What does it cost?
     a: Our [price list](/prices/) shows neutering prices by animal and size.
 seoDescription: Neutering for cats, dogs and rabbits at Hollybank Vets in Leeds. Clear prices and a nurse check afterwards.

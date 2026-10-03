@@ -2,7 +2,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-const siteId = process.env.SITE ?? 'fernway-au';
+const siteId = process.env.SITE || 'fernway-au';
 
 export default defineConfig({
   site: 'https://health.reozix.com',

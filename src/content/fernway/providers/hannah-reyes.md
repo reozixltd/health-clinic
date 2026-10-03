@@ -15,6 +15,6 @@ languages:
 services:
   - psychology
 acceptingNew: true
-bio: Hannah works with adults on stress, low mood and life changes. Sample clinician for a demonstration site.
+bio: Hannah works with adults. She keeps a calm, unhurried pace. Sample clinician for a demonstration site.
 photoSlot: provider-hannah-reyes
 ---

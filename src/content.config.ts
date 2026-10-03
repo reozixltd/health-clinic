@@ -6,17 +6,18 @@ import { allSites, selectedSiteId } from './config';
 
 const dir = `./src/content/${allSites()[selectedSiteId()].contentDir}`;
 
-/** A brand that has no such file or folder gets an empty collection. */
+/** Only fees (Fernway) and prices (Hollybank) may be absent; anything else missing must fail the build. */
 const empty: Loader = { name: 'empty', load: async () => {} };
 const when = (path: string, loader: () => Loader): Loader => (existsSync(path) ? loader() : empty);
 
 /** JSON arrays have no ids, so number the entries. */
-const list = (name: string) =>
-  when(`${dir}/${name}.json`, () =>
+const list = (name: string, optional = false) => {
+  const loader = () =>
     file(`${dir}/${name}.json`, {
       parser: (text) => (JSON.parse(text) as object[]).map((item, i) => ({ id: String(i), ...item })),
-    }),
-  );
+    });
+  return optional ? when(`${dir}/${name}.json`, loader) : loader();
+};
 
 const faqPair = z.object({ q: z.string(), a: z.string() });
 const registration = z.object({ body: z.string(), number: z.string() });
@@ -74,7 +75,7 @@ const faqs = defineCollection({
 });
 
 const fees = defineCollection({
-  loader: list('fees'),
+  loader: list('fees', true),
   schema: z.object({
     service: z.string(),
     label: z.string(),

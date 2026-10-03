@@ -13,10 +13,10 @@ providers:
   - callum-reid
   - jess-moorcroft
 faqs:
-  - q: How do I know if my pet has a dental problem?
-    a: Bad breath, drooling and dropping food can be signs. A quick check will tell us more.
-  - q: Does a dental clean need an anaesthetic?
-    a: Usually, yes. This keeps your pet still and safe. The vet explains it before you decide.
+  - q: How do I know if my pet needs a dental check?
+    a: Book a dental check and the vet will look.
+  - q: What will the vet do?
+    a: The vet explains what they plan to do, and what it involves for your pet, before you decide.
   - q: What will it cost?
     a: See our [price list](/prices/). For treatment, we give a written estimate first.
 seoDescription: Pet dental care at Hollybank Vets in Leeds. Dental checks, cleans and honest advice with published prices.

@@ -55,6 +55,8 @@ export interface Clinic {
   owner?: { name: string; group?: string; independent: boolean };
   map: { lat: number; lng: number };
   registerUrl?: string;
+  /** Public page where patients leave a review (AU shows a link, no quotes). */
+  reviewsUrl?: string;
   /** Estimates above this amount need a written estimate (Task 14; default 500). */
   estimateThreshold?: number;
 }

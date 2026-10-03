@@ -16,7 +16,7 @@ faqs:
   - q: Can I ask for a specific vet?
     a: Yes. Pick one when you book. If you want the first free time, choose first available.
   - q: What should I bring?
-    a: Bring your pet in a carrier or on a lead, and any medicine they take.
+    a: Bring your pet in a carrier or on a lead.
   - q: Will I know the cost first?
     a: Yes. For bigger treatments we give a written estimate. See [our estimates page](/estimates/).
 seoDescription: Vet consultations at Hollybank Vets in Leeds. Clear plans and clear prices, explained before you decide.
