@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BASE, SITE_ID, closeBrowser, expect, finish, skip, step, withPage } from './harness.mjs';
+import { BASE, SITE_ID, closeBrowser, expect, finish, loadedJs, skip, step, withPage } from './harness.mjs';
 
 if (SITE_ID !== 'fixture-minimal') {
   skip('module-off checks (fixture-minimal build only)');
@@ -41,21 +41,6 @@ await step('no page loads JavaScript for switched-off modules', async () => {
     expect(bad.length === 0, `${f} references ${bad.join(', ')}`);
   }
 });
-
-/** The text of every script a built page loads, following relative imports between chunks. */
-function loadedJs(distDir, page) {
-  const seen = new Set();
-  const read = (file) => {
-    if (seen.has(file)) return '';
-    seen.add(file);
-    let text = '';
-    try { text = readFileSync(file, 'utf8'); } catch { return ''; }
-    const refs = [...text.matchAll(/(?:from|import)\s*["'](\.[^"']+\.js)["']/g)].map((m) => join(file, '..', m[1]));
-    return text + refs.map(read).join('');
-  };
-  const srcs = [...readFileSync(join(distDir, page), 'utf8').matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/g)].map((m) => m[1]);
-  return srcs.map((src) => read(join(distDir, src))).join('');
-}
 
 await step('reminders off: /book/ has no sample confirmation and loads no reminders code', async () => {
   const page = html('book/index.html');

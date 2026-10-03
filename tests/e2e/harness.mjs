@@ -1,4 +1,5 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { chromium } from 'playwright';
 
 // CHROMIUM_PATH wins; the sandbox path is used when it exists; otherwise Playwright's own download.
@@ -60,4 +61,19 @@ export async function closeBrowser() {
 
 export function expect(cond, message) {
   if (!cond) throw new Error(message);
+}
+
+export /** The text of every script a built page loads, following relative imports between chunks. */
+function loadedJs(distDir, page) {
+  const seen = new Set();
+  const read = (file) => {
+    if (seen.has(file)) return '';
+    seen.add(file);
+    let text = '';
+    try { text = readFileSync(file, 'utf8'); } catch { return ''; }
+    const refs = [...text.matchAll(/(?:from|import)\s*["'](\.[^"']+\.js)["']/g)].map((m) => join(file, '..', m[1]));
+    return text + refs.map(read).join('');
+  };
+  const srcs = [...readFileSync(join(distDir, page), 'utf8').matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/g)].map((m) => m[1]);
+  return srcs.map((src) => read(join(distDir, src))).join('');
 }

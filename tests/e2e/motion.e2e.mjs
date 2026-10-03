@@ -1,25 +1,9 @@
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BASE, SITE_ID, closeBrowser, expect, finish, skip, step, withPage } from './harness.mjs';
+import { BASE, SITE_ID, closeBrowser, expect, finish, loadedJs, skip, step, withPage } from './harness.mjs';
 
 if (!['fernway-au', 'fernway-ca', 'hollybank'].includes(SITE_ID)) {
   skip('motion checks (demo sites only)');
   finish();
-}
-
-/** The text of every script a built page loads, following relative imports between chunks. */
-function loadedJs(distDir, page) {
-  const seen = new Set();
-  const read = (file) => {
-    if (seen.has(file)) return '';
-    seen.add(file);
-    let text = '';
-    try { text = readFileSync(file, 'utf8'); } catch { return ''; }
-    const refs = [...text.matchAll(/(?:from|import)\s*["'](\.[^"']+\.js)["']/g)].map((m) => join(file, '..', m[1]));
-    return text + refs.map(read).join('');
-  };
-  const srcs = [...readFileSync(join(distDir, page), 'utf8').matchAll(/<script[^>]*src=["']([^"']+)["']/g)].map((m) => m[1]);
-  return srcs.map((src) => read(join(distDir, src))).join('');
 }
 
 const ITEMS = '[data-reveal], [data-reveal-group] > *';
@@ -131,6 +115,7 @@ await step('the console has no reveal markup', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/console/`);
     expect((await page.locator('[data-reveal], [data-reveal-group]').count()) === 0, 'console has reveal attributes');
+    expect(!loadedJs(join('dist', SITE_ID), 'console/index.html').includes('data-reveal-group'), 'console loads the reveal script');
   });
 });
 
