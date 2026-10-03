@@ -25,8 +25,10 @@ process.on('uncaughtException', (e) => {
   if (e instanceof Finished) return;
   console.error(e);
   process.exitCode = 1;
+  closeBrowser().catch(() => {}); // an open Chromium handle would otherwise keep the process alive
 });
 
+// Call at module top level, not inside step() or an un-awaited async function: a caught sentinel does not stop the script.
 export function finish() {
   // Guards use finish() as an early exit, so it must stop the script. process.exit() cannot be used: on Windows it printed
   // "Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)" (libuv, async.c) and the runner exited non-zero, even when only
