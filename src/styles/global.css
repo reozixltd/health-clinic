@@ -47,6 +47,11 @@ a { color: inherit; text-underline-offset: 0.2em; }
 
 [hidden] { display: none !important; }
 
+/* Sections waiting for a scroll reveal must still print. */
+@media print {
+  [data-reveal], [data-reveal-group] > * { opacity: 1 !important; transform: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {

@@ -12,7 +12,7 @@ interface Props {
 const { variants, bookLabel, bookingOn } = Astro.props;
 ---
 
-<section class="cta" aria-labelledby="cta-title">
+<section class="cta" aria-labelledby="cta-title" data-reveal>
   <h2 id="cta-title">Ready when you are</h2>
   {variants.map((v) => (
     <div class="actions" data-market-only={v.id}>

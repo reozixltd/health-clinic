@@ -9,7 +9,7 @@ interface Props {
 const { providers } = Astro.props;
 ---
 
-<ul class="rows">
+<ul class="rows" data-reveal-group>
   {providers.map((p) => (
     <li class="row">
       <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="96px" class="pic" />

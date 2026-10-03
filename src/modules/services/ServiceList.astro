@@ -10,7 +10,7 @@ interface Props {
 const { services, variants } = Astro.props;
 ---
 
-<ul class="rows">
+<ul class="rows" data-reveal-group>
   {services.map((s) => (
     <li class="row">
       <div>

@@ -14,7 +14,7 @@ const empty = variants.filter((v) => !hasReviewContent(reviewMode(v.market), ite
 ---
 
 {empty.length < variants.length && (
-  <section id="reviews" aria-labelledby="reviews-title" data-empty={empty.join(' ')}>
+  <section id="reviews" aria-labelledby="reviews-title" data-reveal data-empty={empty.join(' ')}>
     <h2 id="reviews-title">What patients say</h2>
     {variants.map((v) => (
       <div data-market-only={v.id}>

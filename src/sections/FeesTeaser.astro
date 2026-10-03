@@ -13,7 +13,7 @@ const { variants, feesOn, priceListOn, reviewedAt } = Astro.props;
 ---
 
 {feesOn && (
-  <section id="fees" aria-labelledby="fees-title">
+  <section id="fees" aria-labelledby="fees-title" data-reveal>
     <h2 id="fees-title">Fees</h2>
     <p>Our fees are listed for every service before you book.</p>
     {variants.map((v) => {
@@ -24,7 +24,7 @@ const { variants, feesOn, priceListOn, reviewedAt } = Astro.props;
   </section>
 )}
 {!feesOn && priceListOn && (
-  <section id="prices" aria-labelledby="prices-title">
+  <section id="prices" aria-labelledby="prices-title" data-reveal>
     <h2 id="prices-title">Prices</h2>
     <p>We publish what common treatments cost.</p>
     {reviewedAt && variants.map((v) => <p class="note" data-market-only={v.id}>Last reviewed {formatDate(reviewedAt, v.market.locale)}.</p>)}

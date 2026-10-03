@@ -5,6 +5,7 @@ import DemoRibbon from './DemoRibbon.astro';
 import Footer from './Footer.astro';
 import Header from './Header.astro';
 import MobileBar from './MobileBar.astro';
+import Motion from './Motion.astro';
 import Seo from './Seo.astro';
 import ThemeBoot from './ThemeBoot.astro';
 
@@ -22,7 +23,7 @@ const { title, description, schema, noindex, bare = false, hideMobileBar = false
 ---
 
 <!doctype html>
-<html lang={site.market.locale} data-theme={site.theme} data-market={site.market.id}>
+<html lang={site.market.locale} data-theme={site.theme} data-market={site.market.id} data-motion={site.motion ? undefined : 'off'}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,5 +37,6 @@ const { title, description, schema, noindex, bare = false, hideMobileBar = false
     <main id="main" tabindex="-1"><slot /></main>
     {!bare && <Footer />}
     {!bare && !hideMobileBar && <MobileBar />}
+    {site.motion && !bare && <Motion />}
   </body>
 </html>

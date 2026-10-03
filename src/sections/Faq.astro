@@ -9,7 +9,7 @@ const { items } = Astro.props;
 
 <section id="faq" aria-labelledby="faq-title">
   <h2 id="faq-title">Common questions</h2>
-  <dl>
+  <dl data-reveal-group>
     {items.map((f) => (<><dt>{f.q}</dt><dd set:html={linkHtml(f.a)} /></>))}
   </dl>
 </section>

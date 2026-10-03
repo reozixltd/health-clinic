@@ -79,5 +79,23 @@ await step('reminders off: the console shows no message timelines', async () => 
   });
 });
 
+await step('motion off: no page carries reveal code or hides anything', async () => {
+  const dist = join('dist', SITE_ID);
+  expect(html('index.html').includes('data-motion="off"'), 'html should carry data-motion="off"');
+  for (const page of ['index.html', 'book/index.html', 'services/index.html']) {
+    expect(!loadedJs(dist, page).includes('data-reveal-group'), `${page} loads the reveal script`);
+  }
+  const control = join('dist', 'fernway-au');
+  if (existsSync(join(control, 'index.html'))) {
+    expect(loadedJs(control, 'index.html').includes('data-reveal-group'), 'control: a demo site should load the reveal script');
+  }
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/`);
+    await page.waitForTimeout(300);
+    const hidden = await page.locator('main *').evaluateAll((els) => els.filter((e) => e.getClientRects().length && getComputedStyle(e).opacity === '0').length);
+    expect(hidden === 0, `${hidden} hidden elements on a motion-off site`);
+  });
+});
+
 await closeBrowser();
 finish();

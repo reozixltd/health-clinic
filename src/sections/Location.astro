@@ -11,7 +11,7 @@ interface Props {
 const { variants, photo } = Astro.props;
 ---
 
-<section id="location" aria-labelledby="location-title">
+<section id="location" aria-labelledby="location-title" data-reveal>
   <h2 id="location-title">Find us</h2>
   <div class:list={['cols', photo && 'has-photo']}>
     <div>

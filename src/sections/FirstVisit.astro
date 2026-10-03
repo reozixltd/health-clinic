@@ -21,10 +21,10 @@ const steps = items.map((item) => {
 <section id="first-visit" aria-labelledby="first-visit-title">
   <h2 id="first-visit-title">How your first visit works</h2>
   <div class:list={['cols', photo && 'has-photo']}>
-    <ol>
+    <ol data-reveal-group>
       {steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}
     </ol>
-    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 480px, 100vw" />}
+    {photo && <div data-reveal><Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 480px, 100vw" /></div>}
   </div>
 </section>
 

@@ -38,6 +38,8 @@ export interface SiteConfigInput {
     contentDir: string;
     /** Replaces the preset nav (same item shape). Items for modules that are off are still removed. */
     nav?: NavItem[];
+    /** Scroll reveals, hero entrance, page cross-fade and hover zoom. On unless set to false. */
+    motion?: boolean;
   };
   clinic: Clinic;
   booking: BookingConfig;
@@ -55,6 +57,7 @@ export interface Site {
   themes: string[];
   markets: MarketId[];
   contentDir: string;
+  motion: boolean;
   clinic: Clinic;
   booking: BookingConfig;
   messages: MessageTemplate[];
@@ -85,6 +88,7 @@ export function resolveSite(config: SiteConfigInput, presets: Record<string, Pre
     // A live site shows only its own market; the extra markets exist for the demo switcher.
     markets: site.demoMode ? (site.markets ?? [site.market]) : [site.market],
     contentDir: site.contentDir,
+    motion: site.motion ?? true,
     clinic: config.clinic,
     booking: config.booking,
     messages: config.messages ?? preset.messages,

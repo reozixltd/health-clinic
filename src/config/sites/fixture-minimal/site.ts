@@ -12,4 +12,5 @@ export const site: SiteConfigInput['site'] = {
   theme: 'fernway',
   themes: ['fernway'],
   contentDir: 'fixture-minimal',
+  motion: false,
 };

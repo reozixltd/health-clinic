@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { fixtures, registry } from '@/config/registry';
 import { resolveSite, type SiteConfigInput } from '@/domain/presets';
 import { routesFor } from '@/domain/modules';
 import { resolveMarketOverride } from '@/domain/markets';
@@ -87,5 +88,15 @@ describe('nav override', () => {
   it('keeps the preset nav when there is no override', () => {
     const site = resolveSite(config('allied-health'), presets);
     expect(site.preset.nav.map((n) => n.label)).toContain('Services');
+  });
+});
+
+describe('motion setting', () => {
+  it('is on when a site does not set it', () => {
+    for (const input of Object.values(registry)) expect(resolveSite(input, presets).motion).toBe(true);
+  });
+
+  it('is off for the module-off fixture', () => {
+    expect(resolveSite(fixtures['fixture-minimal']!, presets).motion).toBe(false);
   });
 });
