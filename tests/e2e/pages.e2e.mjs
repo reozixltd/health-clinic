@@ -13,7 +13,8 @@ await step('every page: one h1, legal id, no horizontal scroll at 375 and 1280',
   for (const width of [375, 1280]) {
     await withPage({ viewport: { width, height: 800 } }, async (page) => {
       for (const path of paths) {
-        await page.goto(`${BASE}${path}`);
+        const res = await page.goto(`${BASE}${path}`);
+        expect(res.status() === 200, `${path}: HTTP ${res.status()}`);
         const h1 = await page.locator('h1').count();
         expect(h1 === 1, `${path} @${width}: ${h1} h1`);
         const footer = await page.locator('footer').innerText();
@@ -28,9 +29,10 @@ await step('every page: one h1, legal id, no horizontal scroll at 375 and 1280',
 await step('faq has FAQPage JSON-LD', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/faq/`);
+    const count = await page.locator('main section h2').count();
     const blocks = await page.locator('script[type="application/ld+json"]').allInnerTexts();
     const faq = blocks.map((b) => JSON.parse(b)).flatMap((j) => (Array.isArray(j) ? j : j['@graph'] ?? [j])).find((j) => j['@type'] === 'FAQPage');
-    expect(faq && faq.mainEntity.length === 10, 'FAQPage with ten questions expected');
+    expect(faq && faq.mainEntity.length === count, `FAQPage should have ${count} questions`);
     expect(!/\]\(/.test(JSON.stringify(faq)), 'markdown links should be stripped from schema text');
   });
 });
@@ -82,10 +84,10 @@ if (fernway) {
       const home = SITE_ID === 'fernway-ca' ? 'CA' : 'AU';
       const other = home === 'CA' ? 'AU' : 'CA';
       await page.goto(`${BASE}/fees/`);
-      const row = (label, section) => page.locator('tr:visible', { hasText: label }).first().innerText();
+      const row = (label) => page.locator('tr:visible', { hasText: label }).first().innerText();
       const text = await page.locator('main').innerText();
       expect(text.includes(home === 'AU' ? 'Private health fund rebate may apply' : 'Extended health benefits may apply'), 'home market funding note');
-      expect(/Dental check-up|dental/i.test(text), 'service title missing');
+      expect(await page.getByRole('heading', { name: 'Dental check-up', level: 2 }).first().isVisible(), 'Dental check-up heading missing');
       const homeFee = await row('Check-up and plan');
       await page.goto(`${BASE}/fees/?market=${other}`);
       const otherFee = await row('Check-up and plan');

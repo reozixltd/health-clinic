@@ -1,14 +1,17 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 import { site, allSites } from '@/config';
-import { isOn } from '@/domain/modules';
+import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { marketVariants } from '@/layouts/site';
 import FeesTable from '@/modules/fees/FeesTable.astro';
 import { fundingRows } from '@/modules/fees/funding';
 import PageHeader from '@/sections/PageHeader.astro';
 
-if (!isOn('fees', site)) return new Response(null, { status: 404 });
+export function getStaticPaths() {
+  return indexPaths('fees', site);
+}
+
 const fees = (await getCollection('fees')).map((f) => f.data);
 const titles = Object.fromEntries((await getCollection('services')).map((s) => [s.data.slug, s.data.title]));
 const variants = marketVariants(site, allSites());
@@ -20,7 +23,7 @@ const Notes = notes ? (await render(notes)).Content : undefined;
   <PageHeader title="Fees" lede="What each visit costs, and what your cover may pay towards it." />
   <div class="wrap">
     {variants.map((v) => (
-      <div data-market-only={v.id}><FeesTable rows={fundingRows(fees, v.id, v.market)} titles={titles} /></div>
+      <div data-market-only={v.id}><FeesTable rows={fundingRows(fees, v.id, v.market)} titles={titles} market={v.id} /></div>
     ))}
     {Notes && <div class="prose"><Notes /></div>}
   </div>
