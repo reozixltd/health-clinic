@@ -1,3 +1,4 @@
+import { resolveOverride, type OverrideInput as ThemeOverrideInput } from '@/core/theme';
 import { AU } from './au';
 import { CA } from './ca';
 import { UK } from './uk';
@@ -29,18 +30,12 @@ export function getMarket(id: MarketId): MarketPack {
   return PACKS[id];
 }
 
-interface OverrideInput {
-  param: string | null;
-  stored: string | null;
+type OverrideInput = Omit<ThemeOverrideInput, 'configured' | 'allowed'> & {
   configured: MarketId;
   allowed: MarketId[];
-  demoMode: boolean;
-}
+};
 
-// Same rule as core/theme resolveOverride, typed to MarketId (merge: wrap it).
+/** Typed wrapper over the shared override rule in core/theme. */
 export function resolveMarketOverride(i: OverrideInput): MarketId {
-  const ok = (v: string | null): v is MarketId => !!v && (i.allowed as string[]).includes(v);
-  if (i.demoMode && ok(i.param)) return i.param;
-  if (i.demoMode && ok(i.stored)) return i.stored;
-  return i.configured;
+  return resolveOverride(i) as MarketId;
 }
