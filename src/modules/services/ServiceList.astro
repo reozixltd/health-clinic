@@ -1,0 +1,40 @@
+---
+/** Services as ruled rows: title, summary, duration and an optional from price per market. */
+import type { MarketId, MarketPack } from '@/domain/markets';
+import { fromPriceLabel } from './from-price';
+
+interface Props {
+  services: { slug: string; title: string; summary: string; duration: string; fromPrice?: number }[];
+  variants: { id: MarketId; market: MarketPack }[];
+}
+const { services, variants } = Astro.props;
+---
+
+<ul class="rows">
+  {services.map((s) => (
+    <li class="row">
+      <div>
+        <h2><a href={`/services/${s.slug}/`}>{s.title}</a></h2>
+        <p>{s.summary}</p>
+      </div>
+      <p class="meta">
+        {s.duration}
+        {variants.map((v) => {
+          const label = fromPriceLabel(s, v.market);
+          return label && <span data-market-only={v.id}>{label}</span>;
+        })}
+      </p>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+  .row { display: grid; gap: var(--space-2); padding: var(--space-5) 0; border-bottom: 1px solid var(--color-line); }
+  @media (min-width: 768px) { .row { grid-template-columns: 1fr auto; align-items: baseline; gap: var(--space-6); } }
+  h2 { font-size: var(--text-22); }
+  h2 a { display: inline-flex; align-items: center; min-height: var(--target); }
+  p { max-width: var(--measure); color: var(--color-ink-muted); }
+  .meta { display: grid; gap: var(--space-1); color: var(--color-ink); font-weight: 600; }
+  .meta span { font-weight: 400; }
+</style>

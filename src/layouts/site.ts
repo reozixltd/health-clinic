@@ -62,3 +62,8 @@ export function initMenu(doc: Document = document): void {
     }
   });
 }
+
+/** The market this build is configured for (pages use this instead of reading site.market). */
+export function configuredMarket(site: Site): MarketPack {
+  return site.market;
+}
