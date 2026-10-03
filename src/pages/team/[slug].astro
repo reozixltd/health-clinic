@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '@/config';
+import { personSchema } from '@/core/schema';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { configuredMarket } from '@/layouts/site';
+import ProviderProfile from '@/modules/providers/ProviderProfile.astro';
+import { registrationFor } from '@/modules/providers/registration';
+import PageHeader from '@/sections/PageHeader.astro';
+
+export async function getStaticPaths() {
+  if (!isOn('providers', site)) return [];
+  return (await getCollection('providers')).map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const provider = Astro.props.entry.data;
+const services = isOn('services', site)
+  ? (await getCollection('services')).map((s) => s.data).filter((s) => provider.services.includes(s.slug)).sort((a, b) => a.order - b.order)
+  : [];
+const schema = personSchema({
+  name: provider.name,
+  jobTitle: provider.role,
+  credential: registrationFor(provider, configuredMarket(site).id),
+  worksFor: site.clinic.name,
+});
+---
+
+<BaseLayout title={provider.name} description={`${provider.name}, ${provider.role} at ${site.clinic.name}.`} schema={schema}>
+  <PageHeader title={provider.name} />
+  <ProviderProfile provider={provider} services={services} markets={site.markets} bookingOn={isOn('booking', site)} />
+</BaseLayout>

@@ -1,0 +1,42 @@
+---
+import { getCollection, render } from 'astro:content';
+import { site, allSites } from '@/config';
+import { serviceSchema } from '@/core/schema';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { configuredMarket, marketVariants } from '@/layouts/site';
+import ServiceBody from '@/modules/services/ServiceBody.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+
+export async function getStaticPaths() {
+  if (!isOn('services', site)) return [];
+  return (await getCollection('services')).map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const service = entry.data;
+const { Content } = await render(entry);
+const providers = isOn('providers', site) ? (await getCollection('providers')).map((p) => p.data) : [];
+const clinicians = providers.filter((p) => service.providers.includes(p.slug));
+const market = configuredMarket(site);
+const variants = marketVariants(site, allSites());
+const schema = serviceSchema({
+  name: service.title,
+  description: service.summary,
+  provider: site.clinic.name,
+  priceFrom: market.priceDisplay === 'from-allowed' ? service.fromPrice : undefined,
+  currency: market.currency,
+});
+---
+
+<BaseLayout title={service.title} description={service.seoDescription} schema={schema}>
+  <PageHeader title={service.title} lede={service.summary} />
+  <ServiceBody
+    service={service}
+    clinicians={clinicians}
+    variants={variants}
+    bookLabel={isOn('booking', site) ? 'Book this' : undefined}
+  >
+    <Content />
+  </ServiceBody>
+</BaseLayout>

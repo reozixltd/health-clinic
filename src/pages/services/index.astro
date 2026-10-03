@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+import { site, allSites } from '@/config';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants } from '@/layouts/site';
+import ServiceList from '@/modules/services/ServiceList.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+
+const services = (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order);
+const variants = marketVariants(site, allSites());
+---
+
+<BaseLayout title="Services" description={`Services at ${site.clinic.name}.`}>
+  <PageHeader title="Services" lede="What we offer, how long it takes and who will see you." />
+  <div class="wrap"><ServiceList services={services} variants={variants} /></div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
+</style>

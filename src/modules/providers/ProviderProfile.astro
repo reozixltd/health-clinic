@@ -1,0 +1,58 @@
+---
+/** One clinician: photo, bio, registration (every market variant), services and a Book with link. */
+import Button from '@/core/ui/Button.astro';
+import Photo from '@/core/ui/Photo.astro';
+import type { MarketId } from '@/domain/markets';
+import { firstName, registrationFor } from './registration';
+
+interface Props {
+  provider: {
+    slug: string; name: string; role: string; bio: string; languages: string[]; acceptingNew: boolean; photoSlot: string;
+    registration: { body: string; number: string; byMarket?: Partial<Record<MarketId, { body: string; number: string }>> };
+  };
+  services: { slug: string; title: string }[];
+  markets: MarketId[];
+  bookingOn: boolean;
+}
+const { provider, services, markets, bookingOn } = Astro.props;
+const first = firstName(provider.name);
+---
+
+<div class="profile">
+  <Photo slot={provider.photoSlot} alt={`${provider.name}, ${provider.role}`} ratio="4 / 5" sizes="(min-width: 768px) 320px, 100vw" class="pic" />
+  <div class="text">
+    <p class="role">{provider.role}</p>
+    <p>{provider.bio}</p>
+    <dl>
+      <dt>Registration</dt>
+      {markets.map((m) => {
+        const r = registrationFor(provider, m);
+        return <dd data-market-only={m}>{r.body}, registration number {r.number}</dd>;
+      })}
+      <dt>Languages</dt>
+      <dd>{provider.languages.join(', ')}</dd>
+      <dt>New patients</dt>
+      <dd>{provider.acceptingNew ? 'Accepting new patients' : 'Not accepting new patients. Existing patients are welcome to book.'}</dd>
+    </dl>
+    {services.length > 0 && (
+      <section aria-labelledby="sv">
+        <h2 id="sv">Services</h2>
+        <ul>{services.map((s) => <li><a href={`/services/${s.slug}/`}>{s.title}</a></li>)}</ul>
+      </section>
+    )}
+    {bookingOn && <Button href={`/book/?provider=${provider.slug}`}>Book with {first}</Button>}
+  </div>
+</div>
+
+<style>
+  .profile { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
+  @media (min-width: 768px) { .profile { grid-template-columns: 320px 1fr; } }
+  .text { display: grid; gap: var(--space-4); align-content: start; max-width: var(--measure); }
+  .role { font-size: var(--text-18); font-weight: 600; }
+  dt { font-weight: 700; margin-top: var(--space-3); }
+  dd { margin: var(--space-1) 0 0; }
+  h2 { font-size: var(--text-22); margin-bottom: var(--space-2); }
+  ul { list-style: none; padding: 0; }
+  li a { display: inline-flex; align-items: center; min-height: var(--target); }
+  .text :global(.btn) { justify-self: start; }
+</style>
