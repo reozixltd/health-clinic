@@ -18,7 +18,7 @@ export interface Preset {
   schemaType: string;
   leadKinds: LeadKind[];
   messages: MessageTemplate[];
-  copy: { heroLine: string; bookLabel: string; trust: string[] };
+  copy: { heroLine: string; bookLabel: string; trust: string[]; treatsLead: string; firstVisit: string[] };
   emergencyPage: boolean;
   extraPages: { slug: string; policy: string }[];
 }

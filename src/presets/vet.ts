@@ -28,6 +28,13 @@ export const vet: Preset = {
     heroLine: 'Local vets who explain the plan and the price',
     bookLabel: 'Book an appointment',
     trust: ['Registered vets and nurses', 'Prices published up front', 'Clear out of hours cover'],
+    treatsLead: 'We care for pets with',
+    firstVisit: [
+      'Ask for a time|{booking}',
+      'We confirm|{confirm}',
+      'What to bring|Bring your pet\'s vaccination record and any previous notes. Arrive a few minutes early.',
+      'After the visit|We go through the plan and the price with you and book the next visit if your pet needs one.',
+    ],
   },
   emergencyPage: true,
   extraPages: [{ slug: 'pet-health-plans', policy: 'pet-health-plans' }],

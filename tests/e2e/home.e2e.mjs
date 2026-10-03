@@ -39,7 +39,10 @@ await step(vet ? 'vet home shows price-list teaser with last reviewed date and n
     await page.goto(`${BASE}/`);
     const text = await page.locator('main').innerText();
     if (vet) {
-      expect(/Last reviewed Thu 3 Sept 2026/.test(text), 'last reviewed missing');
+      expect(/Last reviewed 3 September 2026/.test(text), 'last reviewed missing');
+      expect(!/concession|funding card/i.test(text), 'human-only first visit copy on vet');
+      expect(/vaccination record/.test(text), 'vet bring step');
+      expect(/We care for pets with/.test(text), 'vet hero lead');
       expect((await page.locator('main a[href="/prices/"]').count()) >= 1, 'prices link');
       expect((await page.locator('main a[href="/fees/"]').count()) === 0, 'fees teaser on vet');
     } else {
@@ -55,6 +58,13 @@ await step('services band has from prices only where allowed', async () => {
     const text = await page.locator('#services').innerText();
     expect((await page.locator('#services li').count()) >= 3, 'service rows');
     expect(/From [$£]\d+/.test(text) === !vet, `from prices: ${text.slice(0, 300)}`);
+  });
+});
+
+await step('no dead # links on home', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/`);
+    expect((await page.locator('main a[href="#"]').count()) === 0, 'dead # link rendered');
   });
 });
 

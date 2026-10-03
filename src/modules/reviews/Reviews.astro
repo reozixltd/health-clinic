@@ -6,7 +6,7 @@ import { latestReviews } from './reviews';
 interface Props {
   items: Review[];
   mode: 'link-only' | 'display';
-  googleUrl: string;
+  googleUrl?: string;
   locale?: string;
 }
 const { items, mode, googleUrl, locale = 'en-GB' } = Astro.props;
@@ -15,7 +15,7 @@ const day = (iso: string) =>
 ---
 
 {mode === 'link-only' ? (
-  <p><a class="link" href={googleUrl}>Read our reviews on Google</a></p>
+  googleUrl ? <p><a class="link" href={googleUrl}>Read our reviews on Google</a></p> : null
 ) : (
   <ul class="list">
     {latestReviews(items).map((r) => (

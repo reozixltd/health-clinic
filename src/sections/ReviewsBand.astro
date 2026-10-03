@@ -16,7 +16,7 @@ const { items, variants } = Astro.props;
   <h2 id="reviews-title">What patients say</h2>
   {variants.map((v) => (
     <div data-market-only={v.id}>
-      <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl ?? '#'} locale={v.market.locale} />
+      <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl} locale={v.market.locale} />
     </div>
   ))}
 </section>

@@ -1,7 +1,6 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 import { site, allSites } from '@/config';
-import { formatDay } from '@/core/format';
 import { isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, hoursText, marketVariants, telHref } from '@/layouts/site';
@@ -25,8 +24,8 @@ const providers = on('providers') ? (await getCollection('providers')).map((p) =
 const reviews = on('reviews') ? (await getCollection('reviews')).map((r) => r.data) : [];
 const faqs = (await getCollection('faqs')).map((f) => f.data).filter((f) => f.tags.includes('home')).slice(0, 5);
 const prices = on('price-list') && !on('fees') ? await getEntry('prices', 'prices') : undefined;
-const reviewedLabel = prices ? `${formatDay(prices.data.reviewedAt, configuredMarket(site).locale)} ${prices.data.reviewedAt.slice(0, 4)}` : undefined;
-const treats = services.length ? `We see people for ${services.map((s) => s.title.toLowerCase()).join(', ')}.` : '';
+const reviewedAt = prices?.data.reviewedAt;
+const treats = services.length ? `${preset.copy.treatsLead} ${services.map((s) => s.title.toLowerCase()).join(', ')}.` : '';
 ---
 
 <BaseLayout title={clinic.name} description={preset.copy.heroLine}>
@@ -35,8 +34,8 @@ const treats = services.length ? `We see people for ${services.map((s) => s.titl
   <div class="stack">
     {services.length > 0 && <ServicesBand services={services} variants={variants} />}
     {providers.length > 0 && <TeamRow providers={providers} variants={variants} />}
-    <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} />
-    <FeesTeaser variants={variants} feesOn={on('fees')} priceListOn={on('price-list')} reviewedLabel={reviewedLabel} />
+    <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} />
+    <FeesTeaser variants={variants} feesOn={on('fees')} priceListOn={on('price-list')} reviewedAt={reviewedAt} />
     {on('reviews') && <ReviewsBand items={reviews} variants={variants} />}
     <Location variants={variants} />
     {faqs.length > 0 && <Faq items={faqs} />}

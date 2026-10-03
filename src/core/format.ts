@@ -15,6 +15,11 @@ export function formatDay(iso: string, locale: string): string {
     .replace(',', '');
 }
 
+/** "2026-09-03" → "3 September 2026": day, month and year with no weekday. Formatted in UTC. */
+export function formatDate(iso: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+}
+
 function parts(date: Date, timeZone: string): Record<string, string> {
   const out: Record<string, string> = {};
   const fmt = new Intl.DateTimeFormat('en-CA', {

@@ -29,6 +29,13 @@ export const alliedHealth: Preset = {
     heroLine: 'Care that fits around your week',
     bookLabel: 'Book an appointment',
     trust: ['Registered clinicians', 'Clear fees before you book', 'Reminders by text or email'],
+    treatsLead: 'We see people for',
+    firstVisit: [
+      'Ask for a time|{booking}',
+      'We confirm|{confirm}',
+      'What to bring|Bring any referral letters, test results and your concession or funding card. Arrive a few minutes early.',
+      'After the visit|We go through the plan with you and book your next visit if you need one.',
+    ],
   },
   emergencyPage: false,
   extraPages: [],

@@ -3,14 +3,17 @@
 interface Props {
   bookingOn: boolean;
   confirmPromise: string;
+  /** Preset steps as "Title|text"; {booking} and {confirm} are filled from the site. */
+  items: string[];
 }
-const { bookingOn, confirmPromise } = Astro.props;
-const steps = [
-  { title: 'Ask for a time', text: bookingOn ? 'Send an appointment request online, or call us.' : 'Call us to ask for a time.' },
-  { title: 'We confirm', text: confirmPromise },
-  { title: 'What to bring', text: 'Bring any referral letters, test results and your concession or funding card. Arrive a few minutes early.' },
-  { title: 'After the visit', text: 'We go through the plan with you and book your next visit if you need one.' },
-];
+const { bookingOn, confirmPromise, items } = Astro.props;
+const steps = items.map((item) => {
+  const [title, text] = item.split('|');
+  return {
+    title,
+    text: text === '{booking}' ? (bookingOn ? 'Send an appointment request online, or call us.' : 'Call us to ask for a time.') : text === '{confirm}' ? `We reply ${confirmPromise} to confirm your time.` : text,
+  };
+});
 ---
 
 <section id="first-visit" aria-labelledby="first-visit-title">

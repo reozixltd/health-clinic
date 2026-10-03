@@ -1,14 +1,15 @@
 ---
 /** Fees teaser (allied health) or price-list teaser with its last reviewed date (vet). Nothing when neither module is on. */
+import { formatDate } from '@/core/format';
 import type { MarketId, MarketPack } from '@/domain/markets';
 
 interface Props {
   variants: { id: MarketId; market: MarketPack }[];
   feesOn: boolean;
   priceListOn: boolean;
-  reviewedLabel?: string;
+  reviewedAt?: string;
 }
-const { variants, feesOn, priceListOn, reviewedLabel } = Astro.props;
+const { variants, feesOn, priceListOn, reviewedAt } = Astro.props;
 ---
 
 {feesOn && (
@@ -26,7 +27,7 @@ const { variants, feesOn, priceListOn, reviewedLabel } = Astro.props;
   <section id="prices" aria-labelledby="prices-title">
     <h2 id="prices-title">Prices</h2>
     <p>We publish what common treatments cost.</p>
-    {reviewedLabel && <p class="note">Last reviewed {reviewedLabel}.</p>}
+    {reviewedAt && variants.map((v) => <p class="note" data-market-only={v.id}>Last reviewed {formatDate(reviewedAt, v.market.locale)}.</p>)}
     <p><a class="link" href="/prices/">See our price list</a></p>
   </section>
 )}
