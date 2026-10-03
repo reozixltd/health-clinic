@@ -1,0 +1,25 @@
+---
+import { site } from '@/config';
+import { formatMoney } from '@/core/format';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EstimateForm from '@/modules/estimates/EstimateForm.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+
+if (!isOn('estimates', site)) return new Response(null, { status: 404 });
+const { market, clinic } = site;
+const threshold = formatMoney(clinic.estimateThreshold ?? 500, market.currency, market.locale);
+---
+
+<BaseLayout title="Request an estimate" description={`Ask ${clinic.name} for a written estimate before planned treatment.`}>
+  <PageHeader title="Request an estimate" lede={`We give you a written estimate before treatment that is likely to cost ${threshold} or more.`} />
+  <div class="wrap">
+    <p>Tell us your pet and what the treatment is for. A vet or nurse will email you. Please do not put health details in this form. We will ask about those when we speak.</p>
+    <EstimateForm siteId={site.id} market={market} phone={clinic.phone} />
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-5); }
+  .wrap > p { margin: 0; max-width: var(--measure); }
+</style>

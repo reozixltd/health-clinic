@@ -1,0 +1,88 @@
+---
+import Button from '@/core/ui/Button.astro';
+import ErrorSummary from '@/core/ui/ErrorSummary.astro';
+import Field from '@/core/ui/Field.astro';
+import type { MarketPack } from '@/domain/markets';
+import { REASONS, SPECIES } from './estimate';
+
+interface Props {
+  siteId: string;
+  market: MarketPack;
+  phone: string;
+}
+const { siteId, market, phone } = Astro.props;
+---
+
+<form class="estimate" novalidate data-estimate-form data-site-id={siteId} data-phone={phone} data-phone-pattern={market.phone.pattern.source}>
+  <ErrorSummary id="estimate-errors" />
+  <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+  <Field name="petName" label="Your pet's name" required autocomplete="off" />
+  <div class="field">
+    <label for="species">Type of pet</label>
+    <select id="species" name="species" required aria-describedby="species-error" aria-invalid="false">
+      <option value="">Choose one</option>
+      {SPECIES.map((s) => <option value={s}>{s}</option>)}
+    </select>
+    <p class="field__error" id="species-error" data-error-for="species"></p>
+  </div>
+  <div class="field">
+    <label for="reason">What is the estimate for?</label>
+    <select id="reason" name="reason" required aria-describedby="reason-error" aria-invalid="false">
+      <option value="">Choose one</option>
+      {REASONS.map((r) => <option value={r}>{r}</option>)}
+    </select>
+    <p class="field__error" id="reason-error" data-error-for="reason"></p>
+  </div>
+  <Field name="firstName" label="Your first name" required autocomplete="given-name" />
+  <Field name="lastName" label="Your last name" required autocomplete="family-name" />
+  <Field name="email" label="Email" type="email" required autocomplete="email" />
+  <Field name="phone" label="Phone" type="tel" autocomplete="tel" />
+  <div class="field consent">
+    <label class="check"><input type="checkbox" name="terms" id="terms" aria-describedby="terms-error" aria-invalid="false" /> <span>I agree to the <a href="/terms/">terms</a> and to being contacted about this estimate.</span></label>
+    <p class="field__error" id="terms-error" data-error-for="terms"></p>
+  </div>
+  <p data-form-status role="alert"></p>
+  <Button type="submit" size="lg"><span>Request an estimate</span></Button>
+</form>
+
+<div class="done" data-estimate-success hidden>
+  <h2>Estimate request sent</h2>
+  <p>Thank you. We will email you to follow up. You do not need to do anything else.</p>
+</div>
+
+<script>
+  import { bindSimpleForm } from '@/core/forms';
+  import { getLeadRepository } from '@/core/leads';
+  import { buildEstimateInput, estimateRules } from './estimate';
+
+  const form = document.querySelector<HTMLFormElement>('[data-estimate-form]');
+  const success = document.querySelector<HTMLElement>('[data-estimate-success]');
+  if (form && success) {
+    const { siteId = '', phone = '', phonePattern = '.*' } = form.dataset;
+    bindSimpleForm(form, {
+      rules: estimateRules({ phone: { pattern: new RegExp(phonePattern), href: () => '' } }),
+      toInput: (values) => buildEstimateInput(values, { clientRef: crypto.randomUUID(), now: new Date().toISOString() }),
+      repo: getLeadRepository(`health:v1:${siteId}`),
+      success,
+      fallbackPhone: phone,
+    });
+  }
+</script>
+
+<style>
+  .estimate { display: grid; gap: var(--space-4); max-width: 34rem; }
+  .field { display: grid; gap: var(--space-1); }
+  label { font-weight: 600; }
+  select {
+    min-height: var(--target); padding: 0 var(--space-3); border: 1px solid var(--color-field-border);
+    border-radius: var(--radius-control); background: var(--color-card); color: var(--color-ink); font-size: var(--text-16);
+  }
+  select[aria-invalid='true'] { border-color: var(--color-danger); border-width: 2px; }
+  .check { display: flex; gap: var(--space-3); align-items: flex-start; font-weight: 400; min-height: var(--target); }
+  .check input { width: 1.5rem; height: 1.5rem; flex: none; margin: 0; }
+  .field__error { margin: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }
+  .field__error:empty { display: none; }
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; opacity: 0; }
+  .done { max-width: 34rem; display: grid; gap: var(--space-3); padding: var(--space-5); border: 1px solid var(--color-success); background: var(--color-success-soft); border-radius: var(--radius-card); }
+  .done h2, .done p { margin: 0; }
+</style>

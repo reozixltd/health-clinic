@@ -1,0 +1,31 @@
+---
+import { getEntry } from 'astro:content';
+import { site } from '@/config';
+import { formatDay, formatMoney } from '@/core/format';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PriceList from '@/modules/price-list/PriceList.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+
+if (!isOn('price-list', site)) return new Response(null, { status: 404 });
+const { market, clinic } = site;
+const entry = await getEntry('prices', 'prices');
+if (!entry) throw new Error('Price list is on but prices.json is missing.');
+const { items, reviewedAt } = entry.data;
+const threshold = clinic.estimateThreshold ?? 500;
+---
+
+<BaseLayout title="Prices" description={`Our prices for common treatments at ${clinic.name}. ${market.taxNote}.`}>
+  <PageHeader title="Our prices" lede="What common treatments cost, listed up front." />
+  <div class="wrap">
+    <PriceList items={items} market={market} reviewedLabel={formatDay(reviewedAt, market.locale) + ' ' + reviewedAt.slice(0, 4)} />
+    {isOn('estimates', site) && (
+      <p class="after">For treatment likely to cost {formatMoney(threshold, market.currency, market.locale)} or more, we give you a written estimate first. <a href="/estimates/">Ask for an estimate</a>.</p>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
+  .after { margin: 0; max-width: var(--measure); }
+</style>

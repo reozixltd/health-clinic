@@ -1,0 +1,29 @@
+---
+import type { Clinic } from '@/domain/types';
+import { ownershipView } from './ownership';
+
+interface Props {
+  clinic: Clinic;
+}
+const { clinic } = Astro.props;
+const view = ownershipView(clinic);
+---
+
+<div class="statement">
+  <p class="lead">{view.lead}</p>
+  {view.rows.length > 0 && (
+    <dl>
+      {view.rows.map((r) => <><dt>{r.term}</dt><dd>{r.detail}</dd></>)}
+    </dl>
+  )}
+  <p>Questions about ownership? Call us on <a href={`tel:${clinic.phone.replace(/[^\d+]/g, '')}`}>{clinic.phone}</a> or email <a href={`mailto:${clinic.email}`}>{clinic.email}</a>.</p>
+</div>
+
+<style>
+  .statement { display: grid; gap: var(--space-4); max-width: var(--measure); }
+  .lead { margin: 0; font-size: var(--text-22); }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-5); margin: 0; }
+  dt { font-weight: 600; }
+  dd { margin: 0; }
+  p { margin: 0; }
+</style>
