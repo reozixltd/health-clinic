@@ -1,0 +1,7 @@
+---
+import { site } from '@/config';
+import { configuredMarket } from '@/layouts/site';
+const { clinic } = site;
+const market = configuredMarket(site);
+---
+<p>{clinic.name} {market.id}</p>

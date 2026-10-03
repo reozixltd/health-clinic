@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { LocalLeadRepository } from '@/core/leads/local-repository';
+import { LocalLeadRepository, RATE_PER_HOUR } from '@/core/leads/local-repository';
 import { createMemoryStorage, type KeyValueStorage } from '@/core/storage';
 import type { LeadInput } from '@/core/leads/types';
 
@@ -89,6 +89,13 @@ describe('LocalLeadRepository', () => {
     await expect(repo.create(make())).rejects.toThrow(/too many/i);
     clock += 61 * 60_000;
     await expect(repo.create(make())).resolves.toBeDefined();
+  });
+
+  it('demo sites allow 30 an hour, live sites 5', async () => {
+    expect(RATE_PER_HOUR).toEqual({ live: 5, demo: 30 });
+    const demo = new LocalLeadRepository(createMemoryStorage(), NS, () => clock, RATE_PER_HOUR.demo);
+    for (let i = 0; i < 30; i++) await demo.create(make());
+    await expect(demo.create(make())).rejects.toThrow(/too many/i);
   });
 
   it('keeps working when storage contains corrupt data', async () => {

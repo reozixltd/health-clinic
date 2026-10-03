@@ -17,10 +17,13 @@ export interface MarketPack {
   consent: { sms: string; email: string; law: string };
   legalIdLabel: 'ABN' | 'BN' | 'Company number';
   identifiers: { label: string; pattern: RegExp };
-  phone: { pattern: RegExp; href: (p: string) => string };
+  /** `dial` is the country code without +, `trunk` the national prefix dropped in international form, `example` the hint in form errors. */
+  phone: { pattern: RegExp; dial: string; trunk: string; example: string };
   postcode: { label: 'Postcode' | 'Postal code'; pattern: RegExp };
   requiredPages: string[];
   verified: boolean;
+  /** What local counsel confirms before a live site uses this pack (printed by the build warning). */
+  checklist: string[];
   fundingLabels: Partial<Record<FundingKey, string>>;
 }
 

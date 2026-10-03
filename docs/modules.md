@@ -98,7 +98,7 @@ Shows reviews on the home page according to the market pack.
 
 ## reminders
 
-Pure scheduling that drives the console's message timeline. Nothing is sent. In demo mode each message is marked "Preview, not sent".
+Pure scheduling that drives the console's message timeline. Nothing is sent. In demo mode each message is marked "Preview, not sent". With the module off the console shows "Message previews are off" instead of timelines, and `/book/` shows no sample confirmation text and loads none of the reminders code.
 
 | Message | Channel | Fires | Preset |
 |---|---|---|---|

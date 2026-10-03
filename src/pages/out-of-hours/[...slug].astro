@@ -2,14 +2,15 @@
 import { site } from '@/config';
 import { routesFor } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { hoursText, telHref } from '@/layouts/site';
+import { configuredMarket, hoursText, telHref } from '@/layouts/site';
 import PageHeader from '@/sections/PageHeader.astro';
 
 export function getStaticPaths() {
   return routesFor(site).includes('/out-of-hours/') ? [{ params: { slug: undefined } }] : [];
 }
 
-const { clinic, market } = site;
+const { clinic } = site;
+const market = configuredMarket(site);
 const { emergency } = clinic;
 const number = emergency.phone ?? clinic.phone;
 const href = emergency.href ?? telHref(number, market.id);

@@ -4,8 +4,10 @@ import { ownershipView } from './ownership';
 
 interface Props {
   clinic: Clinic;
+  /** tel: link for the clinic phone, built by the page with telHref. */
+  phoneHref: string;
 }
-const { clinic } = Astro.props;
+const { clinic, phoneHref } = Astro.props;
 const view = ownershipView(clinic);
 ---
 
@@ -16,7 +18,7 @@ const view = ownershipView(clinic);
       {view.rows.map((r) => <><dt>{r.term}</dt><dd>{r.detail}</dd></>)}
     </dl>
   )}
-  <p>Questions about ownership? Call us on <a href={`tel:${clinic.phone.replace(/[^\d+]/g, '')}`}>{clinic.phone}</a> or email <a href={`mailto:${clinic.email}`}>{clinic.email}</a>.</p>
+  <p>Questions about ownership? Call us on <a href={phoneHref}>{clinic.phone}</a> or email <a href={`mailto:${clinic.email}`}>{clinic.email}</a>.</p>
 </div>
 
 <style>

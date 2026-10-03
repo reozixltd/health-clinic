@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { bindSimpleForm, clearErrors, formValues, showErrors } from '@/core/forms';
+import { RateLimitError } from '@/core/leads/repository';
 import { LocalLeadRepository } from '@/core/leads/local-repository';
 import { createMemoryStorage } from '@/core/storage';
 import { email, required } from '@/core/leads/validation';
@@ -79,6 +80,7 @@ describe('bindSimpleForm', () => {
       repo,
       success: el('#done'),
       fallbackPhone: '03 5550 1200',
+      fallbackHref: 'tel:+61355501200',
       now: () => 100_000,
       startedAt: 0,
       ...over,
@@ -151,6 +153,16 @@ describe('bindSimpleForm', () => {
     expect(el<HTMLInputElement>('[name=name]').value).toBe('Sam');
     expect(el<HTMLFormElement>('form').hidden).toBe(false);
     expect(el<HTMLButtonElement>('button').disabled).toBe(false);
+    expect(el('[data-form-status] a').getAttribute('href')).toBe('tel:+61355501200');
+  });
+
+  it('on a rate limit says so and offers the phone number', async () => {
+    vi.spyOn(repo, 'create').mockRejectedValue(new RateLimitError());
+    el<HTMLInputElement>('[name=name]').value = 'Sam';
+    submit();
+    await flush();
+    expect(el('[data-form-status]').textContent).toBe("You've sent several requests from this device. Please call us on 03 5550 1200.");
+    expect(el('[data-form-status] a').getAttribute('href')).toBe('tel:+61355501200');
   });
 
   it('holds a too-fast submit once, then saves on the next', async () => {

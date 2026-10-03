@@ -2,6 +2,7 @@
 import { site } from '@/config';
 import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { configuredMarket, telHref } from '@/layouts/site';
 import OwnershipStatement from '@/modules/ownership/OwnershipStatement.astro';
 import PageHeader from '@/sections/PageHeader.astro';
 
@@ -14,7 +15,7 @@ const { clinic } = site;
 
 <BaseLayout title="Who owns us" description={`Who owns ${clinic.name}.`}>
   <PageHeader title="Who owns us" lede="You should know who runs the practice that looks after your pet." />
-  <div class="wrap"><OwnershipStatement clinic={clinic} /></div>
+  <div class="wrap"><OwnershipStatement clinic={clinic} phoneHref={telHref(clinic.phone, configuredMarket(site).id)} /></div>
 </BaseLayout>
 
 <style>

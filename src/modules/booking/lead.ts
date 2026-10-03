@@ -1,6 +1,6 @@
 import { checked, email, maxLength, phone, postcode, required, type FieldValue, type Rules } from '@/core/leads/validation';
 import type { LeadInput } from '@/core/leads/types';
-import type { MarketId, MarketPack } from '@/domain/markets';
+import type { MarketPack } from '@/domain/markets';
 import type { BookingState, Species, StepId } from './state';
 
 export interface AppointmentPayload {
@@ -13,14 +13,11 @@ export interface AppointmentPayload {
   pet?: { name: string; species: Species };
 }
 
-/** Demo numbers (spec §3) used as the "like ..." hint; MarketPack carries no example. */
-const PHONE_EXAMPLE: Record<MarketId, string> = { AU: '0491 570 120', CA: '613-555-0123', UK: '0113 496 0123' };
-
 export function appointmentRules(market: MarketPack, preset: 'allied-health' | 'vet' = 'allied-health'): Rules {
   const rules: Rules = {
     firstName: [required('Enter your first name')],
     lastName: [required('Enter your last name')],
-    phone: [required(`Enter a phone number, like ${PHONE_EXAMPLE[market.id]}`), phone(market.phone.pattern, `Enter a phone number, like ${PHONE_EXAMPLE[market.id]}`)],
+    phone: [required(`Enter a phone number, like ${market.phone.example}`), phone(market.phone.pattern, `Enter a phone number, like ${market.phone.example}`)],
     email: [required('Enter an email address, like sam@example.com'), email('Enter an email address, like sam@example.com')],
     postcode: [required(`Enter a valid ${market.postcode.label.toLowerCase()}`), postcode(market.postcode.pattern, `Enter a valid ${market.postcode.label.toLowerCase()}`)],
     terms: [checked('Agree to the terms to send your request')],

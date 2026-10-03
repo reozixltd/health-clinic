@@ -58,11 +58,6 @@ describe('markets', () => {
     expect(getMarket('UK').identifiers.pattern.test('00000000')).toBe(true);
   });
 
-  it('phone href is a tel: link', () => {
-    expect(getMarket('AU').phone.href('03 5550 1200')).toBe('tel:0355501200');
-    expect(getMarket('CA').phone.href('613-555-0123')).toBe('tel:6135550123');
-  });
-
   it('fundingLabels are keyed per market', () => {
     expect(getMarket('AU').fundingLabels).toEqual({
       fund: 'Private health fund rebate may apply',
@@ -82,5 +77,16 @@ describe('markets', () => {
     expect(resolveMarketOverride({ ...base, param: null, stored: 'CA' })).toBe('CA');
     expect(resolveMarketOverride({ ...base, param: 'UK' })).toBe('AU');
     expect(resolveMarketOverride({ ...base, param: 'CA', demoMode: false })).toBe('AU');
+  });
+});
+
+describe('telHref', () => {
+  it('builds an international link from the pack dial code and trunk prefix', async () => {
+    const { telHref } = await import('@/layouts/site');
+    expect(telHref('03 5550 1200', 'AU')).toBe('tel:+61355501200');
+    expect(telHref('613-555-0123', 'CA')).toBe('tel:+16135550123');
+    expect(telHref('1-613-555-0123', 'CA')).toBe('tel:+16135550123');
+    expect(telHref('0113 496 0123', 'UK')).toBe('tel:+441134960123');
+    expect(telHref('+44 113 496 0123', 'UK')).toBe('tel:+441134960123');
   });
 });

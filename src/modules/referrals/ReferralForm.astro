@@ -7,15 +7,16 @@ import { URGENCIES } from './referral';
 
 interface Props {
   siteId: string;
+  demo: boolean;
   services: { slug: string; title: string }[];
   /** One entry per market the visitor can switch to; phone rules follow the active market. */
-  variants: { id: MarketId; market: MarketPack; clinic: { phone: string } }[];
+  variants: { id: MarketId; market: MarketPack; clinic: { phone: string }; tel: string }[];
 }
-const { siteId, services, variants } = Astro.props;
-const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: { source: v.market.phone.pattern.source, flags: v.market.phone.pattern.flags }, phone: v.clinic.phone }]));
+const { siteId, demo, services, variants } = Astro.props;
+const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: { source: v.market.phone.pattern.source, flags: v.market.phone.pattern.flags }, phone: v.clinic.phone, tel: v.tel }]));
 ---
 
-<form class="referral" novalidate data-referral-form data-site-id={siteId} data-markets={JSON.stringify(markets)}>
+<form class="referral" novalidate data-referral-form data-site-id={siteId} data-demo={String(demo)} data-markets={JSON.stringify(markets)}>
   <ErrorSummary id="referral-errors" />
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
   <fieldset>
@@ -63,7 +64,7 @@ const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: { sourc
   const form = document.querySelector<HTMLFormElement>('[data-referral-form]');
   const success = document.querySelector<HTMLElement>('[data-referral-success]');
   if (form && success) {
-    const markets: Record<string, { pattern: { source: string; flags: string }; phone: string }> = JSON.parse(form.dataset.markets ?? '{}');
+    const markets: Record<string, { pattern: { source: string; flags: string }; phone: string; tel: string }> = JSON.parse(form.dataset.markets ?? '{}');
     const services = Array.from(form.querySelectorAll<HTMLOptionElement>('#service option')).map((o) => o.value).filter(Boolean);
     const current = () => markets[document.documentElement.dataset.market ?? ''] ?? Object.values(markets)[0]!;
     const patterns = new Map<string, RegExp>();
@@ -76,9 +77,10 @@ const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: { sourc
     bindSimpleForm(form, {
       rules,
       toInput: (values: FormValues) => buildReferralInput(values, { clientRef: crypto.randomUUID(), now: new Date().toISOString() }),
-      repo: getLeadRepository(`health:v1:${form.dataset.siteId ?? ''}`),
+      repo: getLeadRepository(`health:v1:${form.dataset.siteId ?? ''}`, { demo: form.dataset.demo === 'true' }),
       success,
       get fallbackPhone() { return current().phone; },
+      get fallbackHref() { return current().tel; },
     });
   }
 </script>

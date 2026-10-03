@@ -1,5 +1,5 @@
 /** Layout helpers: per-market identity variants, tel links, hours text and the mobile menu toggle. Pure, no config imports. */
-import type { MarketId, MarketPack } from '@/domain/markets';
+import { getMarket, type MarketId, type MarketPack } from '@/domain/markets';
 import type { Site } from '@/domain/presets';
 import type { Clinic } from '@/domain/types';
 
@@ -19,14 +19,13 @@ export function marketVariants(site: Site, all: Record<string, Site>): Variant[]
   });
 }
 
-const DIAL: Record<MarketId, string> = { AU: '61', CA: '1', UK: '44' };
-
 /** International tel: link from a local number. */
 export function telHref(phone: string, id: MarketId): string {
   const digits = phone.replace(/[^\d+]/g, '');
   if (digits.startsWith('+')) return `tel:${digits}`;
-  const national = id === 'CA' ? digits.replace(/^1(?=\d{10}$)/, '') : digits.replace(/^0/, '');
-  return `tel:+${DIAL[id]}${national}`;
+  const { dial, trunk } = getMarket(id).phone;
+  const national = digits.startsWith(trunk) && (trunk !== '1' || /^1\d{10}$/.test(digits)) ? digits.slice(trunk.length) : digits;
+  return `tel:+${dial}${national}`;
 }
 
 function clock(t: string): string {

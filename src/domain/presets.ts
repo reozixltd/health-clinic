@@ -29,6 +29,8 @@ export interface SiteConfigInput {
     preset: 'allied-health' | 'vet';
     market: MarketId;
     markets?: MarketId[];
+    /** Public origin of the site (canonical links, sitemap, og:url, JSON-LD). */
+    url: string;
     modules?: Partial<Record<ModuleId, boolean>>;
     demoMode: boolean;
     theme: string;
@@ -44,6 +46,7 @@ export interface SiteConfigInput {
 
 export interface Site {
   id: string;
+  url: string;
   preset: Preset;
   market: MarketPack;
   modules: ModuleId[];
@@ -72,13 +75,15 @@ export function resolveSite(config: SiteConfigInput, presets: Record<string, Pre
   if (problem) throw new Error(problem);
   return {
     id: site.id,
+    url: site.url,
     preset: { ...preset, nav: (site.nav ?? preset.nav).filter((n) => !n.module || modules.includes(n.module)) },
     market: getMarket(site.market),
     modules,
     demoMode: site.demoMode,
     theme: site.theme,
     themes: site.themes ?? [site.theme],
-    markets: site.markets ?? [site.market],
+    // A live site shows only its own market; the extra markets exist for the demo switcher.
+    markets: site.demoMode ? (site.markets ?? [site.market]) : [site.market],
     contentDir: site.contentDir,
     clinic: config.clinic,
     booking: config.booking,

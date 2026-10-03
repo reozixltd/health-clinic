@@ -6,8 +6,8 @@ How to turn this repo into a real clinic site. You edit config, content, tokens 
 
 | You want to change | Edit |
 |---|---|
-| Preset, market, modules on or off, demo mode, theme | `src/config/sites/<id>/site.ts` |
-| Clinic name, legal name, identifier, phones, email, address, hours, emergency wording, map point, owner, review link, estimate threshold | `src/config/sites/<id>/clinic.ts` |
+| Preset, market, site url, modules on or off, demo mode, theme | `src/config/sites/<id>/site.ts` |
+| Clinic name, legal name, identifier, phones, email, address, hours, emergency wording, map point, owner, review link, estimate threshold, trust lines, building accessibility line | `src/config/sites/<id>/clinic.ts` |
 | Booking provider (`none`, `embed`, `link`), practice-system URL, request windows, lead time, horizon, days off, confirmation promise | `src/config/sites/<id>/booking.ts` |
 | Reminder, recall and review templates and timings | `src/config/sites/<id>/messages.ts` (undefined uses the preset defaults) |
 | Services, clinicians, fees or price list, reviews, FAQs, policies | `src/content/<contentDir>/` |
@@ -21,8 +21,8 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 
 1. Copy the closest demo folder, for example `src/config/sites/fernway-au/`, to `src/config/sites/<your-id>/`. Keep the four files: `site.ts`, `clinic.ts`, `booking.ts`, `messages.ts`.
 2. Register it in `src/config/registry.ts`. Import the four files and add an entry to `registry`. `astro.config.mjs` and `src/config/index.ts` both read that file, and a build with an unknown `SITE` fails with a message. Also add the id to the `SITES` list in `tests/e2e/run.mjs` and to `build:all` in `package.json`. A unit test fails if `build:all` names a site that is not registered.
-3. In `site.ts`, set `id`, `preset` (`allied-health` or `vet`), `market`, `modules`, `theme` and `contentDir`. Set `demoMode: false` when you are ready to go live (see below).
-4. Fill `clinic.ts`. Use the clinic's real legal name, identifier, hours and time zone. The time zone drives every date the site shows, so use an IANA name such as `Australia/Melbourne`.
+3. In `site.ts`, set `id`, `url`, `preset` (`allied-health` or `vet`), `market`, `modules`, `theme` and `contentDir`. `url` is the clinic's public origin, for example `https://www.example-clinic.com`. `astro.config.mjs` reads it as Astro's `site`, so canonical links, the sitemap, `og:url` and JSON-LD all use it, and `tools/third-party.mjs` treats that origin as your own. Without the right `url` every page points at the wrong domain. Set `demoMode: false` when you are ready to go live (see below).
+4. Fill `clinic.ts`. Use the clinic's real legal name, identifier, hours and time zone. The time zone drives every date the site shows, so use an IANA name such as `Australia/Melbourne`. Two optional fields hold claims about the clinic, and nothing is shown until you set them: `trust` (the lines under the home page hero, for example `['Registered with AHPRA', 'Accessible entrance']`; leave it out to use the preset's generic lines) and `accessibility` (one sentence about the building, shown under "Find us" on the home page). Only state what is true for this clinic.
 5. Copy `src/content/<demo>/` to `src/content/<contentDir>/` and replace every file with real text. The content schemas in `src/content.config.ts` fail the build when a field is missing.
 6. Choose the booking provider in `booking.ts`. `none` uses the built-in request form. `link` sends people to the practice system with the service preselected. `embed` shows the practice system in an iframe. The request form stays as a fallback in both cases.
 7. Edit `src/styles/tokens.css` if the clinic needs its own colours. Run `npm test`, because the contrast test checks both themes.
@@ -48,12 +48,14 @@ modules: { referrals: true, 'price-list': false }
 
 A market pack is data. Modules read it and never check a country themselves.
 
-1. Create `src/domain/markets/<id>.ts` that exports a `MarketPack`. Copy `au.ts` and change every field: locale, currency, tax note, testimonial and review rules, price display rule, consent law, identifier label and pattern, phone pattern, postcode label and pattern, required pages, `fundingLabels`.
-2. Add the id to `MarketId` and to `PACKS` in `src/domain/markets/index.ts`.
-3. Add the matching entries to the `DIAL` table in `src/layouts/site.ts` and to the locale and currency unions in `MarketPack`.
-4. Set `verified: false` until local counsel has confirmed the pack.
+1. Create `src/domain/markets/<id>.ts` that exports a `MarketPack`. Copy `au.ts` and change every field: locale, currency, tax note, testimonial and review rules, price display rule, consent law, identifier label and pattern, phone (`pattern`, `dial` country code, `trunk` national prefix, `example` number for form errors), postcode label and pattern, required pages, `fundingLabels`, `verified` and `checklist` (what counsel confirms, printed by the build warning).
+2. Add the id to `MarketId` and to `PACKS` in `src/domain/markets/index.ts`, and to the locale and currency unions in `MarketPack`.
+3. Add the id to `packs` in `astro.config.mjs`, which feeds the build warning for unverified packs.
+4. Set `verified: false` until local counsel has confirmed the pack, and list the checks in `checklist`.
 5. Add the id to `fees.json` amounts and to any `byMarket` blocks that need it.
 6. Extend `tests/unit/markets.test.ts`.
+
+Everything else follows from the pack: `telHref()` in `src/layouts/site.ts` and the phone example in form errors read the pack's `phone` fields, `ThemeBoot` reads `locale`, and the warning reads `checklist`. Trust lines and the building accessibility line come from `clinic.ts` (`trust`, `accessibility`), so no component names a country.
 
 Only `src/domain/presets.ts` and `src/layouts/*` may read `site.market`. Pages that show market-dependent text render one variant per market in `site.markets`, each wrapped in `data-market-only="<id>"`, using `marketVariants()`. That is what makes `?market=` switching work in demo mode. `configuredMarket(site)` is for build-market data only, such as JSON-LD.
 
@@ -76,18 +78,19 @@ Only `src/domain/presets.ts` and `src/layouts/*` may read `site.market`. Pages t
 
 ## Go live
 
-1. Set `demoMode: false` in `site.ts`. This removes the demo ribbon, the `?market=` and `?theme=` switching and the "Preview, not sent" label in the console. It also lets JSON-LD carry `aggregateRating` where the market allows testimonials.
+1. Set `demoMode: false` in `site.ts`. This removes the demo ribbon, the `?market=` and `?theme=` switching and the "Preview, not sent" label in the console. It also forces `markets` down to the configured market, so the live site never embeds another clinic's details, and it leaves out the `/dev/ui/` component gallery, the console's "Load samples" and "Clear" buttons and the console's first sign-in seeding. Those three are demo-only. `Seo` can emit `aggregateRating` only when a page passes it a `rating`, and only when demo mode is off and the market allows testimonials; no page passes one today, so JSON-LD carries no rating unless you add it.
 2. Replace every sample line in content. Sample reviews, sample prices and "sample content" notes must go. The console and its demo sign-in text are still demo code until you add real authentication.
 3. Choose one `market` and drop `markets`.
 4. Confirm the market pack with counsel (below).
-5. Run `npm test`, `npm run check`, `npm run build:all` (or `npm run build` for one site) and `npm run e2e`.
+5. Check `url` in `site.ts`, and `trust` and `accessibility` in `clinic.ts`.
+6. Run `npm test`, `npm run check`, `npm run build:all` (or `npm run build` for one site) and `npm run e2e`.
 
 ## Implement the real lead store
 
 The demo stores requests in the visitor's browser through `LocalLeadRepository`. A live clinic needs a server.
 
-1. Write `HttpLeadRepository` in `src/core/leads/http-repository.ts`. It implements the `LeadRepository` interface in `src/core/leads/repository.ts`: `create`, `list`, `get`, `updateStatus`, `addNote`, `clear`, `seed`. `create` must be idempotent on `clientRef`.
-2. Return it from `getLeadRepository()` in `src/core/leads/index.ts`. That function is the only place that picks the store.
+1. Write `HttpLeadRepository` in `src/core/leads/http-repository.ts`. It implements the `LeadRepository` interface in `src/core/leads/repository.ts`: `create`, `list`, `get`, `updateStatus`, `addNote`, `clear`, `seed`. `clear` and `seed` are demo-only: the console calls them only when demo mode is on, so a live store can refuse both. `create` must be idempotent on `clientRef`.
+2. Return it from `getLeadRepository()` in `src/core/leads/index.ts`, and set `LEAD_STORE` to `'http'` in `src/core/leads/store.ts`. That function is the only place that picks the store. A build with `demoMode: false` and `LEAD_STORE` still `'local'` prints a warning, because requests would never leave the visitor's browser.
 3. Send messages from your server, using the templates in `messages.ts`. The site never sends anything. The console only previews.
 4. Put real authentication in front of `/console/`. The demo login (`clinic@demo.reozix` and `demo1234`) is not security.
 
@@ -101,4 +104,4 @@ Every pack is research, not legal advice. Before a site goes live, a local lawye
 | UK | `verified: true` | PECR wording, price display rules, the vet module wording (see `docs/modules.md`) |
 | CA | `verified: false` | Provincial privacy and health information rules, college advertising and testimonial rules for Ontario, CASL wording, AODA wording |
 
-A build with `demoMode: false` and an unverified pack prints a warning that lists what to confirm. Demo builds stay quiet. CA stays `false` until counsel signs it off.
+A build with `demoMode: false` and an unverified pack prints a warning that lists the pack's `checklist`. Demo builds stay quiet. CA stays `false` until counsel signs it off.

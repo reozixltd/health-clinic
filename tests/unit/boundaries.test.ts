@@ -4,6 +4,8 @@ import { findViolations } from '../../tools/boundaries.mjs';
 const RULES = [
   'core-imports-outside',
   'domain-imports-module',
+  'market-destructured-outside-presets',
+  'market-id-branch',
   'market-read-outside-presets',
   'module-imports-module',
   'raw-colour-outside-tokens',

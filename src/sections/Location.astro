@@ -17,7 +17,7 @@ const { variants } = Astro.props;
       <a class="link" href={`https://www.openstreetmap.org/?mlat=${c.map.lat}&mlon=${c.map.lng}#map=17/${c.map.lat}/${c.map.lng}`}>Open the map and directions</a>
       <ul>{hours.map((h) => <li>{h}</li>)}</ul>
       <p><a class="link" href={tel}>{c.phone}</a></p>
-      <p>Step-free entrance and an accessible toilet. <a class="link" href="/accessibility/">Accessibility details</a></p>
+      <p>{c.accessibility && `${c.accessibility} `}<a class="link" href="/accessibility/">Accessibility details</a></p>
     </div>
   ))}
 </section>

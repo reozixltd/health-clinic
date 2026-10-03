@@ -59,6 +59,10 @@ export interface Clinic {
   reviewsUrl?: string;
   /** Estimates above this amount need a written estimate (Task 14; default 500). */
   estimateThreshold?: number;
+  /** Trust lines for the home page; replaces the preset's `copy.trust`. Set per clinic, so each market reads its own. */
+  trust?: string[];
+  /** One sentence on building access (step-free entrance and so on). Omit it and the line is not shown. */
+  accessibility?: string;
 }
 
 export interface BookingConfig {

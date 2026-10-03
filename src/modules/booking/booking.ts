@@ -1,5 +1,5 @@
 /** Wizard behaviour for /book/: step navigation, URL state, card updates, validation and sending. */
-import { clearErrors, formValues, showErrors } from '@/core/forms';
+import { clearErrors, failureNotice, formValues, showErrors } from '@/core/forms';
 import type { Lead, LeadRepository } from '@/core/leads';
 import { isLikelySpam, validate, type FieldErrors, type Rules } from '@/core/leads/validation';
 import { emitBooking } from '@/domain/events';
@@ -19,7 +19,7 @@ export interface BookingData {
   market: MarketPack;
   booking: BookingConfig;
 }
-export interface BookingDeps { repo: LeadRepository; data: BookingData; onSent: (lead: Lead<AppointmentPayload>) => void; fallbackPhone: string; now?: () => number }
+export interface BookingDeps { repo: LeadRepository; data: BookingData; onSent: (lead: Lead<AppointmentPayload>) => void; fallbackPhone: string; fallbackHref: string; now?: () => number }
 
 const str = (v: unknown) => (typeof v === 'string' ? v : '');
 const names = (list: string[]) => (list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}` : list[0] ?? '');
@@ -194,9 +194,8 @@ export function initBooking(root: HTMLElement, deps: BookingDeps): void {
     send.textContent = 'Sending...';
     try {
       deps.onSent(await deps.repo.create(input));
-    } catch {
-      const tel = Object.assign(document.createElement('a'), { href: `tel:${deps.fallbackPhone.replace(/[^\d+]/g, '')}`, textContent: deps.fallbackPhone });
-      status.replaceChildren("We couldn't save your request. Your answers are kept. Call us on ", tel, '.');
+    } catch (error) {
+      status.replaceChildren(...failureNotice(error, { phone: deps.fallbackPhone, href: deps.fallbackHref }, true));
     } finally {
       sending = false;
       send.disabled = false;

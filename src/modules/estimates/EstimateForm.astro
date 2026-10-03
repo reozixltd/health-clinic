@@ -7,13 +7,16 @@ import { REASONS, SPECIES } from './estimate';
 
 interface Props {
   siteId: string;
+  demo: boolean;
   market: MarketPack;
   phone: string;
+  /** tel: link for the phone, built by the page with telHref. */
+  phoneHref: string;
 }
-const { siteId, market, phone } = Astro.props;
+const { siteId, demo, market, phone, phoneHref } = Astro.props;
 ---
 
-<form class="estimate" novalidate data-estimate-form data-site-id={siteId} data-phone={phone} data-phone-pattern={market.phone.pattern.source}>
+<form class="estimate" novalidate data-estimate-form data-site-id={siteId} data-demo={String(demo)} data-phone={phone} data-phone-href={phoneHref} data-phone-pattern={market.phone.pattern.source} data-phone-example={market.phone.example}>
   <ErrorSummary id="estimate-errors" />
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
   <Field name="petName" label="Your pet's name" required autocomplete="off" />
@@ -58,13 +61,14 @@ const { siteId, market, phone } = Astro.props;
   const form = document.querySelector<HTMLFormElement>('[data-estimate-form]');
   const success = document.querySelector<HTMLElement>('[data-estimate-success]');
   if (form && success) {
-    const { siteId = '', phone = '', phonePattern = '.*' } = form.dataset;
+    const { siteId = '', demo = 'false', phone = '', phoneHref = '', phonePattern = '.*', phoneExample = '' } = form.dataset;
     bindSimpleForm(form, {
-      rules: estimateRules({ phone: { pattern: new RegExp(phonePattern), href: () => '' } }),
+      rules: estimateRules({ phone: { pattern: new RegExp(phonePattern), example: phoneExample } }),
       toInput: (values) => buildEstimateInput(values, { clientRef: crypto.randomUUID(), now: new Date().toISOString() }),
-      repo: getLeadRepository(`health:v1:${siteId}`),
+      repo: getLeadRepository(`health:v1:${siteId}`, { demo: demo === 'true' }),
       success,
       fallbackPhone: phone,
+      fallbackHref: phoneHref,
     });
   }
 </script>

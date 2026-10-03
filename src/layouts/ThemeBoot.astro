@@ -1,6 +1,7 @@
 ---
 /** Pre-paint script: applies theme and market before first render. Demo sites only honour ?theme= and ?market=. */
 import { site } from '@/config';
+import { getMarket } from '@/domain/markets';
 
 const config = {
   id: site.id,
@@ -9,7 +10,7 @@ const config = {
   themes: site.themes,
   market: site.market.id,
   markets: site.markets,
-  locales: { AU: 'en-AU', CA: 'en-CA', UK: 'en-GB' },
+  locales: Object.fromEntries(site.markets.map((id) => [id, getMarket(id).locale])),
 };
 ---
 

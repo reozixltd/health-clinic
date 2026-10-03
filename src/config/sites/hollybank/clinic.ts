@@ -20,5 +20,7 @@ export const clinic: Clinic = {
   owner: { name: 'Hollybank Veterinary Practice Ltd', independent: true },
   estimateThreshold: 500,
   reviewsUrl: 'https://g.page/r/hollybank-demo/review',
+  trust: ['RCVS-registered vets and nurses'],
+  accessibility: 'Step-free entrance and an accessible toilet.',
   map: { lat: 53.8008, lng: -1.5491 },
 };

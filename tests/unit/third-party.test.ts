@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-ignore plain .mjs tool without types
-import { thirdParty } from '../../tools/third-party.mjs';
+import { ownOrigin, thirdParty } from '../../tools/third-party.mjs';
 
 const own = 'https://health.reozix.com';
 
@@ -22,5 +22,17 @@ describe('thirdParty', () => {
       '<script>inline()</script>',
     ].join('');
     expect(thirdParty(html, own)).toEqual([]);
+  });
+});
+
+describe('ownOrigin', () => {
+  it('reads the origin from the canonical link, so another clinic url is not flagged', () => {
+    const html = '<link rel="canonical" href="https://clinic.example/">';
+    expect(ownOrigin(html)).toBe('https://clinic.example');
+    expect(thirdParty('<script src="https://clinic.example/a.js"></script>', ownOrigin(html)!)).toEqual([]);
+    expect(thirdParty('<script src="https://health.reozix.com/a.js"></script>', ownOrigin(html)!)).toHaveLength(1);
+  });
+  it('is null without a canonical link', () => {
+    expect(ownOrigin('<html></html>')).toBeNull();
   });
 });

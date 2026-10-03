@@ -7,7 +7,9 @@ import { readJson, writeJson, type KeyValueStorage } from '../storage';
 import { RateLimitError, type LeadFilter, type LeadRepository } from './repository';
 import type { Lead, LeadInput, LeadStatus } from './types';
 
-const RATE = { max: 5, windowMs: 60 * 60 * 1000 };
+/** Requests allowed per device per hour. Demo sites allow more, so a sales walkthrough does not hit the limit. */
+export const RATE_PER_HOUR = { live: 5, demo: 30 };
+const WINDOW_MS = 60 * 60 * 1000;
 
 export class LocalLeadRepository implements LeadRepository {
   private readonly leadsKey: string;
@@ -17,6 +19,7 @@ export class LocalLeadRepository implements LeadRepository {
     private readonly storage: KeyValueStorage,
     namespace: string,
     private readonly now: () => number = Date.now,
+    private readonly maxPerHour: number = RATE_PER_HOUR.live,
   ) {
     this.leadsKey = `${namespace}:leads`;
     this.submitsKey = `${namespace}:submits`;
@@ -79,9 +82,9 @@ export class LocalLeadRepository implements LeadRepository {
   }
 
   private enforceRateLimit(): void {
-    const cutoff = this.now() - RATE.windowMs;
+    const cutoff = this.now() - WINDOW_MS;
     const recent = readJson<number[]>(this.storage, this.submitsKey, []).filter((t) => t > cutoff);
-    if (recent.length >= RATE.max) throw new RateLimitError();
+    if (recent.length >= this.maxPerHour) throw new RateLimitError();
     recent.push(this.now());
     writeJson(this.storage, this.submitsKey, recent);
   }

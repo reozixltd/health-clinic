@@ -5,7 +5,13 @@ import { pathToFileURL } from 'node:url';
 
 const PAGES = ['book/index.html', 'estimates/index.html', 'referrers/index.html'];
 
-export function thirdParty(html, own = 'https://health.reozix.com') {
+/** The site's own origin as the build wrote it: the canonical link on the home page (from `url` in site.ts). */
+export function ownOrigin(html) {
+  const href = html.match(/<link\b[^>]*\brel=["']?canonical["']?[^>]*>/i)?.[0].match(/\bhref=["']?([^"'\s>]+)/i)?.[1];
+  return href ? new URL(href).origin : null;
+}
+
+export function thirdParty(html, own) {
   const found = [];
   const tags = html.match(/<(script|link)\b[^>]*>/gi) ?? [];
   for (const tag of tags) {
@@ -23,11 +29,18 @@ export function thirdParty(html, own = 'https://health.reozix.com') {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dist = process.argv[2];
   if (!dist) {
-    console.error('usage: node tools/third-party.mjs <distDir>');
+    console.error('usage: node tools/third-party.mjs <distDir> [siteUrl]');
     process.exit(2);
   }
   if (!existsSync(join(dist, 'book/index.html'))) {
     console.error(`  FAIL ${dist}: book/index.html is missing`);
+    process.exit(1);
+  }
+  // usage: third-party.mjs <distDir> [siteUrl]; without a URL the origin comes from the built home page.
+  const home = join(dist, 'index.html');
+  const own = process.argv[3] ?? (existsSync(home) ? ownOrigin(readFileSync(home, 'utf8')) : null);
+  if (!own) {
+    console.error(`  FAIL ${dist}: cannot tell the site's own origin (no canonical link on index.html); pass the site url as the second argument`);
     process.exit(1);
   }
   let bad = 0;
@@ -36,7 +49,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const file = join(dist, page);
     if (!existsSync(file)) continue;
     checked += 1;
-    for (const f of thirdParty(readFileSync(file, 'utf8'))) {
+    for (const f of thirdParty(readFileSync(file, 'utf8'), own)) {
       console.log(`  FAIL ${page}: ${f}`);
       bad += 1;
     }

@@ -4,6 +4,7 @@ import { site } from '@/config';
 import { formatDate, formatMoney } from '@/core/format';
 import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { configuredMarket } from '@/layouts/site';
 import PriceList from '@/modules/price-list/PriceList.astro';
 import PageHeader from '@/sections/PageHeader.astro';
 
@@ -11,7 +12,8 @@ export function getStaticPaths() {
   return indexPaths('price-list', site);
 }
 
-const { market, clinic } = site;
+const { clinic } = site;
+const market = configuredMarket(site);
 const entry = await getEntry('prices', 'prices');
 if (!entry) throw new Error('Price list is on but prices.json is missing.');
 const { items, reviewedAt } = entry.data;

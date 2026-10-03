@@ -1,5 +1,5 @@
 /** DOM wiring for public forms. No business rules here: rules and the repository are passed in. */
-import type { LeadRepository } from './leads/repository';
+import { RateLimitError, type LeadRepository } from './leads/repository';
 import { isLikelySpam, validate, type FieldErrors, type FieldValue, type Rules } from './leads/validation';
 import type { LeadInput } from './leads/types';
 
@@ -61,14 +61,22 @@ export function clearErrors(form: HTMLFormElement, summary: HTMLElement): void {
   summary.querySelector('[data-error-list]')?.replaceChildren();
 }
 
+/** What to show when a request could not be saved: a rate-limit message, or the generic one, each with a phone link. */
+export function failureNotice(error: unknown, contact: { phone: string; href: string }, answersKept = false): (string | HTMLAnchorElement)[] {
+  const tel = Object.assign(document.createElement('a'), { href: contact.href, textContent: contact.phone });
+  if (error instanceof RateLimitError) return ["You've sent several requests from this device. Please call us on ", tel, '.'];
+  return [`We couldn't save your request. ${answersKept ? 'Your answers are kept. ' : ''}Call us on `, tel, '.'];
+}
+
 export interface SimpleFormOptions {
   rules: Rules;
   toInput: (values: FormValues) => LeadInput<object>;
   repo: LeadRepository;
   /** Panel shown in place of the form after a successful save. */
   success: HTMLElement;
-  /** Shown when saving fails, e.g. "03 5550 1200". */
+  /** Shown when saving fails, e.g. "03 5550 1200", with its tel: link. */
   fallbackPhone: string;
+  fallbackHref: string;
   now?: () => number;
   startedAt?: number;
 }
@@ -123,9 +131,8 @@ export function bindSimpleForm(form: HTMLFormElement, opts: SimpleFormOptions): 
     try {
       await opts.repo.create(opts.toInput(values));
       showSuccess();
-    } catch {
-      const tel = Object.assign(document.createElement('a'), { href: `tel:${opts.fallbackPhone.replace(/[^\d+]/g, '')}`, textContent: opts.fallbackPhone });
-      status.replaceChildren("We couldn't save your request. Call us on ", tel, '.');
+    } catch (error) {
+      status.replaceChildren(...failureNotice(error, { phone: opts.fallbackPhone, href: opts.fallbackHref }));
     } finally {
       if (submit) {
         submit.disabled = false;

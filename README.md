@@ -29,7 +29,7 @@ Notes:
 
 - `SITE` picks the demo site at build and dev time. Astro keeps `import.meta.env.SITE` for the site URL, so the code reads the id from `SITE_ID`, which `astro.config.mjs` fills from `SITE`.
 - `npm run build` builds one site. Use `SITE=hollybank npm run build`.
-- `npm run e2e` uses ports 4321 to 4323. Set `E2E_PORT_BASE` to move them, and `E2E_SITES=hollybank` to run one site.
+- `npm run e2e` uses six ports, 4321 to 4326: the three demo sites and three test fixtures. Set `E2E_PORT_BASE` to move them, and `E2E_SITES=hollybank` to run one site.
 - Demo console login: `clinic@demo.reozix` and `demo1234`.
 
 ## Where things live
@@ -73,6 +73,6 @@ Imports run one way: `pages` to `layouts` and `sections`, then `modules`, then `
 ## Before a clinic goes live
 
 - Set `demoMode: false`, replace all sample content and add real photos.
-- Implement `HttpLeadRepository` and send messages from your server. The site never sends.
+- Implement `HttpLeadRepository`, set `LEAD_STORE` to `'http'` and send messages from your server. The site never sends. Set the site `url` in `site.ts`.
 - Have local counsel confirm the market pack. The CA pack is `verified: false`.
 - The vet modules (`price-list`, `estimates`, `ownership`) were built for the CMA remedies. Confirm the Order status and wording first.

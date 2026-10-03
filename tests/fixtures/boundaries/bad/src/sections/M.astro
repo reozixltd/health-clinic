@@ -1,0 +1,5 @@
+---
+const { id } = Astro.props;
+const lines = id === 'CA' ? ['Registered in Ontario'] : ['Registered with AHPRA'];
+---
+<ul>{lines.map((l) => <li>{l}</li>)}</ul>

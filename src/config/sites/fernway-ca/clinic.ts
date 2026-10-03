@@ -14,5 +14,7 @@ export const clinic: Clinic = {
   ],
   emergency: { text: 'For an emergency, call 911. For help that can wait, call us in opening hours.', phone: '911', href: 'tel:911' },
   reviewsUrl: 'https://g.page/r/fernway-demo/review',
+  trust: ['Registered with the relevant Ontario regulatory college', 'Direct billing where offered', 'Accessible entrance'],
+  accessibility: 'Step-free entrance and an accessible toilet.',
   map: { lat: 45.4215, lng: -75.6972 },
 };

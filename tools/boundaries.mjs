@@ -75,6 +75,10 @@ export function findViolations(rootDir) {
       add('raw-colour-outside-tokens', 'raw colour value');
     }
     if (/\bsite\.market\b/.test(text) && !MARKET_OK(rel)) add('market-read-outside-presets', 'site.market');
+    // Components read market data from the pack or config; they never branch on a market id.
+    if (['sections', 'layouts', 'pages', 'modules'].includes(rel.split('/')[0]) && /[!=]==?\s*['"](?:AU|CA|UK)['"]|['"](?:AU|CA|UK)['"]\s*[!=]==?/.test(text)) add('market-id-branch', "=== 'CA'");
+    // R18: destructuring `market` out of `site` dodges the check above.
+    if (/\{[^{}]*\bmarket\b[^{}]*\}\s*=\s*(?:Astro\.props\.)?site\b/.test(text) && !MARKET_OK(rel)) add('market-destructured-outside-presets', 'const { market } = site');
   }
   return out;
 }

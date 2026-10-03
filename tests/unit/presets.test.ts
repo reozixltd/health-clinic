@@ -10,7 +10,7 @@ const presets = { 'allied-health': alliedHealth, vet };
 
 function config(preset: 'allied-health' | 'vet', modules?: SiteConfigInput['site']['modules']): SiteConfigInput {
   return {
-    site: { id: 't', preset, market: 'AU', modules, demoMode: false, theme: 'clean', contentDir: 'fernway' },
+    site: { id: 't', url: 'https://t.example', preset, market: 'AU', modules, demoMode: false, theme: 'clean', contentDir: 'fernway' },
     clinic: {
       name: 'T', legalName: 'T Pty', legalId: '0', phone: '1', email: 'a@b.c',
       address: { street: '1 A St', locality: 'B', region: 'VIC', postcode: '3000', country: 'AU' },
@@ -27,6 +27,15 @@ describe('resolveSite', () => {
     expect(site.modules).not.toContain('price-list');
     expect(site.market.id).toBe('AU');
     expect(site.markets).toEqual(['AU']);
+  });
+  it('carries the site url', () => {
+    expect(resolveSite(config('allied-health'), presets).url).toBe('https://t.example');
+  });
+  it('a live site shows only its own market, a demo site keeps the switch markets', () => {
+    const base = config('allied-health');
+    const withMarkets = (demoMode: boolean): SiteConfigInput => ({ ...base, site: { ...base.site, demoMode, markets: ['AU', 'CA'] } });
+    expect(resolveSite(withMarkets(false), presets).markets).toEqual(['AU']);
+    expect(resolveSite(withMarkets(true), presets).markets).toEqual(['AU', 'CA']);
   });
   it('overrides switch modules', () => {
     const site = resolveSite(config('allied-health', { referrals: false }), presets);
