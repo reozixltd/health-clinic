@@ -14,7 +14,7 @@
   --text-28: 1.75rem;
   --text-36: 2.25rem;
   --text-hero: clamp(2.25rem, 4.5vw, 3.25rem);
-  --body-size: 17px;
+  --body-size: 106.25%; /* 17px at the browser default of 16px, and it follows a larger default */
   --leading-body: 1.6;
   --measure: 68ch;
 

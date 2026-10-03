@@ -17,3 +17,8 @@ export function reviewMode(market: MarketPack): 'link-only' | 'display' {
 export function latestReviews<T extends { date: string }>(items: T[], limit = 3): T[] {
   return [...items].sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
 }
+
+/** A reviews band is worth showing when reviews are displayed and there are some, or when a Google profile link exists. */
+export function hasReviewContent(mode: 'link-only' | 'display', count: number, googleUrl?: string): boolean {
+  return mode === 'display' ? count > 0 : Boolean(googleUrl);
+}

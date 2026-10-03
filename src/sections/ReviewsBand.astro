@@ -3,20 +3,30 @@
 import type { MarketId, MarketPack } from '@/domain/markets';
 import type { Clinic } from '@/domain/types';
 import Reviews from '@/modules/reviews/Reviews.astro';
-import { reviewMode, type Review } from '@/modules/reviews/reviews';
+import { hasReviewContent, reviewMode, type Review } from '@/modules/reviews/reviews';
 
 interface Props {
   items: Review[];
   variants: { id: MarketId; market: MarketPack; clinic: Clinic }[];
 }
 const { items, variants } = Astro.props;
+const empty = variants.filter((v) => !hasReviewContent(reviewMode(v.market), items.length, v.clinic.reviewsUrl)).map((v) => v.id);
 ---
 
-<section id="reviews" aria-labelledby="reviews-title">
-  <h2 id="reviews-title">What patients say</h2>
-  {variants.map((v) => (
-    <div data-market-only={v.id}>
-      <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl} locale={v.market.locale} />
-    </div>
-  ))}
-</section>
+{empty.length < variants.length && (
+  <section id="reviews" aria-labelledby="reviews-title" data-empty={empty.join(' ')}>
+    <h2 id="reviews-title">What patients say</h2>
+    {variants.map((v) => (
+      <div data-market-only={v.id}>
+        <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl} locale={v.market.locale} />
+      </div>
+    ))}
+  </section>
+)}
+
+<style is:global>
+  /* No heading over an empty band: hide it in a market that has nothing to show. */
+  html[data-market='AU'] #reviews[data-empty~='AU'],
+  html[data-market='CA'] #reviews[data-empty~='CA'],
+  html[data-market='UK'] #reviews[data-empty~='UK'] { display: none; }
+</style>

@@ -17,3 +17,13 @@ describe('resolveOverride', () => {
     expect(resolveOverride({ param: 'nope', stored: 'harbour', configured: 'fernway', allowed, demoMode: true })).toBe('harbour');
   });
 });
+
+describe('root font size', () => {
+  it('is a percentage, so it follows the visitor\'s browser default', async () => {
+    const { readFileSync } = await import('node:fs');
+    const tokens = readFileSync('src/styles/tokens.css', 'utf8');
+    expect(tokens).toMatch(/--body-size:\s*106\.25%/);
+    expect(tokens).not.toMatch(/--body-size:\s*[\d.]+px/);
+    expect(readFileSync('src/styles/global.css', 'utf8')).toMatch(/html\s*\{[^}]*font-size:\s*var\(--body-size\)/);
+  });
+});
