@@ -61,3 +61,8 @@ a { color: inherit; text-underline-offset: 0.2em; }
 html[data-market]:not([data-market='AU']) [data-market-only='AU'],
 html[data-market]:not([data-market='CA']) [data-market-only='CA'],
 html[data-market]:not([data-market='UK']) [data-market-only='UK'] { display: none; }
+
+/* Room for the fixed mobile bar so it never covers the last footer links. */
+@media (max-width: 1023px) {
+  body[data-mobile-bar] { padding-bottom: calc(var(--target) + var(--space-3) * 2 + 1px); }
+}

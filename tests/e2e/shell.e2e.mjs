@@ -64,12 +64,46 @@ if (fernway) {
   });
 } else skip('theme switching (Fernway only)');
 
+// Routes built so far. Fixed pages not yet built are allowed temporarily; each is removed when its task lands.
+const FIXED = ['/', '/contact/', '/new-patients/', '/faq/', '/privacy/', '/accessibility/', '/terms/'];
+const MODULE_ROUTES = {
+  'fernway-au': ['/services/', '/team/', '/fees/', '/book/', '/referrers/'],
+  'fernway-ca': ['/services/', '/team/', '/fees/', '/book/', '/referrers/'],
+  hollybank: ['/services/', '/team/', '/prices/', '/estimates/', '/ownership/', '/book/', '/out-of-hours/', '/pet-health-plans/'],
+};
+// Temporary: pages other tasks build (services/team: Task 9; fees, new-patients, contact, faq, referrers, prices,
+// estimates, ownership, out-of-hours, pet-health-plans, policies: Tasks 11-15; book: Task 10).
+const ALLOWED = new Set([...FIXED, ...MODULE_ROUTES[SITE_ID]]);
+
 await step('nav only links generated routes', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/`);
-    const hrefs = await page.locator('a[href]').evaluateAll((els) => els.map((e) => e.getAttribute('href')));
+    const hrefs = await page.locator('header nav a[href], footer a[href]').evaluateAll((els) => els.map((e) => e.getAttribute('href')));
+    const internal = hrefs.filter((h) => h.startsWith('/'));
+    expect(internal.length > 4, `expected nav links, got ${internal.length}`);
+    const bad = internal.filter((h) => !ALLOWED.has(h.split('#')[0]));
+    expect(bad.length === 0, `links to routes this site does not generate: ${bad.join(', ')}`);
     const banned = fernway ? '/prices/' : '/fees/';
-    expect(!hrefs.includes(banned), `found link to ${banned}`);
+    expect(!internal.includes(banned), `found link to ${banned}`);
+  });
+});
+
+await step('mobile layout at 375px: compact header, full-width book button, footer not covered', async () => {
+  await withPage({ viewport: { width: 375, height: 800 } }, async (page) => {
+    await page.goto(`${BASE}/`);
+    expect(!(await page.locator('header a[href="/book/"]').isVisible()), 'header book button should be hidden');
+    expect(await page.locator('header [data-menu-toggle]').isVisible(), 'menu toggle missing');
+    const call = page.locator('header a[aria-label^="Call"]:visible');
+    expect((await call.count()) === 1, 'header call link should be visible and labelled');
+    expect(!(await call.locator('span').isVisible()), 'number text should be hidden on mobile');
+    const bar = await page.locator('.mobile-bar').boundingBox();
+    const book = await page.locator('.mobile-bar a[href="/book/"]').boundingBox();
+    expect(book.width > bar.width * 0.6, `book button ${book.width}px in bar ${bar.width}px`);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const last = page.locator('footer a:visible').last();
+    const box = await last.boundingBox();
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a')?.getAttribute('href'), [box.x + box.width / 2, box.y + box.height / 2]);
+    expect(hit === (await last.getAttribute('href')), `last footer link covered (hit ${hit})`);
   });
 });
 

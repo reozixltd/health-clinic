@@ -29,7 +29,7 @@ const { title, description, schema, noindex, bare = false, hideMobileBar = false
     <ThemeBoot />
     <Seo {title} {description} {schema} {noindex} />
   </head>
-  <body>
+  <body data-mobile-bar={!bare && !hideMobileBar ? '' : undefined}>
     <a class="skip-link" href="#main">Skip to content</a>
     {!bare && site.demoMode && <DemoRibbon />}
     {!bare && <Header />}

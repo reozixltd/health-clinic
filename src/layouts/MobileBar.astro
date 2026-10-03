@@ -9,7 +9,7 @@ const booking = site.modules.includes('booking');
 ---
 
 <div class="mobile-bar">
-  {booking && <Button class="grow" href="/book/">{site.preset.copy.bookLabel}</Button>}
+  {booking && <div class="grow"><Button href="/book/">{site.preset.copy.bookLabel}</Button></div>}
   {variants.map((v) => (
     <Button variant="secondary" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)} aria-label={`Call ${v.clinic.phone}`}>
       <Icon name="phone" />
@@ -19,7 +19,8 @@ const booking = site.modules.includes('booking');
 
 <style>
   .mobile-bar { display: none; }
-  .grow { flex: 1; }
+  .grow { flex: 1; display: flex; }
+  .grow :global(.btn) { flex: 1; }
   @media (max-width: 1023px) {
     .mobile-bar {
       display: flex; gap: var(--space-2); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;

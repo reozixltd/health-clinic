@@ -17,9 +17,21 @@ const servers = [];
 let failed = false;
 
 function stopAll() {
-  for (const s of servers) s.kill('SIGTERM');
+  for (const s of servers) {
+    try { process.kill(-s.pid, 'SIGTERM'); } catch {}
+  }
 }
-process.on('SIGINT', () => { stopAll(); process.exit(130); });
+for (const [sig, code] of [['SIGINT', 130], ['SIGTERM', 143]]) process.on(sig, () => { stopAll(); process.exit(code); });
+process.on('exit', stopAll);
+
+async function portFree(port) {
+  try {
+    await fetch(`http://localhost:${port}/`);
+    return false;
+  } catch {
+    return true;
+  }
+}
 
 async function waitFor(url) {
   for (let i = 0; i < 60; i++) {
@@ -32,13 +44,16 @@ async function waitFor(url) {
 }
 
 try {
+  for (const { port } of sites) {
+    if (!(await portFree(port))) throw new Error(`Port ${port} is already in use. Stop whatever is listening there and run again.`);
+  }
   for (const { id } of sites) {
     console.log(`build ${id}`);
     const b = spawnSync('npx', ['astro', 'build', '--outDir', `dist/${id}`], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'inherit' });
     if (b.status !== 0) throw new Error(`build failed for ${id}`);
   }
   for (const { id, port } of sites) {
-    servers.push(spawn('npx', ['astro', 'preview', '--outDir', `dist/${id}`, '--port', String(port)], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'ignore' }));
+    servers.push(spawn('npx', ['astro', 'preview', '--outDir', `dist/${id}`, '--port', String(port)], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'ignore', detached: true }));
   }
   for (const { port } of sites) await waitFor(`http://localhost:${port}/`);
   for (const { id, port } of sites) {

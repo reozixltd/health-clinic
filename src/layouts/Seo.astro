@@ -1,6 +1,6 @@
 ---
 import { site } from '@/config';
-import { organizationSchema } from '@/core/schema';
+import { jsonLd, organizationSchema } from '@/core/schema';
 
 interface Props {
   title: string;
@@ -38,4 +38,4 @@ const graph = [org, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:locale" content={market.locale.replace('-', '_')} />
-<script type="application/ld+json" set:html={JSON.stringify(graph)} />
+<script type="application/ld+json" set:html={jsonLd(graph)} />

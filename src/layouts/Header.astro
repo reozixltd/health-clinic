@@ -18,12 +18,12 @@ const booking = site.modules.includes('booking');
       </ul>
     </nav>
     {variants.map((v) => (
-      <a class="call" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)}>
+      <a class="call" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)} aria-label={`Call ${v.clinic.phone}`}>
         <Icon name="phone" />
         <span>{v.clinic.phone}</span>
       </a>
     ))}
-    {booking && <Button class="book" href="/book/">{site.preset.copy.bookLabel}</Button>}
+    {booking && <div class="book"><Button href="/book/">{site.preset.copy.bookLabel}</Button></div>}
     <button class="menu" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
       <Icon name="menu" />
     </button>
