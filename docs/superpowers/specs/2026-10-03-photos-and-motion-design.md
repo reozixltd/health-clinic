@@ -24,7 +24,7 @@ Success means:
 
 ### 3.1 Files
 
-- Seven stock photos from Unsplash or Pexels, saved as `src/assets/photos/<slot>.jpg`, about 1600 px wide, landscape.
+- Nine stock photos from Unsplash or Pexels, saved as `src/assets/photos/<slot>.jpg`, about 1600 px wide, landscape.
 - `docs/photo-credits.md` lists each slot, source URL, photographer and licence.
 - Rename Hollybank's shared slots in `src/config/photo-slots.ts` so each brand has its own building: `clinic-exterior` → `vet-exterior`, `reception` → `vet-reception`. Fernway keeps the original names.
 
