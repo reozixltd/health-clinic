@@ -56,3 +56,8 @@ a { color: inherit; text-underline-offset: 0.2em; }
     transition-property: color, background-color, border-color, opacity !important;
   }
 }
+
+/* Market variants: every market's text is in the page; the html[data-market] value picks which shows. */
+html[data-market]:not([data-market='AU']) [data-market-only='AU'],
+html[data-market]:not([data-market='CA']) [data-market-only='CA'],
+html[data-market]:not([data-market='UK']) [data-market-only='UK'] { display: none; }

@@ -1,0 +1,29 @@
+---
+import { site, allSites } from '@/config';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import { marketVariants, telHref } from './site';
+
+const variants = marketVariants(site, allSites());
+const booking = site.modules.includes('booking');
+---
+
+<div class="mobile-bar">
+  {booking && <Button class="grow" href="/book/">{site.preset.copy.bookLabel}</Button>}
+  {variants.map((v) => (
+    <Button variant="secondary" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)} aria-label={`Call ${v.clinic.phone}`}>
+      <Icon name="phone" />
+    </Button>
+  ))}
+</div>
+
+<style>
+  .mobile-bar { display: none; }
+  .grow { flex: 1; }
+  @media (max-width: 1023px) {
+    .mobile-bar {
+      display: flex; gap: var(--space-2); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+      padding: var(--space-3) var(--space-4); background: var(--color-paper); border-top: 1px solid var(--color-line);
+    }
+  }
+</style>

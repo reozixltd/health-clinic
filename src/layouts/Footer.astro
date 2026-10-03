@@ -1,0 +1,46 @@
+---
+import { site, allSites } from '@/config';
+import { hoursText, marketVariants, pageLabel, telHref } from './site';
+
+const variants = marketVariants(site, allSites());
+const links = site.preset.nav;
+---
+
+<footer class="footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        {links.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+      </ul>
+    </nav>
+    {variants.map((v) => (
+      <div class="identity" data-market-only={v.id}>
+        <p class="name">{v.clinic.legalName}</p>
+        <p>{v.market.legalIdLabel} {v.clinic.legalId}</p>
+        <address>
+          {v.clinic.address.street}, {v.clinic.address.locality} {v.clinic.address.region} {v.clinic.address.postcode}
+        </address>
+        <p><a href={telHref(v.clinic.phone, v.id)}>{v.clinic.phone}</a></p>
+        <ul class="hours">
+          {v.clinic.hours.map((h) => <li>{hoursText(h)}</li>)}
+        </ul>
+        <p>{v.clinic.emergency.text}</p>
+        <ul class="policies">
+          {v.market.requiredPages.map((p) => <li><a href={p}>{pageLabel(p)}</a></li>)}
+        </ul>
+      </div>
+    ))}
+  </div>
+</footer>
+
+<style>
+  .footer { margin-top: var(--space-8); background: var(--color-surface); border-top: 1px solid var(--color-line); font-size: var(--text-16); }
+  .inner { max-width: 72rem; margin: 0 auto; padding: var(--space-7) var(--space-4); display: grid; gap: var(--space-6); }
+  @media (min-width: 768px) { .inner { grid-template-columns: 1fr 2fr; } }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li a, .identity a { display: inline-flex; align-items: center; min-height: var(--target); }
+  .identity { display: grid; gap: var(--space-2); align-content: start; }
+  .name { font-weight: 700; }
+  address { font-style: normal; }
+  .policies { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+</style>
