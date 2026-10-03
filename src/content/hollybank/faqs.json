@@ -1,0 +1,76 @@
+[
+  {
+    "q": "How do I ask for an appointment?",
+    "a": "Use our booking page, or call us. We reply within 1 business day to confirm your time.",
+    "tags": [
+      "home",
+      "booking"
+    ]
+  },
+  {
+    "q": "Can I see what things cost?",
+    "a": "Yes. Our [price list](/prices/) shows our usual prices and the date we last checked them.",
+    "tags": [
+      "home",
+      "prices"
+    ]
+  },
+  {
+    "q": "Do you give written estimates?",
+    "a": "Yes, before treatment that costs more than 500 pounds. You can also [ask for one](/estimates/) for smaller jobs.",
+    "tags": [
+      "home",
+      "prices"
+    ]
+  },
+  {
+    "q": "Who owns the practice?",
+    "a": "We are an independent practice. Read more on our [ownership page](/ownership/).",
+    "tags": [
+      "home"
+    ]
+  },
+  {
+    "q": "What if my pet is ill at night?",
+    "a": "Call our out of hours number. A vet will call you back. See our [out of hours page](/out-of-hours/).",
+    "tags": [
+      "home",
+      "emergency"
+    ]
+  },
+  {
+    "q": "What should I bring to a visit?",
+    "a": "Bring your pet in a carrier or on a lead, and any medicine they take. We never ask about your pet's health on this website.",
+    "tags": [
+      "booking"
+    ]
+  },
+  {
+    "q": "Can I pay in instalments?",
+    "a": "Ask us before treatment. We can talk about options and about our [pet health plans](/pet-health-plans/).",
+    "tags": [
+      "prices"
+    ]
+  },
+  {
+    "q": "Why is the prescription fee different from the medicine cost?",
+    "a": "The fee covers the vet's time to check your pet and write the prescription. The medicine is priced separately.",
+    "tags": [
+      "prices"
+    ]
+  },
+  {
+    "q": "Which animals do you treat?",
+    "a": "Dogs, cats and rabbits. Call us about other animals.",
+    "tags": [
+      "booking"
+    ]
+  },
+  {
+    "q": "Can I choose my vet?",
+    "a": "Yes. Pick a vet on the booking page, or choose the first free time.",
+    "tags": [
+      "booking"
+    ]
+  }
+]

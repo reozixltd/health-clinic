@@ -5,7 +5,8 @@ export interface Provider {
   slug: string;
   name: string;
   role: string;
-  registration: { body: string; number: string };
+  /** `byMarket` replaces body and number when the visitor's market is CA (Fernway demo). */
+  registration: { body: string; number: string; byMarket?: { CA: { body: string; number: string } } };
   languages: string[];
   services: string[];
   acceptingNew: boolean;

@@ -1,0 +1,132 @@
+[
+  {
+    "service": "physiotherapy",
+    "label": "First visit, 45 minutes",
+    "amount": {
+      "AU": 130,
+      "CA": 120
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "physiotherapy",
+    "label": "Follow-up visit, 30 minutes",
+    "amount": {
+      "AU": 95,
+      "CA": 95
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "sports-physio",
+    "label": "First visit, 45 minutes",
+    "amount": {
+      "AU": 135,
+      "CA": 125
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "sports-physio",
+    "label": "Follow-up visit, 30 minutes",
+    "amount": {
+      "AU": 100,
+      "CA": 100
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "dental-check-up",
+    "label": "Check-up and plan, 30 minutes",
+    "amount": {
+      "AU": 90,
+      "CA": 110
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "dental-check-up",
+    "label": "Child check-up, 20 minutes",
+    "amount": {
+      "AU": 70,
+      "CA": 80
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "dental-hygiene",
+    "label": "Clean, 30 minutes",
+    "amount": {
+      "AU": 140,
+      "CA": 150
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "dental-hygiene",
+    "label": "Clean and gum care, 45 minutes",
+    "amount": {
+      "AU": 190,
+      "CA": 190
+    },
+    "funding": [
+      "fund",
+      "extended",
+      "direct"
+    ]
+  },
+  {
+    "service": "psychology",
+    "label": "First session, 50 minutes",
+    "amount": {
+      "AU": 260,
+      "CA": 230
+    },
+    "funding": [
+      "fund",
+      "medicare",
+      "extended"
+    ]
+  },
+  {
+    "service": "psychology",
+    "label": "Follow-up session, 50 minutes",
+    "amount": {
+      "AU": 240,
+      "CA": 215
+    },
+    "funding": [
+      "fund",
+      "medicare",
+      "extended"
+    ]
+  }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "q": "How do I ask for an appointment?",
+    "a": "Use our booking page, or call us. We reply within 1 business day to confirm your time.",
+    "tags": [
+      "home",
+      "booking"
+    ]
+  },
+  {
+    "q": "Do I need a referral?",
+    "a": "Not to see most of our team. Some funds, plans and workplace schemes need one, so check before you book.",
+    "tags": [
+      "home",
+      "booking"
+    ]
+  },
+  {
+    "q": "What does a first visit cost?",
+    "a": "Our fees list shows every service. The fee for your first visit is the same price as it is on that page. Prices are samples.",
+    "tags": [
+      "home",
+      "fees"
+    ]
+  },
+  {
+    "q": "Can I claim some of the cost back?",
+    "a": "Many people can claim part of the cost from a health fund or benefits plan. Ask your fund what it covers. Our fees page shows what may apply.",
+    "tags": [
+      "home",
+      "fees"
+    ]
+  },
+  {
+    "q": "What should I bring?",
+    "a": "Bring your card or plan details, a list of questions and anything your referrer gave you. We never ask for health details on this website.",
+    "tags": [
+      "home",
+      "booking"
+    ]
+  },
+  {
+    "q": "What if I need to cancel?",
+    "a": "Please tell us at least one business day before. Read our [cancellation policy](/terms/) for the detail.",
+    "tags": [
+      "fees",
+      "booking"
+    ]
+  },
+  {
+    "q": "Is the building easy to get into?",
+    "a": "Yes. There is a step-free entrance and an accessible toilet. Read more on our [contact page](/contact/).",
+    "tags": [
+      "home"
+    ]
+  },
+  {
+    "q": "What if it is an emergency?",
+    "a": "Call the emergency number shown on our contact page. Do not use this website for an emergency.",
+    "tags": [
+      "emergency"
+    ]
+  },
+  {
+    "q": "Do you see children?",
+    "a": "Our dentists and physiotherapists see children. Ask when you book if you are not sure.",
+    "tags": [
+      "booking"
+    ]
+  },
+  {
+    "q": "Who can I ask about my fee?",
+    "a": "Call us before your visit and we will explain it. You can also see [all fees](/fees/).",
+    "tags": [
+      "fees",
+      "prices"
+    ]
+  }
+]

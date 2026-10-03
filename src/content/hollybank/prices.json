@@ -1,0 +1,157 @@
+{
+  "reviewedAt": "2026-09-03",
+  "items": [
+    {
+      "group": "Consultations",
+      "label": "Standard consultation",
+      "amount": 42,
+      "unit": "15 minutes"
+    },
+    {
+      "group": "Consultations",
+      "label": "Extended consultation",
+      "amount": 62,
+      "unit": "30 minutes"
+    },
+    {
+      "group": "Consultations",
+      "label": "Second pet, same visit",
+      "amount": 25
+    },
+    {
+      "group": "Consultations",
+      "label": "Nurse check",
+      "amount": 18
+    },
+    {
+      "group": "Consultations",
+      "label": "Re-check within 14 days",
+      "amount": 0
+    },
+    {
+      "group": "Consultations",
+      "label": "Out of hours consultation",
+      "amount": 145
+    },
+    {
+      "group": "Vaccinations",
+      "label": "Dog annual booster",
+      "amount": 49
+    },
+    {
+      "group": "Vaccinations",
+      "label": "Dog first course, two visits",
+      "amount": 78
+    },
+    {
+      "group": "Vaccinations",
+      "label": "Cat annual booster",
+      "amount": 46
+    },
+    {
+      "group": "Vaccinations",
+      "label": "Cat first course, two visits",
+      "amount": 74
+    },
+    {
+      "group": "Vaccinations",
+      "label": "Rabbit annual vaccination",
+      "amount": 40
+    },
+    {
+      "group": "Vaccinations",
+      "label": "Kennel cough",
+      "amount": 28
+    },
+    {
+      "group": "Dental",
+      "label": "Dental check",
+      "amount": 25
+    },
+    {
+      "group": "Dental",
+      "label": "Scale and polish, cat or small dog",
+      "amount": 285
+    },
+    {
+      "group": "Dental",
+      "label": "Scale and polish, medium or large dog",
+      "amount": 345
+    },
+    {
+      "group": "Dental",
+      "label": "Extraction, each tooth, from",
+      "amount": 45
+    },
+    {
+      "group": "Dental",
+      "label": "Dental X-rays",
+      "amount": 90
+    },
+    {
+      "group": "Neutering",
+      "label": "Male cat",
+      "amount": 70
+    },
+    {
+      "group": "Neutering",
+      "label": "Female cat",
+      "amount": 105
+    },
+    {
+      "group": "Neutering",
+      "label": "Male dog, under 15 kg",
+      "amount": 215
+    },
+    {
+      "group": "Neutering",
+      "label": "Female dog, under 15 kg",
+      "amount": 320
+    },
+    {
+      "group": "Neutering",
+      "label": "Male rabbit",
+      "amount": 75
+    },
+    {
+      "group": "Neutering",
+      "label": "Female rabbit",
+      "amount": 130
+    },
+    {
+      "group": "Neutering",
+      "label": "Post-operation check",
+      "amount": 0
+    },
+    {
+      "group": "Prescriptions",
+      "label": "Prescription fee, first item",
+      "amount": 21
+    },
+    {
+      "group": "Prescriptions",
+      "label": "Prescription fee, each additional item",
+      "amount": 12.5
+    },
+    {
+      "group": "Prescriptions",
+      "label": "Repeat prescription, written only",
+      "amount": 14
+    },
+    {
+      "group": "Prescriptions",
+      "label": "Flea and worm treatment, one month",
+      "amount": 11
+    },
+    {
+      "group": "Prescriptions",
+      "label": "Flea and worm treatment, three months",
+      "amount": 29
+    },
+    {
+      "group": "Prescriptions",
+      "label": "Delivery of medicine by post",
+      "amount": 6
+    }
+  ]
+}
