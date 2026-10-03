@@ -8,6 +8,13 @@ describe('format', () => {
     expect(formatMoney(120, 'GBP', 'en-GB')).toBe('£120');
   });
 
+  it('formatMoney shows whole amounts without decimals and fractions with two', () => {
+    expect(formatMoney(12.5, 'GBP', 'en-GB')).toBe('£12.50');
+    expect(formatMoney(95, 'AUD', 'en-AU')).toBe('$95');
+    expect(formatMoney(0.5, 'CAD', 'en-CA')).toBe('$0.50');
+    expect(formatMoney(12.5, 'GBP', 'en-GB')).not.toBe('£13');
+  });
+
   it('formatDay is weekday, day and month', () => {
     expect(formatDay('2026-10-09', 'en-AU')).toBe('Fri 9 Oct');
   });
