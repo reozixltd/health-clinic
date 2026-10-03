@@ -9,6 +9,7 @@ const RULES = [
   'raw-colour-outside-tokens',
   'section-imports-page',
   'storage-outside-core',
+  'upward-import',
 ];
 
 describe('boundary checker', () => {

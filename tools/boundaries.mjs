@@ -21,6 +21,19 @@ function layerOf(relPath) {
   return top === 'modules' ? `modules/${name}` : top;
 }
 
+const UI = ['sections', 'layouts', 'pages'];
+const DATA = ['config', 'presets', 'content'];
+/** Upward edges not covered by a named rule. */
+function isUpward(from, target) {
+  const t = target.startsWith('modules/') ? 'modules' : target;
+  const f = from.startsWith('modules/') ? 'modules' : from;
+  if (f === 'domain' || f === 'modules') return UI.includes(t);
+  if (f === 'layouts') return t === 'sections' || t === 'pages';
+  if (f === 'sections') return t === 'layouts';
+  if (DATA.includes(f)) return t === 'modules' || UI.includes(t);
+  return false;
+}
+
 function specifiers(text) {
   const re = /(?:\bfrom\s*|\bimport\s*\(?\s*)['"]([^'"]+)['"]/g;
   return [...text.matchAll(re)].map((m) => m[1]);
@@ -52,6 +65,7 @@ export function findViolations(rootDir) {
       else if (from === 'domain' && target.startsWith('modules')) add('domain-imports-module', spec);
       else if (from.startsWith('modules/') && target.startsWith('modules/') && target !== from) add('module-imports-module', spec);
       else if (from === 'sections' && target === 'pages') add('section-imports-page', spec);
+      else if (isUpward(from, target)) add('upward-import', `${from} -> ${target}: ${spec}`);
     }
     if (/\b(?:localStorage|sessionStorage)\b/.test(text) && !STORAGE_OK.includes(rel)) {
       add('storage-outside-core', 'localStorage/sessionStorage');
