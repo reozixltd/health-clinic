@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import { allSites, site } from '@/config';
 import BookingForm from '@/modules/booking/BookingForm.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { configuredMarket, marketVariants } from '@/layouts/site';
+import { configuredMarket, marketVariants, telHref } from '@/layouts/site';
 import PageHeader from '@/sections/PageHeader.astro';
 
 const variants = marketVariants(site, allSites());
@@ -34,6 +34,7 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
       clinicName={site.clinic.name}
       preset={site.preset.id}
       {variants}
+      phones={variants.map((v) => ({ id: v.id, phone: v.clinic.phone, href: telHref(v.clinic.phone, v.id) }))}
       booking={site.booking}
       services={data.services}
       providers={data.providers}

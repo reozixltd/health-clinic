@@ -1,7 +1,7 @@
 ---
 /** Markup for the six-step request: appointment card, progress list and steps. Behaviour lives in booking.ts. */
 import ErrorSummary from '@/core/ui/ErrorSummary.astro';
-import { telHref, type Variant } from '@/layouts/site';
+import type { MarketId, MarketPack } from '@/domain/markets';
 import type { BookingConfig } from '@/domain/types';
 import AppointmentCard from './AppointmentCard.astro';
 import Check from './steps/Check.astro';
@@ -14,13 +14,13 @@ import You from './steps/You.astro';
 interface Props {
   clinicName: string;
   preset: 'allied-health' | 'vet';
-  variants: Variant[];
+  variants: { id: MarketId; market: MarketPack }[];
+  phones: { id: MarketId; phone: string; href: string }[];
   booking: BookingConfig;
   services: { slug: string; title: string; summary: string }[];
   providers: { slug: string; name: string; role: string; services: string[] }[];
 }
-const { clinicName, preset, variants, booking, services, providers } = Astro.props;
-const phones = variants.map((v) => ({ id: v.id, phone: v.clinic.phone, href: telHref(v.clinic.phone, v.id) }));
+const { clinicName, preset, variants, booking, services, providers, phones } = Astro.props;
 const vet = preset === 'vet';
 const handoff = booking.provider !== 'none' && Boolean(booking.url);
 const names = ['Service', vet ? 'Vet' : 'Clinician', vet ? 'Pet' : 'Patient', 'When', 'You', 'Check'];
