@@ -35,7 +35,8 @@ async function toYou(page) {
 
 await step('axe finds no serious or critical issues', async () => {
   for (const theme of THEMES) {
-    await withPage({}, async (page) => {
+    // Reduced motion, so scroll reveals never hide below-the-fold content from axe.
+    await withPage({ reducedMotion: 'reduce' }, async (page) => {
       const pages = [['/', 'home'], [vet ? '/prices/' : '/fees/', 'fees or prices']];
       for (const [path, name] of pages) {
         await page.goto(`${BASE}${path}`);
