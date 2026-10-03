@@ -1,0 +1,54 @@
+---
+/** The appointment card: a paper card with the clinic name and ruled lines that fill as choices are made. */
+import { cardFields } from './card';
+import type { BookingState } from './state';
+
+interface Props {
+  clinicName: string;
+  preset: 'allied-health' | 'vet';
+  locale: string;
+}
+const { clinicName, preset, locale } = Astro.props;
+const blank: BookingState = { service: null, provider: 'first-available', patientType: null, forWhom: 'me', pet: null, day: null, windowId: null, step: 'service' };
+const fields = cardFields(blank, { services: [], providers: [], windows: [], preset, locale });
+const title = preset === 'vet' ? 'Your pet’s appointment request' : 'Your appointment request';
+---
+
+<section class="card" aria-labelledby="card-title" data-card>
+  <p class="card__clinic">{clinicName}</p>
+  <h2 class="card__title" id="card-title">{title}</h2>
+  <dl class="card__lines">
+    {fields.map((f) => (
+      <div class="line" data-line={f.label}>
+        <dt>{f.label}</dt>
+        <dd><span class="visually-hidden">Not chosen yet</span></dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<style>
+  .card {
+    padding: var(--space-5);
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    display: grid;
+    gap: var(--space-3);
+  }
+  .card__clinic { margin: 0; font-weight: 700; font-size: var(--text-18); }
+  .card__title { font-size: var(--text-16); font-weight: 600; color: var(--color-ink-muted); }
+  .card__lines { display: grid; gap: var(--space-2); margin: 0; }
+  .line { display: grid; grid-template-columns: 6.5rem 1fr; align-items: end; gap: var(--space-3); }
+  dt { font-size: var(--text-14); color: var(--color-ink-muted); padding-bottom: var(--space-1); }
+  dd {
+    margin: 0;
+    min-height: 2rem;
+    padding: var(--space-1) var(--space-2);
+    border-bottom: 1px solid var(--color-ink-muted);
+    background-color: transparent;
+    transition: background-color var(--dur-fill) ease;
+    font-weight: 600;
+  }
+  .line[data-filled] dd { background-color: var(--color-accent); color: var(--color-ink); }
+</style>

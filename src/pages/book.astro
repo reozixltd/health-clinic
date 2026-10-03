@@ -1,0 +1,101 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '@/config';
+import BookingForm from '@/modules/booking/BookingForm.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { telHref } from '@/layouts/site';
+import PageHeader from '@/sections/PageHeader.astro';
+
+const { market } = site;
+const services = (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order);
+const providers = (await getCollection('providers')).map((p) => p.data);
+const confirmation = site.messages.find((m) => m.id === 'confirmation');
+const phoneHref = telHref(site.clinic.phone, market.id);
+const data = {
+  siteId: site.id,
+  marketId: market.id,
+  preset: site.preset.id,
+  clinicName: site.clinic.name,
+  timeZone: site.clinic.timeZone,
+  phone: site.clinic.phone,
+  booking: site.booking,
+  demo: site.demoMode,
+  confirmation: confirmation?.body ?? null,
+  services: services.map(({ slug, title, summary }) => ({ slug, title, summary })),
+  providers: providers.map(({ slug, name, role, services: offered, acceptingNew }) => ({ slug, name, role, services: offered, acceptingNew })),
+};
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<BaseLayout title={`Request an appointment | ${site.clinic.name}`} description={`Ask for a time at ${site.clinic.name}. It takes about two minutes and we confirm ${site.booking.confirmPromise}.`} hideMobileBar>
+  <PageHeader title="Request an appointment" lede={`It takes about two minutes. We'll confirm the time ${site.booking.confirmPromise}.`} />
+  <div id="booking-root">
+    <BookingForm
+      clinicName={site.clinic.name}
+      preset={site.preset.id}
+      {market}
+      booking={site.booking}
+      services={data.services}
+      providers={data.providers}
+      phone={site.clinic.phone}
+      {phoneHref}
+    />
+    <section class="sent" id="booking-sent" aria-labelledby="sent-title" tabindex="-1" hidden>
+      <h2 id="sent-title">Appointment request sent</h2>
+      <p>We'll confirm by SMS {site.booking.confirmPromise}.</p>
+      <div data-preview hidden>
+        <h3>Sample confirmation text</h3>
+        <p class="sent__text" data-preview-text></p>
+        <p>Sample only. This is what a confirmation message looks like.</p>
+      </div>
+    </section>
+  </div>
+  <script type="application/json" id="booking-data" set:html={json} is:inline></script>
+</BaseLayout>
+
+<script>
+  import { getLeadRepository } from '@/core/leads';
+  import { todayIn } from '@/core/format';
+  import { getMarket, type MarketId } from '@/domain/markets';
+  import type { BookingConfig, Provider, Service } from '@/domain/types';
+  import { initBooking } from '@/modules/booking/booking';
+  import { availableDays } from '@/modules/booking/state';
+  import { render } from '@/modules/reminders/render';
+
+  const data = JSON.parse(document.getElementById('booking-data')!.textContent!) as {
+    siteId: string; marketId: MarketId; preset: 'allied-health' | 'vet'; clinicName: string; timeZone: string; phone: string;
+    booking: BookingConfig; demo: boolean; confirmation: string | null; services: Service[]; providers: Provider[];
+  };
+  const market = getMarket(data.marketId);
+  const root = document.querySelector<HTMLElement>('[data-booking]')!;
+  const sent = document.getElementById('booking-sent')!;
+  const windows = data.booking.windows;
+
+  initBooking(root, {
+    repo: getLeadRepository(`health:v1:${data.siteId}`),
+    fallbackPhone: data.phone,
+    data: { services: data.services, providers: data.providers, windows, preset: data.preset, market, booking: data.booking,
+      days: availableDays(todayIn(data.timeZone, new Date()), data.booking, market.locale) },
+    onSent(lead) {
+      const p = lead.payload;
+      root.querySelector('form')!.hidden = true;
+      root.querySelector('.progress')!.setAttribute('hidden', '');
+      const preview = sent.querySelector<HTMLElement>('[data-preview]')!;
+      if (data.demo && data.confirmation) {
+        const day = root.querySelector('[data-line="Day"] dd')?.textContent ?? p.day;
+        preview.hidden = false;
+        preview.querySelector('[data-preview-text]')!.textContent = render(data.confirmation, {
+          firstName: lead.contact.firstName, clinicName: data.clinicName, dayLabel: day,
+          windowLabel: windows.find((w) => w.id === p.windowId)?.label ?? '',
+        });
+      }
+      sent.hidden = false;
+      sent.focus();
+    },
+  });
+</script>
+
+<style>
+  .sent { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-8); display: grid; gap: var(--space-3); }
+  .sent__text { padding: var(--space-3); background: var(--color-surface); border-radius: var(--radius-control); }
+</style>

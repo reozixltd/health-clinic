@@ -1,0 +1,25 @@
+---
+import Button from '@/core/ui/Button.astro';
+
+interface Props { consent: { sms: string; email: string }; confirmPromise: string; hidden?: boolean }
+const { consent, confirmPromise, hidden = true } = Astro.props;
+---
+
+<section class="step" data-step="check" aria-labelledby="h-check" hidden={hidden}>
+  <h2 id="h-check" tabindex="-1">Check and send</h2>
+  <p>Check your appointment card. We'll confirm by SMS {confirmPromise}.</p>
+  <div class="ticks">
+    <div class="tick">
+      <label><input type="checkbox" name="terms" id="terms" aria-describedby="terms-error" /> <span>I agree to the <a href="/terms/" target="_blank" rel="noopener">terms</a> and <a href="/privacy/" target="_blank" rel="noopener">privacy policy</a>.</span></label>
+      <p class="err" id="terms-error" data-error-for="terms"></p>
+    </div>
+    <div class="tick"><label><input type="checkbox" name="remindersSms" id="remindersSms" checked /> <span>Text me my confirmation and appointment reminders.</span></label></div>
+    <div class="tick"><label><input type="checkbox" name="marketingSms" id="marketingSms" /> <span>{consent.sms}</span></label></div>
+    <div class="tick"><label><input type="checkbox" name="marketingEmail" id="marketingEmail" /> <span>{consent.email}</span></label></div>
+  </div>
+  <p class="status" role="alert" data-form-status></p>
+  <div class="nav">
+    <Button variant="secondary" data-back>Back</Button>
+    <Button type="submit" size="lg" data-send>Send appointment request</Button>
+  </div>
+</section>

@@ -1,0 +1,28 @@
+---
+import Button from '@/core/ui/Button.astro';
+
+interface Props { providers: { slug: string; name: string; role: string; services: string[] }[]; vet: boolean; hidden?: boolean }
+const { providers, vet, hidden = true } = Astro.props;
+---
+
+<section class="step" data-step="clinician" aria-labelledby="h-clinician" hidden={hidden}>
+  <h2 id="h-clinician" tabindex="-1">{vet ? 'Choose a vet or nurse' : 'Choose a clinician'}</h2>
+  <fieldset class="choices">
+    <legend class="visually-hidden">{vet ? 'Vet or nurse' : 'Clinician'}</legend>
+    <label class="choice">
+      <input type="radio" name="provider" id="provider-first" value="first-available" checked />
+      <span class="choice__text"><strong>First available</strong><span>We'll match you with the first free {vet ? 'vet or nurse' : 'clinician'}.</span></span>
+    </label>
+    {providers.map((p) => (
+      <label class="choice" data-provider={p.slug} hidden>
+        <input type="radio" name="provider" id={`provider-${p.slug}`} value={p.slug} />
+        <span class="choice__text"><strong>{p.name}</strong><span>{p.role}</span></span>
+      </label>
+    ))}
+  </fieldset>
+  <p class="note" data-clinician-note hidden></p>
+  <div class="nav">
+    <Button variant="secondary" data-back>Back</Button>
+    <Button data-next>Continue</Button>
+  </div>
+</section>

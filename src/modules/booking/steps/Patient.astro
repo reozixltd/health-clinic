@@ -1,0 +1,42 @@
+---
+import Button from '@/core/ui/Button.astro';
+import Field from '@/core/ui/Field.astro';
+
+interface Props { vet: boolean; hidden?: boolean }
+const { vet, hidden = true } = Astro.props;
+---
+
+<section class="step" data-step="patient" aria-labelledby="h-patient" hidden={hidden}>
+  <h2 id="h-patient" tabindex="-1">{vet ? 'About your pet' : 'About the patient'}</h2>
+  {vet && (
+    <div class="pair">
+      <Field name="petName" label="Pet's name" required autocomplete="off" />
+      <div class="field">
+        <label for="species">Species</label>
+        <select id="species" name="species">
+          <option value="dog">Dog</option>
+          <option value="cat">Cat</option>
+          <option value="rabbit">Rabbit</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+  )}
+  <fieldset class="choices">
+    <legend>{vet ? 'Has your pet been to us before?' : 'Have you been to us before?'}</legend>
+    <label class="choice"><input type="radio" name="patientType" id="patientType-new" value="new" aria-describedby="patientType-error" /><span class="choice__text"><strong>{vet ? 'New to us' : 'New patient'}</strong></span></label>
+    <label class="choice"><input type="radio" name="patientType" id="patientType-returning" value="returning" aria-describedby="patientType-error" /><span class="choice__text"><strong>{vet ? 'Seen here before' : 'Returning patient'}</strong></span></label>
+  </fieldset>
+  <p class="err" id="patientType-error" data-error-for="patientType"></p>
+  {!vet && (
+    <fieldset class="choices">
+      <legend>Who is the appointment for?</legend>
+      <label class="choice"><input type="radio" name="forWhom" id="forWhom-me" value="me" checked /><span class="choice__text"><strong>Me</strong></span></label>
+      <label class="choice"><input type="radio" name="forWhom" id="forWhom-else" value="someone-else" /><span class="choice__text"><strong>Someone else</strong></span></label>
+    </fieldset>
+  )}
+  <div class="nav">
+    <Button variant="secondary" data-back>Back</Button>
+    <Button data-next>Continue</Button>
+  </div>
+</section>

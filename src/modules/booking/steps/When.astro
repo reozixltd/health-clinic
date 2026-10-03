@@ -1,0 +1,33 @@
+---
+import Button from '@/core/ui/Button.astro';
+
+interface Props { windows: { id: string; label: string; start: string; end: string }[]; horizonDays: number; phone: string; phoneHref: string; hidden?: boolean }
+const { windows, horizonDays, phone, phoneHref, hidden = true } = Astro.props;
+---
+
+<section class="step" data-step="when" aria-labelledby="h-when" hidden={hidden}>
+  <h2 id="h-when" tabindex="-1">Pick a day and time</h2>
+  <p>Choose a day that suits. This is a request: we'll confirm the time.</p>
+  <p class="note" data-no-days hidden>No times are open in the next {horizonDays} days. Call us and we'll find one. <a href={phoneHref}>{phone}</a></p>
+  <div data-when-fields>
+    <fieldset class="choices choices--row">
+      <legend>Day</legend>
+      <div class="choices choices--row" data-days></div>
+    </fieldset>
+    <p class="err" id="day-error" data-error-for="day"></p>
+    <fieldset class="choices choices--row">
+      <legend>Time</legend>
+      {windows.map((w) => (
+        <label class="choice">
+          <input type="radio" name="windowId" id={`windowId-${w.id}`} value={w.id} aria-describedby="windowId-error" />
+          <span class="choice__text"><strong>{w.label}</strong></span>
+        </label>
+      ))}
+    </fieldset>
+    <p class="err" id="windowId-error" data-error-for="windowId"></p>
+  </div>
+  <div class="nav">
+    <Button variant="secondary" data-back>Back</Button>
+    <Button data-next data-when-next>Continue</Button>
+  </div>
+</section>
