@@ -1,0 +1,49 @@
+/* Clinic console styles. Tokens only. */
+.console { max-width: 80rem; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-8); }
+.login { max-width: 28rem; margin: var(--space-7) auto; display: grid; gap: var(--space-4); }
+.login__error { color: var(--color-danger); min-height: 1.6em; }
+.field { display: grid; gap: var(--space-1); }
+.field label, .detail__note label { font-weight: 600; }
+.field input, .field select, .detail__note textarea {
+  min-height: var(--target); padding: var(--space-2) var(--space-3); background: var(--color-card);
+  border: 1px solid var(--color-field-border); border-radius: var(--radius-control);
+}
+.console-btn {
+  min-height: var(--target); padding: 0 var(--space-4); border: 1px solid var(--color-ink);
+  border-radius: var(--radius-control); font-weight: 600;
+}
+.console-btn--primary { background: var(--color-ink); color: var(--color-on-ink); }
+.console-btn--secondary { background: var(--color-card); color: var(--color-ink); border-color: var(--color-field-border); }
+.app__bar { display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; align-items: center; }
+.app__bar h1 { font-size: var(--text-28); }
+.app__tools { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.app__message { min-height: 1.6em; color: var(--color-ink-muted); }
+.warning { padding: var(--space-3) var(--space-4); background: var(--color-warning-soft); color: var(--color-warning); border-radius: var(--radius-control); font-weight: 600; margin-top: var(--space-3); }
+.app__body { display: grid; gap: var(--space-5); grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); align-items: start; margin-top: var(--space-3); }
+@media (max-width: 52rem) { .app__body { grid-template-columns: minmax(0, 1fr); } }
+.app__list { display: grid; gap: var(--space-3); }
+.app__detail { background: var(--color-card); border: 1px solid var(--color-line); border-radius: var(--radius-card); padding: var(--space-5); display: grid; gap: var(--space-3); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip { min-height: var(--target); padding: 0 var(--space-4); background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); }
+.chip[aria-pressed='true'] { background: var(--color-ink); color: var(--color-on-ink); border-color: var(--color-ink); }
+.inbox { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.inbox__empty { color: var(--color-ink-muted); }
+.inbox__row { width: 100%; min-height: var(--target); text-align: left; display: grid; gap: var(--space-1); padding: var(--space-3); background: var(--color-card); border: 1px solid var(--color-line); border-radius: var(--radius-card); }
+.inbox__row[aria-current='true'] { border-color: var(--color-ink); box-shadow: inset 4px 0 0 var(--color-ink); }
+.inbox__name { font-weight: 600; }
+.inbox__meta { color: var(--color-ink-muted); font-size: var(--text-14); }
+.inbox__status { font-size: var(--text-14); font-weight: 600; }
+.inbox__status--new { color: var(--color-warning); }
+.inbox__status--confirmed, .inbox__status--done { color: var(--color-success); }
+.inbox__status--declined { color: var(--color-danger); }
+.detail__list { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); }
+.detail__list dt { color: var(--color-ink-muted); }
+.detail__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.detail__note { display: grid; gap: var(--space-2); justify-items: start; max-width: 36rem; }
+.detail__note textarea { width: 100%; }
+.detail__history { margin: 0; padding-left: var(--space-5); }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.timeline__item { padding: var(--space-3) var(--space-4); background: var(--color-surface); border-radius: var(--radius-card); display: grid; gap: var(--space-1); }
+.timeline__item h4 { font-size: var(--text-16); }
+.timeline__meta, .timeline__preview { color: var(--color-ink-muted); font-size: var(--text-14); }
+.timeline__reason { font-weight: 600; color: var(--color-warning); }
