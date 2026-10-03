@@ -29,4 +29,5 @@ const { providers } = Astro.props;
   h2 a { display: inline-flex; align-items: center; min-height: var(--target); }
   p { color: var(--color-ink-muted); }
   .note { color: var(--color-warning); font-weight: 600; }
+  @media (hover: hover) { :global(html:not([data-motion='off'])) .row:hover :global(.photo img) { transform: scale(1.03); } }
 </style>

@@ -93,3 +93,11 @@ const names = ['Service', vet ? 'Vet' : 'Clinician', vet ? 'Pet' : 'Patient', 'W
   .book .handoff iframe { width: 100%; min-height: 28rem; border: 1px solid var(--color-line); }
   .book .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 </style>
+<style is:global>
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes step-in { from { opacity: 0; transform: translateX(var(--step-from, 0)); } }
+    html:not([data-motion='off']) #booking-root form[data-dir] .step:not([hidden]) { animation: step-in 250ms cubic-bezier(0.22, 1, 0.36, 1); }
+  }
+  #booking-root form[data-dir='forward'] { --step-from: 16px; }
+  #booking-root form[data-dir='back'] { --step-from: -16px; }
+</style>

@@ -134,5 +134,65 @@ await step('the console has no reveal markup', async () => {
   });
 });
 
+await step('hero text and photo animate in, and end fully visible', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/`);
+    const names = await page.locator('.hero .copy > *, .hero img').evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => getComputedStyle(e).animationName));
+    expect(names.length >= 4 && names.every((n) => n !== 'none'), `hero animation names: ${names}`);
+    await page.waitForTimeout(1000);
+    const ends = await page.locator('.hero .copy > *, .hero img').evaluateAll((els) => els.filter((e) => e.getClientRects().length).map((e) => getComputedStyle(e).opacity));
+    expect(ends.every((o) => o === '1'), `hero end opacities: ${ends}`);
+  });
+});
+
+await step('reduced motion: the hero does not animate', async () => {
+  await withPage({ reducedMotion: 'reduce' }, async (page) => {
+    await page.goto(`${BASE}/`);
+    const names = await page.locator('.hero .copy > *, .hero img').evaluateAll((els) => els.map((e) => getComputedStyle(e).animationName));
+    expect(names.every((n) => n === 'none'), `hero animation names: ${names}`);
+  });
+});
+
+await step('booking: moving on slides the next step in from the right, going back from the left', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/book/`);
+    const form = page.locator('#booking-root form');
+    expect((await form.getAttribute('data-dir')) === null, 'no direction on first load');
+    await page.locator('input[name="service"]').first().check();
+    await page.locator('[data-step]:not([hidden]) [data-next]').first().click();
+    expect((await form.getAttribute('data-dir')) === 'forward', 'direction after Next');
+    const name = await page.locator('[data-step]:not([hidden])').evaluate((e) => getComputedStyle(e).animationName);
+    expect(name === 'step-in', `step animation: ${name}`);
+    await page.locator('[data-step]:not([hidden]) [data-back]').first().click();
+    expect((await form.getAttribute('data-dir')) === 'back', 'direction after Back');
+    await page.waitForTimeout(400);
+    const end = await page.locator('[data-step]:not([hidden])').evaluate((e) => getComputedStyle(e).opacity);
+    expect(end === '1', `step end opacity: ${end}`);
+  });
+});
+
+await step('booking under reduced motion: steps change with no animation', async () => {
+  await withPage({ reducedMotion: 'reduce' }, async (page) => {
+    await page.goto(`${BASE}/book/`);
+    await page.locator('input[name="service"]').first().check();
+    await page.locator('[data-step]:not([hidden]) [data-next]').first().click();
+    const s = await page.locator('[data-step]:not([hidden])').evaluate((e) => ({ a: getComputedStyle(e).animationName, t: getComputedStyle(e).transform }));
+    expect(s.a === 'none' && s.t === 'none', `step under reduced motion: ${JSON.stringify(s)}`);
+  });
+});
+
+await step('page changes cross-fade where the browser supports it, and never under reduced motion', async () => {
+  const rule = () => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } })
+    .some((r) => r.cssText.includes('@view-transition') && matchMedia(r.conditionText ?? 'all').matches);
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/`);
+    expect(await page.evaluate(rule), 'view transition rule should apply');
+  });
+  await withPage({ reducedMotion: 'reduce' }, async (page) => {
+    await page.goto(`${BASE}/`);
+    expect(!(await page.evaluate(rule)), 'view transition rule should not apply under reduced motion');
+  });
+});
+
 await closeBrowser();
 finish();

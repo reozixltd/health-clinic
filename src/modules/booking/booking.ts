@@ -139,6 +139,9 @@ export function initBooking(root: HTMLElement, deps: BookingDeps): void {
   }
 
   function show(id: StepId, push: boolean, focus = true): void {
+    // The visitor moved (push): the CSS in BookingForm slides the step in from that side. Loads and history moves do not animate.
+    if (push) form.dataset.dir = STEP_IDS.indexOf(id) >= STEP_IDS.indexOf(state.step) ? 'forward' : 'back';
+    else delete form.dataset.dir;
     state = { ...state, step: id };
     steps.forEach((s) => (s.hidden = s.dataset.step !== id));
     root.querySelectorAll<HTMLElement>('[data-progress]').forEach((li) => (li.dataset.progress === id ? li.setAttribute('aria-current', 'step') : li.removeAttribute('aria-current')));
