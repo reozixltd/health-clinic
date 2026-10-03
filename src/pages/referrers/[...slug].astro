@@ -1,13 +1,16 @@
 ---
 import { getCollection } from 'astro:content';
 import { site, allSites } from '@/config';
-import { isOn } from '@/domain/modules';
+import { indexPaths } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { marketVariants } from '@/layouts/site';
 import ReferralForm from '@/modules/referrals/ReferralForm.astro';
 import PageHeader from '@/sections/PageHeader.astro';
 
-if (!isOn('referrals', site)) return new Response(null, { status: 404 });
+export function getStaticPaths() {
+  return indexPaths('referrals', site);
+}
+
 const { clinic } = site;
 const services = (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order);
 const variants = marketVariants(site, allSites());
