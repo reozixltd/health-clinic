@@ -1,0 +1,30 @@
+{
+  "name": "health-clinic",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "build:all": "SITE=fernway-au astro build --outDir dist/fernway-au && SITE=fernway-ca astro build --outDir dist/fernway-ca && SITE=hollybank astro build --outDir dist/hollybank",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node tools/check-boundaries.mjs && vitest run",
+    "e2e": "node tests/e2e/run.mjs",
+    "budget": "node tools/js-budget.mjs",
+    "photos:status": "node tools/photo-brief.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.11.0",
+    "jsdom": "^29.1.1",
+    "playwright": "^1.63.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
+}
