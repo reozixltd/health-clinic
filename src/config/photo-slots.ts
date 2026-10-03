@@ -36,11 +36,11 @@ export const photoRoles: Record<string, Record<PhotoRole, string>> = {
 /** Alt text for room slots. Provider photos take their alt from the clinician's name and role. */
 export const photoAlt: Record<string, string> = {
   'clinic-exterior': 'Front entrance of the clinic',
-  reception: 'Reception desk and waiting area',
-  'treatment-room-physio': 'Physiotherapy treatment room with a treatment table',
+  reception: 'Bright waiting area with a reception counter and blue chairs',
+  'treatment-room-physio': 'Treatment room with a treatment table',
   'treatment-room-dental': 'Dental surgery with the chair set up',
   'consulting-room-psychology': 'Quiet consulting room with two chairs',
-  'vet-exterior': 'Small clinic building with a blue front door',
+  'vet-exterior': 'Small white single-storey building with a blue door',
   'vet-reception': 'Reception desk with lockers behind it',
   'consult-room': 'Consulting room with an exam table',
   'prep-and-theatre': 'Theatre with the operating table and surgical light',

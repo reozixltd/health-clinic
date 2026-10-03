@@ -5,7 +5,7 @@ The demo photos are licence-free stock of rooms and buildings. None shows a pers
 | Slot | Photographer | Source page | Licence |
 |---|---|---|---|
 | `clinic-exterior` | Miff Ibra | https://www.pexels.com/photo/32674963/ | Pexels Licence |
-| `reception` | Los Muertos Crew | https://www.pexels.com/photo/8459996/ | Pexels Licence |
+| `reception` | Los Muertos Crew (signage retouched out) | https://www.pexels.com/photo/8459996/ | Pexels Licence |
 | `treatment-room-physio` | Ivan Babydov | https://www.pexels.com/photo/7789602/ | Pexels Licence |
 | `treatment-room-dental` | MM Dental | https://www.pexels.com/photo/9062525/ | Pexels Licence |
 | `consulting-room-psychology` | Bùi Hoàng Long | https://www.pexels.com/photo/16666312/ | Pexels Licence |
