@@ -123,3 +123,32 @@ Final: parked — ReviewsBand empty-band CSS hard-codes AU/CA/UK — Ruling: har
 Final: parked — price staleness flag computed at build time gives false negatives on sites not rebuilt — Ruling: brief asked for build time; a view-time due-date compare is the better follow-up — cost if wrong: warning missed on a neglected site.
 Final: parked — market-id-branch boundary rule catches only ===/!== literals — Ruling: guard rail, not a guarantee — cost if wrong: a future branch slips past review.
 Final: parked — console bundle still imports reminders/schedule when reminders is off; live console shows demo credentials pending real auth — Ruling: out of v1 scope (spec §12 real auth) — cost if wrong: small extra JS.
+
+## Photos and motion (2026-10-04)
+
+Plan: `docs/superpowers/plans/2026-10-03-photos-and-motion.md`. Spec: `docs/superpowers/specs/2026-10-03-photos-and-motion-design.md`.
+
+Tasks 1 to 7 complete with task reviews (commits 92c47f1..3b76372, 98e5622). Verification pass at 98e5622:
+
+- `npm test`: 221 passed, 32 files.
+- `npm run check`: 0 errors, 4 hints.
+- `npm run e2e`: exit 0, 209 ok, 14 skip, 0 fail.
+- `npm run budget`: largest page 9,183 gzipped bytes (`/book/`), limit 30,720.
+- Lighthouse: not run. No script runs it.
+- Motion audit: the tiered MotionScore audit needs a Motion+ sign-in and was not run. A plain performance read found every animation runs on the compositor with no layout cost. Open question: the hero photo fades from opacity 0, which may delay the largest paint.
+- Taste review: 32 screenshots (home, a service page, team, `/book/` at 375 and 1280, both themes, Fernway and Hollybank). Fixed in 7cd2a03: raw markdown link in service page answers, service photo capped to the text width, first-visit row top-aligned, 1px line on photo frames.
+
+Ruling P1: photos chosen by an implementer that views each image, with a reviewer that opens them — cost if wrong: a weak photo, replaced by saving over the file.
+Ruling P2: the photo and motion e2e files skip on fixture sites — cost if wrong: none; fixtures have no photos and one has motion off.
+Ruling P4: `consult-room` is a plain clinical room under a Creative Commons licence — cost if wrong: swap one file and its credits row.
+Ruling P5: `reception.jpg` is a retouched copy with signage painted out — cost if wrong: a faint smudge on the Fernway hero; save a different file over it.
+Ruling P6: the contact page grid is two equal columns from 768px, not the plan's rule — cost if wrong: a narrower address column on wide screens.
+Ruling P7: the page cross-fade rule lives in `BaseLayout`, so `/console/` and `/dev/` get none — cost if wrong: one rule moves back.
+Ruling P9: a plain performance read stands in for the tiered motion audit — cost if wrong: sign in to Motion+ and run it.
+Ruling P10: the taste fix wave covers only what this change added, plus the broken link text — cost if wrong: small follow-ups.
+
+Taste findings not applied (older content and layout): one price only on the Fernway home service list; thin fees and reviews sections on Fernway home; team intro promises registration numbers the rows do not show; trust strip hairlines overhang the gutter; empty appointment card is quiet; step markers wrap at 375; "What patients say" on the vet site; sample-content note sits mid-page on service pages.
+
+Taste advice that conflicts with the design system, not applied: card grids or carousels for long lists; bento layouts and pinned or perpetual motion; Tailwind and icon libraries; photo avatars for clinicians; dark mode; no hairline between rows.
+
+Photos worth swapping when real ones exist: `vet-exterior`, `vet-reception`, `clinic-exterior`, `treatment-room-physio`, and the retouched `reception`.
