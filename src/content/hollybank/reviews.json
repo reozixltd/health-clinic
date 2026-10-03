@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Sophie M.",
+    "date": "2026-09-10",
+    "rating": 5,
+    "source": "Sample review for demonstration",
+    "text": "The vet showed me the price list before we started. No surprises, and my cat was calm."
+  },
+  {
+    "name": "Dan R.",
+    "date": "2026-08-19",
+    "rating": 5,
+    "source": "Sample review for demonstration",
+    "text": "Our puppy had her first jabs here. The nurse was patient and kind."
+  },
+  {
+    "name": "Aisha K.",
+    "date": "2026-07-05",
+    "rating": 4,
+    "source": "Sample review for demonstration",
+    "text": "Clear estimate for my dog's dental work. Waiting room was busy but we were seen on time."
+  },
+  {
+    "name": "Peter W.",
+    "date": "2026-06-21",
+    "rating": 5,
+    "source": "Sample review for demonstration",
+    "text": "Great after-surgery check. They rang the next day to see how he was."
+  }
+]

@@ -5,7 +5,8 @@ export interface Provider {
   slug: string;
   name: string;
   role: string;
-  registration: { body: string; number: string };
+  /** `byMarket` replaces body and number when the visitor's market is CA (Fernway demo). */
+  registration: { body: string; number: string; byMarket?: { CA: { body: string; number: string } } };
   languages: string[];
   services: string[];
   acceptingNew: boolean;
@@ -54,6 +55,8 @@ export interface Clinic {
   owner?: { name: string; group?: string; independent: boolean };
   map: { lat: number; lng: number };
   registerUrl?: string;
+  /** Public page where patients leave a review (AU shows a link, no quotes). */
+  reviewsUrl?: string;
   /** Estimates above this amount need a written estimate (Task 14; default 500). */
   estimateThreshold?: number;
 }
