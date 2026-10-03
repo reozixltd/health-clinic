@@ -20,6 +20,7 @@ SITE=fernway-au npm run dev     # or fernway-ca, hollybank (default fernway-au)
 npm test                        # boundary checker, then unit tests
 npm run check                   # astro check: strict types and content schemas
 npm run build:all               # builds all three demo sites into dist/<id>/
+npm run budget                  # after build:all: page JavaScript stays at or under 30 KB gzipped
 npm run e2e                     # builds, serves and tests every site in a browser
 npm run photos:status           # lists photo slots and writes docs/photo-brief.md
 ```

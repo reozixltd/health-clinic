@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-// @ts-expect-error plain .mjs tool without types
+// @ts-ignore plain .mjs tool without types
 import { thirdParty } from '../../tools/third-party.mjs';
 
 const own = 'https://health.reozix.com';

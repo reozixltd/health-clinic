@@ -1,6 +1,6 @@
 # Health Clinic Modular Site: Spec
 
-Status: v0.1, draft for review (3 October 2026).
+Status: v0.2, built (3 October 2026).
 Owner: Reozix. Reviewers: Roby (technical scope), Rownak (delivery and cost), final approver (positioning and pricing).
 Inputs: *Health & Medical Services: Agency Opportunity Guide* (scopes S1-S12, packages P1-P6, build standards), the full *Health & Medical Services Digital Opportunity Report*, the Clearday cleaning demo spec and plan (conventions), and the brainstorming decisions in §2.
 
@@ -445,3 +445,26 @@ Live practice-system availability (Cliniko API first), real SMS and email sendin
 4. Drop real photos into `src/assets/photos/`; run `npm run photos:status`.
 5. Production storage and messaging: implement `HttpLeadRepository`; send messages server-side from `messages.ts`.
 6. Confirm the market pack with local counsel; run `npm test`, `npm run check`, `npm run build`, `npm run e2e` before deploying.
+
+## 15. Build notes
+
+Differences from the spec above, and what was measured.
+
+**Where the build differs from the spec**
+
+- Money (R14): `formatMoney` shows whole amounts without decimals and fractional amounts with two (`£12.50`), because §7.6 pins `£12.50`.
+- Market text (R18): pages that show market-dependent text render one variant per market in `site.markets`, each in `data-market-only`, so `?market=` switching works in demo mode. `configuredMarket(site)` is for build-market data such as JSON-LD.
+- Consents (R20): consents sit in step 5 "You" on `/book/` as §7.2 says, so an empty step 5 lists 6 errors (7 for vet).
+- Dates (R21): `formatDate` gives day, month and year with no weekday (`3 September 2026`). Reviewed and updated dates all use it.
+- Gated routes (R22, R26): every module route is `route/[...slug].astro` with `indexPaths` or `routesFor` in `getStaticPaths`, `/book/` included. A module that is off leaves no page, no sitemap entry and a 404.
+- No JavaScript (R24): criterion 5 means no page loads JavaScript for a module that is off. Astro may leave unused bundles in `_astro/`. No built HTML references them, and the module-off fixture checks that.
+- Also built late: a build warning for unverified market packs when `demoMode` is false (§5.5, R25a), and a `nav` override in `site.ts` (§6, R25b).
+
+**Measured results (3 October 2026)**
+
+- Unit tests: 184 pass. `astro check`: 0 errors. Boundary checker clean.
+- Page JavaScript, gzipped, largest page on each site (`/book/`): Fernway AU 9,256 bytes, Fernway CA 9,256, Hollybank 9,263. The limit is 30,720.
+- End to end: all three sites and the module-off fixture pass. axe finds no serious or critical issues on the home page, `/book/` (step 1 and step 5 with errors), a team page, fees or prices, and the signed-in console, in both themes.
+- Tap targets are at least 44px in the header, hero, mobile bar and booking form at 375px. Reduced motion removes the button press scale and keeps the card fade at 160ms.
+- Lighthouse was not run. `npx lighthouse` is not installed and the sandbox is offline, so the JS budget and the axe, tap-target and motion checks stood in for it. Run it before sale.
+- Visual review (375 and 1280, both themes) found and fixed: the header Book button text spilling out of its box (a `.book` class clash with the booking form), uneven service-row columns, cramped team photo placeholders, and raw markdown links in home FAQ answers.

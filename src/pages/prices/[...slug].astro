@@ -1,7 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
 import { site } from '@/config';
-import { formatDay, formatMoney } from '@/core/format';
+import { formatDate, formatMoney } from '@/core/format';
 import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PriceList from '@/modules/price-list/PriceList.astro';
@@ -21,7 +21,7 @@ const threshold = clinic.estimateThreshold ?? 500;
 <BaseLayout title="Prices" description={`Our prices for common treatments at ${clinic.name}. ${market.taxNote}.`}>
   <PageHeader title="Our prices" lede="What common treatments cost, listed up front." />
   <div class="wrap">
-    <PriceList items={items} market={market} reviewedLabel={formatDay(reviewedAt, market.locale) + ' ' + reviewedAt.slice(0, 4)} />
+    <PriceList items={items} market={market} reviewedLabel={formatDate(reviewedAt, market.locale)} />
     {isOn('estimates', site) && (
       <p class="after">For treatment likely to cost {formatMoney(threshold, market.currency, market.locale)} or more, we give you a written estimate first. <a href="/estimates/">Ask for an estimate</a>.</p>
     )}

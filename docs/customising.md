@@ -11,7 +11,7 @@ How to turn this repo into a real clinic site. You edit config, content, tokens 
 | Booking provider (`none`, `embed`, `link`), practice-system URL, request windows, lead time, horizon, days off, confirmation promise | `src/config/sites/<id>/booking.ts` |
 | Reminder, recall and review templates and timings | `src/config/sites/<id>/messages.ts` (undefined uses the preset defaults) |
 | Services, clinicians, fees or price list, reviews, FAQs, policies | `src/content/<contentDir>/` |
-| Navigation order and labels | `src/presets/*.ts` (`nav`). There is no per-site nav override. |
+| Navigation order and labels | `src/presets/*.ts` (`nav`), or `nav` in `site.ts` to replace the preset nav for one site. Same item shape (`label`, `href`, optional `module`, optional `footer`). Items whose module is off are still removed. |
 | Colours, type, spacing | `src/styles/tokens.css` |
 | Photos | `src/assets/photos/<slot>.jpg`. Run `npm run photos:status`. |
 
@@ -101,4 +101,4 @@ Every pack is research, not legal advice. Before a site goes live, a local lawye
 | UK | `verified: true` | PECR wording, price display rules, the vet module wording (see `docs/modules.md`) |
 | CA | `verified: false` | Provincial privacy and health information rules, college advertising and testimonial rules for Ontario, CASL wording, AODA wording |
 
-The build does not print a warning for an unverified pack. Check `verified` yourself before sale. CA stays `false` until counsel signs it off.
+A build with `demoMode: false` and an unverified pack prints a warning that lists what to confirm. Demo builds stay quiet. CA stays `false` until counsel signs it off.

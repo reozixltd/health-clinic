@@ -19,7 +19,7 @@ if (SITE_ID !== 'hollybank') {
       }
       const text = await page.locator('main').innerText();
       expect(/Prices include VAT/.test(text), 'VAT note missing');
-      expect(/Last reviewed Thu 3 Sept 2026/.test(text), `reviewed date missing: ${text.slice(0, 200)}`);
+      expect(/Last reviewed 3 September 2026/.test(text), `reviewed date missing: ${text.slice(0, 200)}`);
       expect(/£42 for 15 minutes/.test(text), 'unit text missing');
       expect(/Re-check within 14 days\s+Included/.test(text), 'zero amount should read Included');
     });

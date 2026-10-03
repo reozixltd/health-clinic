@@ -34,6 +34,8 @@ export interface SiteConfigInput {
     theme: string;
     themes?: string[];
     contentDir: string;
+    /** Replaces the preset nav (same item shape). Items for modules that are off are still removed. */
+    nav?: NavItem[];
   };
   clinic: Clinic;
   booking: BookingConfig;
@@ -70,7 +72,7 @@ export function resolveSite(config: SiteConfigInput, presets: Record<string, Pre
   if (problem) throw new Error(problem);
   return {
     id: site.id,
-    preset: { ...preset, nav: preset.nav.filter((n) => !n.module || modules.includes(n.module)) },
+    preset: { ...preset, nav: (site.nav ?? preset.nav).filter((n) => !n.module || modules.includes(n.module)) },
     market: getMarket(site.market),
     modules,
     demoMode: site.demoMode,

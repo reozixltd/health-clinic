@@ -1,4 +1,5 @@
 ---
+import { linkHtml } from './inline';
 /** Five questions tagged home. */
 interface Props {
   items: { q: string; a: string }[];
@@ -9,7 +10,7 @@ const { items } = Astro.props;
 <section id="faq" aria-labelledby="faq-title">
   <h2 id="faq-title">Common questions</h2>
   <dl>
-    {items.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}
+    {items.map((f) => (<><dt>{f.q}</dt><dd set:html={linkHtml(f.a)} /></>))}
   </dl>
 </section>
 
@@ -17,4 +18,5 @@ const { items } = Astro.props;
   dl { margin: 0; max-width: var(--measure); }
   dt { font-weight: 700; margin-top: var(--space-4); }
   dd { margin: var(--space-1) 0 0; color: var(--color-ink-muted); }
+  dd :global(a) { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
 </style>

@@ -1,7 +1,7 @@
 ---
 /** A Markdown content page from the policies collection (HTML allowed, so data-market-only blocks work). */
 import { getEntry, render } from 'astro:content';
-import { formatDay } from '@/core/format';
+import { formatDate } from '@/core/format';
 import { site } from '@/config';
 import BaseLayout from './BaseLayout.astro';
 
@@ -26,7 +26,7 @@ const updated = entry.data.updated.toISOString().slice(0, 10);
   <div class="wrap">
     <slot name="before" />
     <div class="prose"><Content /></div>
-    {dated && <p class="updated">Last updated {formatDay(updated, site.market.locale)} {updated.slice(0, 4)}</p>}
+    {dated && <p class="updated">Last updated {formatDate(updated, site.market.locale)}</p>}
     <slot />
   </div>
 </BaseLayout>

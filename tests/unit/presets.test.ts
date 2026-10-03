@@ -64,3 +64,19 @@ describe('resolveMarketOverride', () => {
     expect(resolveMarketOverride({ ...base, demoMode: false })).toBe('AU');
   });
 });
+
+describe('nav override', () => {
+  it('replaces the preset nav and still drops items for modules that are off', () => {
+    const input = config('allied-health', { fees: false });
+    input.site.nav = [
+      { label: 'Fees', href: '/fees/', module: 'fees' },
+      { label: 'About us', href: '/new-patients/' },
+    ];
+    const site = resolveSite(input, presets);
+    expect(site.preset.nav.map((n) => n.label)).toEqual(['About us']);
+  });
+  it('keeps the preset nav when there is no override', () => {
+    const site = resolveSite(config('allied-health'), presets);
+    expect(site.preset.nav.map((n) => n.label)).toContain('Services');
+  });
+});

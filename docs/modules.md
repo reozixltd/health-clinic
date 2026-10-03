@@ -1,6 +1,6 @@
 # Modules
 
-A module is a switchable feature. Turn one on or off in `modules` in `src/config/sites/<id>/site.ts`. A module that is off leaves no route, nav link, sitemap entry or script. The registry is `src/domain/modules.ts`.
+A module is a switchable feature. Turn one on or off in `modules` in `src/config/sites/<id>/site.ts`. A module that is off leaves no route, nav link, sitemap entry or script. The registry is `src/domain/modules.ts`. Nav items that name a module follow the same switch, whether they come from the preset or from a `nav` override in `site.ts`.
 
 ## Defaults by preset
 
