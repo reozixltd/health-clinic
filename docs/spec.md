@@ -388,7 +388,7 @@ Calm and brief. Movement uses only opacity and transform. Colour fades stay shor
 - Booking: the next step slides in 16 px from the side of travel over 250 ms. The card line fill is unchanged.
 - A clinician portrait zooms to 1.03 when its row is hovered. Buttons keep their press feedback.
 
-`prefers-reduced-motion` removes all movement and keeps short colour fades. Nothing is hidden by CSS, so a page shows in full with JavaScript off. `motion: false` in a site's config turns off the hero entrance, the scroll reveals, the page cross-fade, the booking step slide and the hover zoom. It loads no motion script. Button press feedback and the card line fill stay. The staff console has no motion.
+`prefers-reduced-motion` removes all movement and keeps short colour fades. Nothing is hidden by CSS, so a page shows in full with JavaScript off. `motion: false` in a site's config turns off the hero entrance, scroll reveals and page cross-fade. It also turns off the booking step slide and the hover zoom. It loads no motion script. Button press feedback and the card line fill stay. The staff console has no motion.
 
 ## 9. SEO, compliance, performance
 

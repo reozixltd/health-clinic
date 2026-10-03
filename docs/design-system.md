@@ -68,7 +68,7 @@ Motion is calm and brief. Movement uses only opacity and transform. Colour fades
 | Portrait rows | Portrait zooms to 1.03 on hover. |
 | Buttons | Press feedback. |
 
-To reveal an element on scroll, add `data-reveal` to it. To stagger a list, add `data-reveal-group` to the list. Do not nest one inside the other. A nested element is hidden twice and can stay invisible. The script is `src/core/motion.ts`.
+To reveal an element on scroll, add `data-reveal` to it. To stagger a list, add `data-reveal-group` to the list. Do not nest one inside the other. A nested element fades in twice. The script is `src/core/motion.ts`.
 
 `prefers-reduced-motion` removes movement and keeps short colour fades. Set `motion: false` in `src/config/sites/<id>/site.ts` to turn motion off for a clinic. Button press and the card fill stay. The staff console has no motion. Do not add parallax, pinned sections or scroll-linked effects.
 

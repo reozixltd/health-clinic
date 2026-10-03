@@ -27,7 +27,7 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 | `photoRoles` | Which slot shows in the home hero, beside the first-visit steps, and beside the address, for each content folder. |
 | `photoAlt` | The alt text for each room slot, keyed by slot name. |
 
-A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter and that slot has a line in `photoAlt`. Without the alt text no photo shows. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
+A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. The slot also needs a line in `photoAlt`. Without the alt text no photo shows. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
 
 ## Set up a new clinic from a preset
 

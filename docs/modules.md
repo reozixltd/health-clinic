@@ -32,7 +32,7 @@ The `enquiry` lead kind belongs to the preset, not to a module.
 
 ## Motion
 
-Motion is a site setting, not a module. `motion: false` in a site's `site.ts` removes the reveal script, the hero entrance, the page cross-fade, the booking step slide and the hover zoom. Button press feedback and the card line fill stay. It is on when not set.
+Motion is a site setting, not a module. `motion: false` in a site's `site.ts` removes the reveal script, the hero entrance and the page cross-fade. It also removes the booking step slide and the hover zoom. Button press feedback and the card line fill stay. It is on when not set.
 
 ## providers
 
