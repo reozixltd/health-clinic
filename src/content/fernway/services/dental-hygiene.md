@@ -2,6 +2,7 @@
 slug: dental-hygiene
 title: Dental hygiene
 order: 4
+photoSlot: treatment-room-dental
 summary: A careful clean to remove build-up, plus simple tips for keeping your mouth healthy.
 duration: 30 to 45 minutes
 whatToExpect:

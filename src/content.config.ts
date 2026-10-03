@@ -33,6 +33,7 @@ const services = defineCollection({
     whatToExpect: z.array(z.string()).min(1),
     providers: z.array(z.string()).min(1),
     fromPrice: z.number().optional(),
+    photoSlot: z.string().optional(),
     faqs: z.array(faqPair).length(3),
     seoDescription: z.string().max(160),
   }),

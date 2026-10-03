@@ -1,8 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
 import { site, allSites } from '@/config';
+import { slotPhoto } from '@/config/photo-slots';
 import { serviceSchema } from '@/core/schema';
 import { isOn } from '@/domain/modules';
+import Photo from '@/core/ui/Photo.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, marketVariants } from '@/layouts/site';
 import ServiceBody from '@/modules/services/ServiceBody.astro';
@@ -20,6 +22,7 @@ const providers = isOn('providers', site) ? (await getCollection('providers')).m
 const clinicians = providers.filter((p) => service.providers.includes(p.slug));
 const market = configuredMarket(site);
 const variants = marketVariants(site, allSites());
+const photo = slotPhoto(service.photoSlot);
 const schema = serviceSchema({
   name: service.title,
   description: service.summary,
@@ -31,6 +34,11 @@ const schema = serviceSchema({
 
 <BaseLayout title={service.title} description={service.seoDescription} schema={schema}>
   <PageHeader title={service.title} lede={service.summary} />
+  {photo && (
+    <div class="shot">
+      <Photo slot={photo.slot} alt={photo.alt} ratio="16 / 9" sizes="(min-width: 1152px) 1120px, 100vw" priority />
+    </div>
+  )}
   <ServiceBody
     service={service}
     clinicians={clinicians}
@@ -40,3 +48,7 @@ const schema = serviceSchema({
     <Content />
   </ServiceBody>
 </BaseLayout>
+
+<style>
+  .shot { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-6); }
+</style>

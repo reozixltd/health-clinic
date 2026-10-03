@@ -2,6 +2,7 @@
 slug: dental-check-up
 title: Dental check-up
 order: 3
+photoSlot: treatment-room-dental
 summary: A friendly check of your teeth and gums, with a clear plan for what comes next.
 duration: 30 minutes
 whatToExpect:

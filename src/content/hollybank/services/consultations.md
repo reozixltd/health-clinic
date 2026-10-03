@@ -2,6 +2,7 @@
 slug: consultations
 title: Consultations
 order: 1
+photoSlot: consult-room
 summary: A calm check for your pet with a vet who explains the plan and the price.
 duration: 15 to 30 minutes
 whatToExpect:

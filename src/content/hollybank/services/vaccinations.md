@@ -2,6 +2,7 @@
 slug: vaccinations
 title: Vaccinations
 order: 2
+photoSlot: consult-room
 summary: Vaccines and health checks that keep dogs, cats and rabbits protected.
 duration: 15 minutes
 whatToExpect:

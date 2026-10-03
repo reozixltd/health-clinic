@@ -1,12 +1,14 @@
 ---
 /** "How your first visit works": the one numbered list on the home page. */
+import Photo from '@/core/ui/Photo.astro';
 interface Props {
   bookingOn: boolean;
   confirmPromise: string;
   /** Preset steps as "Title|text"; {booking} and {confirm} are filled from the site. */
   items: string[];
+  photo?: { slot: string; alt: string };
 }
-const { bookingOn, confirmPromise, items } = Astro.props;
+const { bookingOn, confirmPromise, items, photo } = Astro.props;
 const steps = items.map((item) => {
   const [title, text] = item.split('|');
   return {
@@ -18,12 +20,17 @@ const steps = items.map((item) => {
 
 <section id="first-visit" aria-labelledby="first-visit-title">
   <h2 id="first-visit-title">How your first visit works</h2>
-  <ol>
-    {steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}
-  </ol>
+  <div class:list={['cols', photo && 'has-photo']}>
+    <ol>
+      {steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}
+    </ol>
+    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 480px, 100vw" />}
+  </div>
 </section>
 
 <style>
+  .cols { display: grid; gap: var(--space-5); }
+  @media (min-width: 1024px) { .has-photo { grid-template-columns: 1fr 1fr; align-items: center; column-gap: var(--space-7); } }
   ol { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-3); max-width: var(--measure); }
   li::marker { font-weight: 700; }
 </style>

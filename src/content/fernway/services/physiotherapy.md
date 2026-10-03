@@ -2,6 +2,7 @@
 slug: physiotherapy
 title: Physiotherapy
 order: 1
+photoSlot: treatment-room-physio
 summary: Help with aches, strains and stiff joints, and a plan to get you moving again.
 duration: 45 minutes for a first visit
 fromPrice: 95

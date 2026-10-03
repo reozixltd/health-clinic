@@ -2,6 +2,7 @@
 slug: neutering
 title: Neutering
 order: 4
+photoSlot: prep-and-theatre
 summary: Planned, safe neutering for cats, dogs and rabbits, with a nurse check afterwards.
 duration: A day visit
 whatToExpect:

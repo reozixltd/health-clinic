@@ -2,6 +2,7 @@
 slug: psychology
 title: Psychology
 order: 5
+photoSlot: consulting-room-psychology
 summary: Talking therapy with a registered psychologist, in a calm and private room.
 duration: 50 minutes
 whatToExpect:

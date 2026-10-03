@@ -2,6 +2,7 @@
 slug: sports-physio
 title: Sports physio
 order: 2
+photoSlot: treatment-room-physio
 summary: Care for sports injuries and a safe plan to get back to training.
 duration: 45 minutes
 whatToExpect:

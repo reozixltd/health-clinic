@@ -1,6 +1,7 @@
 ---
 /** Clinic name, what it treats, Book an appointment beside the phone, and the after-hours note. */
 import Button from '@/core/ui/Button.astro';
+import Photo from '@/core/ui/Photo.astro';
 import type { MarketId } from '@/domain/markets';
 import type { Preset } from '@/domain/presets';
 import type { Clinic } from '@/domain/types';
@@ -13,24 +14,30 @@ interface Props {
   variants: { id: MarketId; clinic: Clinic; tel: string }[];
   bookingOn: boolean;
   emergencyOn: boolean;
+  photo?: { slot: string; alt: string };
 }
-const { name, treats, preset, variants, bookingOn, emergencyOn } = Astro.props;
+const { name, treats, preset, variants, bookingOn, emergencyOn, photo } = Astro.props;
 ---
 
-<section class="hero" aria-labelledby="hero-title">
-  <h1 id="hero-title">{name}</h1>
-  <p class="line">{preset.copy.heroLine}. {treats}</p>
-  {variants.map((v) => (
-    <div class="actions" data-market-only={v.id}>
-      {bookingOn && <Button href="/book/" size="lg">{preset.copy.bookLabel}</Button>}
-      <a class="phone" href={v.tel}>Call {v.clinic.phone}</a>
-      {emergencyOn && <EmergencyNote clinic={v.clinic} preset={preset} compact />}
-    </div>
-  ))}
+<section class:list={['hero', photo && 'has-photo']} aria-labelledby="hero-title">
+  <div class="copy">
+    <h1 id="hero-title">{name}</h1>
+    <p class="line">{preset.copy.heroLine}. {treats}</p>
+    {variants.map((v) => (
+      <div class="actions" data-market-only={v.id}>
+        {bookingOn && <Button href="/book/" size="lg">{preset.copy.bookLabel}</Button>}
+        <a class="phone" href={v.tel}>Call {v.clinic.phone}</a>
+        {emergencyOn && <EmergencyNote clinic={v.clinic} preset={preset} compact />}
+      </div>
+    ))}
+  </div>
+  {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 560px, 100vw" priority />}
 </section>
 
 <style>
-  .hero { max-width: 72rem; margin: 0 auto; padding: var(--space-8) var(--space-4) var(--space-6); display: grid; gap: var(--space-4); }
+  .hero { max-width: 72rem; margin: 0 auto; padding: var(--space-8) var(--space-4) var(--space-6); display: grid; gap: var(--space-6); }
+  .copy { display: grid; gap: var(--space-4); }
+  @media (min-width: 1024px) { .has-photo { grid-template-columns: 1fr 1fr; align-items: center; column-gap: var(--space-7); } }
   h1 { font-size: var(--text-hero); max-width: 20ch; }
   .line { font-size: var(--text-18); max-width: var(--measure); color: var(--color-ink-muted); }
   .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }

@@ -2,6 +2,7 @@
 slug: dental
 title: Dental care
 order: 3
+photoSlot: prep-and-theatre
 summary: Checks, cleans and treatment to keep your pet comfortable and eating well.
 duration: 15 minutes for a check
 whatToExpect:

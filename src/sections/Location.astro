@@ -2,27 +2,36 @@
 /** Address, hours, directions link and building accessibility notes, per market. */
 import type { MarketId, MarketPack } from '@/domain/markets';
 import type { Clinic } from '@/domain/types';
+import Photo from '@/core/ui/Photo.astro';
 
 interface Props {
   variants: { id: MarketId; market: MarketPack; clinic: Clinic; tel: string; hours: string[] }[];
+  photo?: { slot: string; alt: string };
 }
-const { variants } = Astro.props;
+const { variants, photo } = Astro.props;
 ---
 
 <section id="location" aria-labelledby="location-title">
   <h2 id="location-title">Find us</h2>
-  {variants.map(({ id, clinic: c, tel, hours }) => (
-    <div class="where" data-market-only={id}>
-      <address>{c.address.street}, {c.address.locality} {c.address.region} {c.address.postcode}</address>
-      <a class="link" href={`https://www.openstreetmap.org/?mlat=${c.map.lat}&mlon=${c.map.lng}#map=17/${c.map.lat}/${c.map.lng}`}>Open the map and directions</a>
-      <ul>{hours.map((h) => <li>{h}</li>)}</ul>
-      <p><a class="link" href={tel}>{c.phone}</a></p>
-      <p>{c.accessibility && `${c.accessibility} `}<a class="link" href="/accessibility/">Accessibility details</a></p>
+  <div class:list={['cols', photo && 'has-photo']}>
+    <div>
+      {variants.map(({ id, clinic: c, tel, hours }) => (
+        <div class="where" data-market-only={id}>
+          <address>{c.address.street}, {c.address.locality} {c.address.region} {c.address.postcode}</address>
+          <a class="link" href={`https://www.openstreetmap.org/?mlat=${c.map.lat}&mlon=${c.map.lng}#map=17/${c.map.lat}/${c.map.lng}`}>Open the map and directions</a>
+          <ul>{hours.map((h) => <li>{h}</li>)}</ul>
+          <p><a class="link" href={tel}>{c.phone}</a></p>
+          <p>{c.accessibility && `${c.accessibility} `}<a class="link" href="/accessibility/">Accessibility details</a></p>
+        </div>
+      ))}
     </div>
-  ))}
+    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 768px) 480px, 100vw" />}
+  </div>
 </section>
 
 <style>
+  .cols { display: grid; gap: var(--space-5); }
+  @media (min-width: 768px) { .has-photo { grid-template-columns: 1fr 1fr; align-items: start; column-gap: var(--space-7); } }
   .where { display: grid; gap: var(--space-2); justify-items: start; }
   address { font-style: normal; }
   ul { margin: 0; padding-left: var(--space-5); }
