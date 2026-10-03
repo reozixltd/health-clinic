@@ -5,11 +5,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const SITES = [
-  { id: 'fernway-au', port: 4321 },
-  { id: 'fernway-ca', port: 4322 },
-  { id: 'hollybank', port: 4323 },
-];
+// Ports run from E2E_PORT_BASE (default 4321) upward, so parallel worktrees can use separate ranges.
+const BASE_PORT = Number(process.env.E2E_PORT_BASE ?? 4321);
+const SITES = ['fernway-au', 'fernway-ca', 'hollybank'].map((id, i) => ({ id, port: BASE_PORT + i }));
 const only = process.env.E2E_SITES?.split(',');
 const sites = only ? SITES.filter((s) => only.includes(s.id)) : SITES;
 const files = readdirSync(dirname(fileURLToPath(import.meta.url))).filter((f) => f.endsWith('.e2e.mjs')).sort();
