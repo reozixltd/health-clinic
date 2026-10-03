@@ -12,7 +12,7 @@ interface Props {
   variants: { id: MarketId; market: MarketPack; clinic: { phone: string } }[];
 }
 const { siteId, services, variants } = Astro.props;
-const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: v.market.phone.pattern.source, phone: v.clinic.phone }]));
+const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: { source: v.market.phone.pattern.source, flags: v.market.phone.pattern.flags }, phone: v.clinic.phone }]));
 ---
 
 <form class="referral" novalidate data-referral-form data-site-id={siteId} data-markets={JSON.stringify(markets)}>
@@ -63,14 +63,16 @@ const markets = Object.fromEntries(variants.map((v) => [v.id, { pattern: v.marke
   const form = document.querySelector<HTMLFormElement>('[data-referral-form]');
   const success = document.querySelector<HTMLElement>('[data-referral-success]');
   if (form && success) {
-    const markets: Record<string, { pattern: string; phone: string }> = JSON.parse(form.dataset.markets ?? '{}');
+    const markets: Record<string, { pattern: { source: string; flags: string }; phone: string }> = JSON.parse(form.dataset.markets ?? '{}');
     const services = Array.from(form.querySelectorAll<HTMLOptionElement>('#service option')).map((o) => o.value).filter(Boolean);
     const current = () => markets[document.documentElement.dataset.market ?? ''] ?? Object.values(markets)[0]!;
-    const rulesNow = () => referralRules({ phone: { pattern: new RegExp(current().pattern), href: () => '' } }, { services, phoneExample: current().phone });
-    // Each rule defers to the active market when it runs, so the ?market= switch changes phone checks without a reload.
-    const rules = Object.fromEntries(
-      Object.keys(rulesNow()).map((name) => [name, [(v: string | boolean | undefined) => rulesNow()[name]!.map((r) => r(v)).find(Boolean) ?? null]]),
-    );
+    const patterns = new Map<string, RegExp>();
+    const pattern = () => {
+      const { source, flags } = current().pattern;
+      return patterns.get(source + flags) ?? patterns.set(source + flags, new RegExp(source, flags)).get(source + flags)!;
+    };
+    // The phone rule reads the active market each time it runs, so the ?market= switch applies without a reload.
+    const rules = referralRules({ phone: { pattern } }, services, { phoneExample: () => current().phone });
     bindSimpleForm(form, {
       rules,
       toInput: (values: FormValues) => buildReferralInput(values, { clientRef: crypto.randomUUID(), now: new Date().toISOString() }),

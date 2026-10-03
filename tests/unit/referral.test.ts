@@ -12,19 +12,28 @@ const good = {
 
 describe('referrals', () => {
   it('rules accept a complete referral', () => {
-    expect(validate(good, referralRules(AU, { services: SERVICES })).ok).toBe(true);
+    expect(validate(good, referralRules(AU, SERVICES)).ok).toBe(true);
   });
 
   it('rejects unknown choices and long patient names', () => {
-    const r = validate({ ...good, service: 'surgery', urgency: 'Whenever', patientFirstName: 'x'.repeat(41) }, referralRules(AU, { services: SERVICES }));
+    const r = validate({ ...good, service: 'surgery', urgency: 'Whenever', patientFirstName: 'x'.repeat(41) }, referralRules(AU, SERVICES));
     expect(Object.keys(r.errors).sort()).toEqual(['patientFirstName', 'service', 'urgency']);
     expect(URGENCIES).toEqual(['Routine', 'Soon', 'Urgent']);
   });
 
   it('phone validation follows the market', () => {
     const ca = { ...good, referrerPhone: '613-555-0123', patientPhone: '613-555-0123' };
-    expect(validate(ca, referralRules(CA, { services: SERVICES })).ok).toBe(true);
-    expect(validate(ca, referralRules(AU, { services: SERVICES })).ok).toBe(false);
+    expect(validate(ca, referralRules(CA, SERVICES)).ok).toBe(true);
+    expect(validate(ca, referralRules(AU, SERVICES)).ok).toBe(false);
+  });
+
+  it('phone rule reads a pattern getter each time it runs', () => {
+    let m = AU;
+    const rules = referralRules({ phone: { pattern: () => m.phone.pattern } }, SERVICES);
+    const ca = { ...good, referrerPhone: '613-555-0123', patientPhone: '613-555-0123' };
+    expect(validate(ca, rules).ok).toBe(false);
+    m = CA;
+    expect(validate(ca, rules).ok).toBe(true);
   });
 
   it('referral payload has no clinical fields', () => {
