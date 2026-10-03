@@ -33,12 +33,23 @@ await step('profile shows registration body and number and Book with <first name
 });
 
 if (SITE_ID === 'fernway-au') {
+  await step('AU profile links to the public register', async () => {
+    await withPage({}, async (page) => {
+      await page.goto(`${BASE}/team/priya-nair/`);
+      const a = page.locator('main a:has-text("AHPRA"):visible');
+      expect((await a.count()) === 1, 'AHPRA link missing');
+      expect((await a.getAttribute('href')).includes('ahpra.gov.au'), 'register href');
+      expect((await a.getAttribute('rel')) === 'noopener', 'rel');
+    });
+  });
   await step('CA profile shows the Ontario college', async () => {
     await withPage({}, async (page) => {
       await page.goto(`${BASE}/team/priya-nair/?market=CA`);
       const text = await page.locator('main').innerText();
       expect(text.includes('College of Physiotherapists of Ontario'), `text: ${text}`);
       expect(!text.includes('AHPRA'), 'AU body should be hidden');
+      expect((await page.locator('main a:has-text("AHPRA"):visible').count()) === 0, 'no AHPRA link under CA');
+      expect((await page.locator('main a:has-text("AHPRA"):visible').count()) === 0, 'no AHPRA link under CA');
     });
   });
 } else skip('CA profile (AU build only)');

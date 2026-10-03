@@ -1,10 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
-import { site } from '@/config';
+import { site, allSites } from '@/config';
 import { personSchema } from '@/core/schema';
 import { isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { configuredMarket } from '@/layouts/site';
+import { configuredMarket, marketVariants } from '@/layouts/site';
 import ProviderProfile from '@/modules/providers/ProviderProfile.astro';
 import { registrationFor } from '@/modules/providers/registration';
 import PageHeader from '@/sections/PageHeader.astro';
@@ -28,5 +28,5 @@ const schema = personSchema({
 
 <BaseLayout title={provider.name} description={`${provider.name}, ${provider.role} at ${site.clinic.name}.`} schema={schema}>
   <PageHeader title={provider.name} />
-  <ProviderProfile provider={provider} services={services} markets={site.markets} bookingOn={isOn('booking', site)} />
+  <ProviderProfile provider={provider} services={services} variants={marketVariants(site, allSites())} bookingOn={isOn('booking', site)} />
 </BaseLayout>

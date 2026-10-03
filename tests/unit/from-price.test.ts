@@ -26,3 +26,13 @@ describe('registrationFor', () => {
     expect(registrationFor({ registration: { body: 'RCVS', number: '1' } }, 'CA')).toEqual({ body: 'RCVS', number: '1' });
   });
 });
+
+import { indexPaths } from '@/domain/modules';
+
+describe('indexPaths', () => {
+  it('emits the index only when the module is on', () => {
+    expect(indexPaths('services', { modules: ['services'] })).toEqual([{ params: { slug: undefined } }]);
+    expect(indexPaths('services', { modules: ['providers'] })).toEqual([]);
+    expect(indexPaths('providers', { modules: [] })).toEqual([]);
+  });
+});

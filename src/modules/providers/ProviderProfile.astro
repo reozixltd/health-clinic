@@ -3,6 +3,7 @@
 import Button from '@/core/ui/Button.astro';
 import Photo from '@/core/ui/Photo.astro';
 import type { MarketId } from '@/domain/markets';
+import type { Clinic } from '@/domain/types';
 import { firstName, registrationFor } from './registration';
 
 interface Props {
@@ -11,10 +12,10 @@ interface Props {
     registration: { body: string; number: string; byMarket?: Partial<Record<MarketId, { body: string; number: string }>> };
   };
   services: { slug: string; title: string }[];
-  markets: MarketId[];
+  variants: { id: MarketId; clinic: Pick<Clinic, 'registerUrl'> }[];
   bookingOn: boolean;
 }
-const { provider, services, markets, bookingOn } = Astro.props;
+const { provider, services, variants, bookingOn } = Astro.props;
 const first = firstName(provider.name);
 ---
 
@@ -25,9 +26,13 @@ const first = firstName(provider.name);
     <p>{provider.bio}</p>
     <dl>
       <dt>Registration</dt>
-      {markets.map((m) => {
-        const r = registrationFor(provider, m);
-        return <dd data-market-only={m}>{r.body}, registration number {r.number}</dd>;
+      {variants.map((v) => {
+        const r = registrationFor(provider, v.id);
+        return (
+          <dd data-market-only={v.id}>
+            {v.clinic.registerUrl ? <a href={v.clinic.registerUrl} rel="noopener">{r.body}</a> : r.body}, registration number {r.number}
+          </dd>
+        );
       })}
       <dt>Languages</dt>
       <dd>{provider.languages.join(', ')}</dd>
@@ -53,6 +58,7 @@ const first = firstName(provider.name);
   dd { margin: var(--space-1) 0 0; }
   h2 { font-size: var(--text-22); margin-bottom: var(--space-2); }
   ul { list-style: none; padding: 0; }
+  dd a { display: inline-flex; align-items: center; min-height: var(--target); }
   li a { display: inline-flex; align-items: center; min-height: var(--target); }
   .text :global(.btn) { justify-self: start; }
 </style>
