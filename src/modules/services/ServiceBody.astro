@@ -1,0 +1,58 @@
+---
+/** One service: what to expect, who offers it, questions, and a Book this link. */
+import Button from '@/core/ui/Button.astro';
+import type { MarketId, MarketPack } from '@/domain/markets';
+import { fromPriceLabel } from './from-price';
+
+interface Props {
+  service: { slug: string; duration: string; whatToExpect: string[]; fromPrice?: number; faqs: { q: string; a: string }[] };
+  clinicians: { slug: string; name: string; role: string }[];
+  variants: { id: MarketId; market: MarketPack }[];
+  /** Label for the booking link, or undefined when the booking module is off. */
+  bookLabel?: string;
+}
+const { service, clinicians, variants, bookLabel } = Astro.props;
+---
+
+<div class="body">
+  <div class="facts">
+    <p><strong>Appointment length</strong> {service.duration}</p>
+    {variants.map((v) => {
+      const label = fromPriceLabel(service, v.market);
+      return label && <p data-market-only={v.id}>{label}</p>;
+    })}
+    {bookLabel && <Button href={`/book/?service=${service.slug}`}>{bookLabel}</Button>}
+  </div>
+  <section aria-labelledby="expect">
+    <h2 id="expect">What to expect</h2>
+    <ul>{service.whatToExpect.map((t) => <li>{t}</li>)}</ul>
+  </section>
+  <div class="prose"><slot /></div>
+  {clinicians.length > 0 && (
+    <section aria-labelledby="who">
+      <h2 id="who">Who offers this</h2>
+      <ul class="plain">
+        {clinicians.map((c) => <li><a href={`/team/${c.slug}/`}>{c.name}</a>, {c.role}</li>)}
+      </ul>
+    </section>
+  )}
+  <section aria-labelledby="faq">
+    <h2 id="faq">Common questions</h2>
+    <dl>
+      {service.faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}
+    </dl>
+  </section>
+</div>
+
+<style>
+  .body { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
+  .body > * { max-width: var(--measure); }
+  .facts { display: grid; gap: var(--space-2); justify-items: start; }
+  h2 { font-size: var(--text-22); margin-bottom: var(--space-3); }
+  ul { padding-left: var(--space-5); display: grid; gap: var(--space-2); }
+  .plain { list-style: none; padding: 0; }
+  .plain a { display: inline-flex; align-items: center; min-height: var(--target); }
+  dt { font-weight: 700; margin-top: var(--space-4); }
+  dd { margin: var(--space-1) 0 0; color: var(--color-ink-muted); }
+  .prose :global(a) { text-decoration: underline; }
+</style>

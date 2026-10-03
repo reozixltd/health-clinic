@@ -58,3 +58,8 @@ export function validateModules(on: ModuleId[]): string[] {
   }
   return errors;
 }
+
+/** getStaticPaths result for a module's index page (`[...slug]` route): one root path when on, none when off. */
+export function indexPaths(id: ModuleId, site: Pick<SiteLike, 'modules'>): { params: { slug: undefined } }[] {
+  return isOn(id, site) ? [{ params: { slug: undefined } }] : [];
+}

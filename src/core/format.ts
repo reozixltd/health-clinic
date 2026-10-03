@@ -2,9 +2,10 @@
 
 export type Currency = 'AUD' | 'CAD' | 'GBP';
 
-/** Whole units: 120 → "$120" (AUD en-AU, CAD en-CA) or "£120" (GBP en-GB). */
+/** Whole amounts have no decimals, fractions have two: 120 → "$120" or "£120", 12.5 → "£12.50". */
 export function formatMoney(n: number, currency: Currency, locale: string): string {
-  return new Intl.NumberFormat(locale, { style: 'currency', currency, currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 }).format(n);
+  const digits = Number.isInteger(n) ? 0 : 2;
+  return new Intl.NumberFormat(locale, { style: 'currency', currency, currencyDisplay: 'narrowSymbol', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
 }
 
 /** "2026-10-09" → "Fri 9 Oct" (en-AU). A plain date has no zone, so it is formatted in UTC. */

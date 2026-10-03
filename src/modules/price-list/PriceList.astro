@@ -1,0 +1,45 @@
+---
+import { formatMoney } from '@/core/format';
+import type { MarketPack } from '@/domain/markets';
+import type { PriceItem } from '@/domain/types';
+import { groupPrices, priceText } from './price-list';
+
+interface Props {
+  items: PriceItem[];
+  market: MarketPack;
+  reviewedLabel: string;
+}
+const { items, market, reviewedLabel } = Astro.props;
+const money = (n: number) => formatMoney(n, market.currency, market.locale);
+const groups = groupPrices(items);
+---
+
+<div class="prices">
+  <p class="note">{market.taxNote}. Last reviewed {reviewedLabel}.</p>
+  {groups.map((g, i) => (
+    <section aria-labelledby={`price-group-${i}`}>
+      <h2 id={`price-group-${i}`}>{g.group}</h2>
+      <table>
+        <thead class="sr-only"><tr><th scope="col">Item</th><th scope="col">Price</th></tr></thead>
+        <tbody>
+          {g.items.map((item) => (
+            <tr><th scope="row">{item.label}</th><td>{priceText(item, money)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+</div>
+
+<style>
+  .prices { display: grid; gap: var(--space-6); }
+  .note { margin: 0; font-weight: 600; }
+  section { display: grid; gap: var(--space-3); }
+  h2 { margin: 0; font-size: var(--text-22); }
+  table { width: 100%; border-collapse: collapse; }
+  tr { border-top: 1px solid var(--color-line); }
+  th, td { padding: var(--space-3) var(--space-2); text-align: left; vertical-align: top; }
+  th { font-weight: 400; }
+  td { text-align: right; font-weight: 600; white-space: nowrap; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

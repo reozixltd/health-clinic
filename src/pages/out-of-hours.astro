@@ -1,0 +1,32 @@
+---
+import { site } from '@/config';
+import { routesFor } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { hoursText, telHref } from '@/layouts/site';
+import PageHeader from '@/sections/PageHeader.astro';
+
+if (!routesFor(site).includes('/out-of-hours/')) return new Response(null, { status: 404 });
+const { clinic, market } = site;
+const { emergency } = clinic;
+const number = emergency.phone ?? clinic.phone;
+const href = emergency.href ?? telHref(number, market.id);
+---
+
+<BaseLayout title="Out of hours" description={`How to reach a vet when ${clinic.name} is closed.`}>
+  <PageHeader title="Out of hours care" lede={emergency.text} />
+  <div class="wrap">
+    <p class="call"><a href={href}>{number}</a></p>
+    <h2>Our opening hours</h2>
+    <ul>
+      {clinic.hours.map((h) => <li>{hoursText(h)}</li>)}
+    </ul>
+    <p>If your pet is in danger, call straight away. Do not wait for a message to be returned.</p>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-4); }
+  .wrap > * { margin: 0; max-width: var(--measure); }
+  .call a { display: inline-flex; align-items: center; min-height: var(--target); font-size: var(--text-36); font-weight: 700; }
+  ul { padding-left: var(--space-5); }
+</style>

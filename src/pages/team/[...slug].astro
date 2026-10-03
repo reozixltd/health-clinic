@@ -1,0 +1,23 @@
+---
+import { indexPaths } from '@/domain/modules';
+import { getCollection } from 'astro:content';
+import { site } from '@/config';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProviderList from '@/modules/providers/ProviderList.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+
+export function getStaticPaths() {
+  return indexPaths('providers', site);
+}
+
+const providers = (await getCollection('providers')).map((p) => p.data).sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<BaseLayout title="Our team" description={`The clinicians at ${site.clinic.name}.`}>
+  <PageHeader title="Our team" lede="Registered clinicians, with their registration numbers and languages." />
+  <div class="wrap"><ProviderList providers={providers} /></div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
+</style>
