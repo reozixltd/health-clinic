@@ -1,8 +1,25 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BASE, SITE_ID, closeBrowser, expect, finish, skip, step, withPage } from './harness.mjs';
 
 if (!['fernway-au', 'fernway-ca', 'hollybank'].includes(SITE_ID)) {
   skip('motion checks (demo sites only)');
   finish();
+}
+
+/** The text of every script a built page loads, following relative imports between chunks. */
+function loadedJs(distDir, page) {
+  const seen = new Set();
+  const read = (file) => {
+    if (seen.has(file)) return '';
+    seen.add(file);
+    let text = '';
+    try { text = readFileSync(file, 'utf8'); } catch { return ''; }
+    const refs = [...text.matchAll(/(?:from|import)\s*["'](\.[^"']+\.js)["']/g)].map((m) => join(file, '..', m[1]));
+    return text + refs.map(read).join('');
+  };
+  const srcs = [...readFileSync(join(distDir, page), 'utf8').matchAll(/<script[^>]*src=["']([^"']+)["']/g)].map((m) => m[1]);
+  return srcs.map((src) => read(join(distDir, src))).join('');
 }
 
 const ITEMS = '[data-reveal], [data-reveal-group] > *';
@@ -90,6 +107,23 @@ await step('print: sections not yet scrolled to still print', async () => {
     await page.waitForFunction((sel) => [...document.querySelectorAll(sel)].some((e) => getComputedStyle(e).opacity === '0'), ITEMS);
     await page.emulateMedia({ media: 'print' });
     allVisible(await states(page), 'print');
+  });
+});
+
+await step('a focused link inside a hidden reveal is shown', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/`);
+    await page.waitForFunction((sel) => [...document.querySelectorAll(sel)].some((e) => getComputedStyle(e).opacity === '0'), ITEMS);
+    const opacity = await page.evaluate(() => {
+      const link = [...document.querySelectorAll('[data-reveal] a, [data-reveal-group] > * a')].find((a) => {
+        const host = a.closest('[data-reveal-group] > *') ?? a.closest('[data-reveal]');
+        return getComputedStyle(host).opacity === '0';
+      });
+      if (!link) return 'no hidden link at load';
+      link.focus({ preventScroll: true });
+      return getComputedStyle(link.closest('[data-reveal-group] > *') ?? link.closest('[data-reveal]')).opacity;
+    });
+    expect(opacity === '1', `focused link's reveal ancestor has opacity ${opacity}`);
   });
 });
 

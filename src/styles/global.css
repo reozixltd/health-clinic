@@ -47,6 +47,12 @@ a { color: inherit; text-underline-offset: 0.2em; }
 
 [hidden] { display: none !important; }
 
+/* A focused link is never left invisible inside a section still waiting to reveal. */
+[data-reveal]:focus-within,
+[data-reveal-group] > :focus-within {
+  opacity: 1 !important;
+}
+
 /* Sections waiting for a scroll reveal must still print. */
 @media print {
   [data-reveal], [data-reveal-group] > * { opacity: 1 !important; transform: none !important; }
