@@ -81,14 +81,23 @@ export function bindSimpleForm(form: HTMLFormElement, opts: SimpleFormOptions): 
   const status = form.querySelector<HTMLElement>('[data-form-status]') ?? form.appendChild(Object.assign(document.createElement('p'), { role: 'alert' }));
   const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
 
+  let held = false;
   for (const name of Object.keys(opts.rules)) {
-    field(form, name)?.addEventListener('blur', () => {
-      const el = field(form, name) as HTMLInputElement;
-      const blank = typeof el.value === 'string' && el.value.trim() === '';
-      if (blank && el.getAttribute('aria-invalid') !== 'true') return;
+    const el = field(form, name);
+    let touched = false;
+    for (const type of ['input', 'change']) el?.addEventListener(type, () => (touched = true));
+    el?.addEventListener('blur', () => {
+      if (!touched) return;
       setError(form, name, validate(formValues(form) as Record<string, FieldValue>, { [name]: opts.rules[name]! }).errors[name] ?? null);
     });
   }
+
+  const showSuccess = () => {
+    form.hidden = true;
+    opts.success.hidden = false;
+    if (!opts.success.hasAttribute('tabindex')) opts.success.setAttribute('tabindex', '-1');
+    opts.success.focus();
+  };
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -97,8 +106,11 @@ export function bindSimpleForm(form: HTMLFormElement, opts: SimpleFormOptions): 
     const { ok, errors } = validate(values, opts.rules);
     showErrors(form, errors, summary);
     if (!ok) return;
-    if (isLikelySpam({ honeypot: String(values.website ?? ''), startedAt, now: now() })) {
-      status.textContent = 'Please wait a moment and try again.';
+    const spam = isLikelySpam({ honeypot: String(values.website ?? ''), startedAt, now: now() });
+    if (spam && String(values.website ?? '').trim() !== '') return showSuccess(); // bot: drop silently
+    if (spam && !held) {
+      held = true; // too fast: hold once, the next submit goes through
+      status.textContent = 'Not sent yet. Check your details, then send again.';
       return;
     }
     const label = submit?.querySelector('span') ?? submit;
@@ -110,10 +122,7 @@ export function bindSimpleForm(form: HTMLFormElement, opts: SimpleFormOptions): 
     if (label) label.textContent = 'Sending...';
     try {
       await opts.repo.create(opts.toInput(values));
-      form.hidden = true;
-      opts.success.hidden = false;
-      if (!opts.success.hasAttribute('tabindex')) opts.success.setAttribute('tabindex', '-1');
-      opts.success.focus();
+      showSuccess();
     } catch {
       const tel = Object.assign(document.createElement('a'), { href: `tel:${opts.fallbackPhone.replace(/[^\d+]/g, '')}`, textContent: opts.fallbackPhone });
       status.replaceChildren("We couldn't save your request. Call us on ", tel, '.');

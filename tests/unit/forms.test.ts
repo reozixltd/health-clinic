@@ -72,7 +72,7 @@ describe('bindSimpleForm', () => {
     payload: {},
     clientRef: 'ref-1',
   });
-  const bind = () =>
+  const bind = (over: { now?: () => number; startedAt?: number } = {}) =>
     bindSimpleForm(el<HTMLFormElement>('form'), {
       rules: { name: [required('Enter your name')], email: [email('Bad email')] },
       toInput,
@@ -81,6 +81,7 @@ describe('bindSimpleForm', () => {
       fallbackPhone: '03 5550 1200',
       now: () => 100_000,
       startedAt: 0,
+      ...over,
     });
   const submit = () => el<HTMLFormElement>('form').dispatchEvent(new Event('submit', { cancelable: true }));
   const flush = () => new Promise((r) => setTimeout(r, 0));
@@ -91,16 +92,36 @@ describe('bindSimpleForm', () => {
     bind();
   });
 
-  it('validates on blur once the field has been touched', () => {
-    const name = el<HTMLInputElement>('[name=name]');
+  const type = (name: string, value: string) => {
+    const input = el<HTMLInputElement>(`[name=${name}]`);
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    return input;
+  };
+  const err = (name: string) => el(`[data-error-for=${name}]`).textContent;
+
+  it('does not complain when a field is blurred untouched', () => {
+    el<HTMLInputElement>('[name=name]').dispatchEvent(new Event('blur'));
+    expect(err('name')).toBe('');
+  });
+
+  it('validates on blur whenever the field was touched, including after clearing it', () => {
+    const name = type('name', 'Sam');
     name.dispatchEvent(new Event('blur'));
-    expect(el('[data-error-for=name]').textContent).toBe('');
-    name.value = 'x';
+    expect(err('name')).toBe('');
+    type('name', '');
     name.dispatchEvent(new Event('blur'));
-    name.value = '';
-    name.setAttribute('aria-invalid', 'true');
+    expect(err('name')).toBe('Enter your name');
+    type('name', 'Sam');
     name.dispatchEvent(new Event('blur'));
-    expect(el('[data-error-for=name]').textContent).toBe('Enter your name');
+    expect(err('name')).toBe('');
+  });
+
+  it('errors on a required field cleared before the first blur', () => {
+    const name = type('name', 'x');
+    type('name', '');
+    name.dispatchEvent(new Event('blur'));
+    expect(err('name')).toBe('Enter your name');
   });
 
   it('shows the summary and saves nothing when invalid', async () => {
@@ -132,12 +153,28 @@ describe('bindSimpleForm', () => {
     expect(el<HTMLButtonElement>('button').disabled).toBe(false);
   });
 
-  it('does not save when the honeypot is filled', async () => {
-    el<HTMLInputElement>('[name=name]').value = 'Sam';
-    el<HTMLInputElement>('[name=website]').value = 'http://spam';
+  it('holds a too-fast submit once, then saves on the next', async () => {
+    document.body.innerHTML = HTML;
+    bind({ startedAt: 99_000 });
+    type('name', 'Sam');
+    submit();
+    await flush();
+    expect(el('[data-form-status]').textContent).toBe('Not sent yet. Check your details, then send again.');
+    expect(await repo.list()).toEqual([]);
+    expect(el<HTMLFormElement>('form').hidden).toBe(false);
+    submit();
+    await flush();
+    expect(await repo.list()).toHaveLength(1);
+    expect(el('#done').hidden).toBe(false);
+  });
+
+  it('drops a filled honeypot silently and shows the success panel', async () => {
+    type('name', 'Sam');
+    type('website', 'http://spam');
     submit();
     await flush();
     expect(await repo.list()).toEqual([]);
-    expect(el<HTMLFormElement>('form').hidden).toBe(false);
+    expect(el('#done').hidden).toBe(false);
+    expect(el<HTMLFormElement>('form').hidden).toBe(true);
   });
 });

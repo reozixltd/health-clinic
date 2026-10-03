@@ -17,17 +17,22 @@ describe('format', () => {
     expect(todayIn('America/Toronto', new Date('2026-10-09T03:30:00Z'))).toBe('2026-10-08');
   });
 
-  it('addHoursIso adds real hours to a clinic wall time', () => {
-    expect(addHoursIso('2026-10-09T09:00', 2, 'Australia/Melbourne')).toBe('2026-10-09T11:00');
-    expect(addHoursIso('2026-10-09T23:00', 2, 'Europe/London')).toBe('2026-10-10T01:00');
+  it('addHoursIso adds real hours to a clinic wall time and returns an offset time', () => {
+    expect(addHoursIso('2026-10-09T09:00', 2, 'Australia/Melbourne')).toBe('2026-10-09T11:00:00+11:00');
+    expect(addHoursIso('2026-10-09T23:00', 2, 'Europe/London')).toBe('2026-10-10T01:00:00+01:00');
   });
 
-  it('addHoursIso respects a daylight-saving change', () => {
+  it('addHoursIso respects a daylight-saving change from wall time', () => {
     // Melbourne clocks go forward at 02:00 on 2026-10-04: 01:00 + 2h is 04:00 wall time.
-    expect(addHoursIso('2026-10-04T01:00', 2, 'Australia/Melbourne')).toBe('2026-10-04T04:00');
+    expect(addHoursIso('2026-10-04T01:00', 2, 'Australia/Melbourne')).toBe('2026-10-04T04:00:00+11:00');
   });
 
-  it('addHoursIso accepts an instant with an offset', () => {
-    expect(addHoursIso('2026-10-09T00:00:00Z', 1, 'Australia/Melbourne')).toBe('2026-10-09T12:00');
+  it('addHoursIso accepts an instant with an offset or Z', () => {
+    expect(addHoursIso('2026-10-09T00:00:00Z', 1, 'Australia/Melbourne')).toBe('2026-10-09T12:00:00+11:00');
+    expect(addHoursIso('2026-10-09T08:00:00+11:00', -24, 'Australia/Melbourne')).toBe('2026-10-08T08:00:00+11:00');
+  });
+
+  it('addHoursIso changes offset across a DST change', () => {
+    expect(addHoursIso('2026-10-03T12:00:00+10:00', 24, 'Australia/Melbourne')).toBe('2026-10-04T13:00:00+11:00');
   });
 });
