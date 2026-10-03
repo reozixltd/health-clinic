@@ -1,0 +1,35 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import { site, allSites } from '@/config';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants } from '@/layouts/site';
+import FeesTable from '@/modules/fees/FeesTable.astro';
+import { fundingRows } from '@/modules/fees/funding';
+import PageHeader from '@/sections/PageHeader.astro';
+
+if (!isOn('fees', site)) return new Response(null, { status: 404 });
+const fees = (await getCollection('fees')).map((f) => f.data);
+const titles = Object.fromEntries((await getCollection('services')).map((s) => [s.data.slug, s.data.title]));
+const variants = marketVariants(site, allSites());
+const notes = await getEntry('policies', 'fees-notes');
+const Notes = notes ? (await render(notes)).Content : undefined;
+---
+
+<BaseLayout title="Fees" description={`Our fees and what your cover may pay at ${site.clinic.name}.`}>
+  <PageHeader title="Fees" lede="What each visit costs, and what your cover may pay towards it." />
+  <div class="wrap">
+    {variants.map((v) => (
+      <div data-market-only={v.id}><FeesTable rows={fundingRows(fees, v.id, v.market)} titles={titles} /></div>
+    ))}
+    {Notes && <div class="prose"><Notes /></div>}
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
+  .prose { max-width: var(--measure); }
+  .prose :global(h2) { font-size: var(--text-22); margin: var(--space-5) 0 var(--space-2); }
+  .prose :global(p) { margin: 0 0 var(--space-3); }
+  .prose :global(a) { display: inline-flex; align-items: center; min-height: var(--target); }
+</style>

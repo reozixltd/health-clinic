@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '@/config';
+import { faqSchema } from '@/core/schema';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+import { linkHtml, plainText } from '@/sections/inline';
+
+const faqs = (await getCollection('faqs')).map((f) => f.data);
+const schema = faqSchema(faqs.map((f) => ({ q: f.q, a: plainText(f.a) })));
+---
+
+<BaseLayout title="Questions and answers" description={`Common questions about ${site.clinic.name}.`} schema={schema}>
+  <PageHeader title="Questions and answers" lede="Short answers to what people ask us most." />
+  <div class="wrap">
+    {faqs.map((f) => (
+      <section>
+        <h2>{f.q}</h2>
+        <p set:html={linkHtml(f.a)} />
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
+  section { max-width: var(--measure); padding: var(--space-4) 0; border-top: 1px solid var(--color-line); }
+  h2 { margin: 0 0 var(--space-2); font-size: var(--text-22); }
+  p { margin: 0; }
+  p :global(a) { display: inline-flex; align-items: center; min-height: var(--target); }
+</style>

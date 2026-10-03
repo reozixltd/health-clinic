@@ -1,0 +1,18 @@
+---
+import { site } from '@/config';
+import Button from '@/core/ui/Button.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/sections/PageHeader.astro';
+---
+
+<BaseLayout title="Page not found" description="That page does not exist." noindex>
+  <PageHeader title="We could not find that page" lede="It may have moved, or the link may be wrong." />
+  <div class="wrap">
+    <Button href="/">Go to the home page</Button>
+    <Button href="/contact/" variant="secondary">Contact {site.clinic.name}</Button>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-3); }
+</style>

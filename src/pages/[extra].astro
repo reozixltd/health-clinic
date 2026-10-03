@@ -1,0 +1,11 @@
+---
+import { site } from '@/config';
+import PolicyPage from '@/layouts/PolicyPage.astro';
+
+export function getStaticPaths() {
+  return site.preset.extraPages.map((p) => ({ params: { extra: p.slug }, props: { policy: p.policy } }));
+}
+const { policy } = Astro.props;
+---
+
+<PolicyPage policy={policy} />
