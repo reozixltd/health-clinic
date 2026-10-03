@@ -22,6 +22,8 @@ import { site as nbSite } from './sites/fixture-no-booking/site';
 import { clinic as nbClinic } from './sites/fixture-no-booking/clinic';
 import { booking as nbBooking } from './sites/fixture-no-booking/booking';
 import { messages as nbMessages } from './sites/fixture-no-booking/messages';
+import { site as lvSite } from './sites/fixture-live/site';
+import { clinic as lvClinic } from './sites/fixture-live/clinic';
 import type { SiteConfigInput } from '@/domain/presets';
 
 /** Sites that build:all builds and allSites() returns. */
@@ -34,5 +36,7 @@ export const registry: Record<string, SiteConfigInput> = {
 /** Module-off test fixtures. Built by the e2e run only, and kept out of allSites(). */
 export const fixtures: Record<string, SiteConfigInput> = {
   'fixture-minimal': { site: fxSite, clinic: fxClinic, booking: fxBooking, messages: fxMessages },
+  // Live (demoMode false) fixture; it borrows the fixture-minimal booking, messages and content.
+  'fixture-live': { site: lvSite, clinic: lvClinic, booking: fxBooking, messages: fxMessages },
   'fixture-no-booking': { site: nbSite, clinic: nbClinic, booking: nbBooking, messages: nbMessages },
 };

@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BASE, SITE_ID, closeBrowser, expect, finish, skip, step, withPage } from './harness.mjs';
 
@@ -6,6 +6,8 @@ if (SITE_ID !== 'fixture-minimal') {
   skip('module-off checks (fixture-minimal build only)');
   finish();
 }
+
+const html = (file) => readFileSync(join('dist', SITE_ID, file), 'utf8');
 
 await step('switched-off modules leave no trace', async () => {
   for (const path of ['/fees/', '/referrers/']) {
@@ -35,9 +37,46 @@ await step('no page loads JavaScript for switched-off modules', async () => {
   expect(htmlFiles.length > 5, `expected built html in ${dist}`);
   for (const f of htmlFiles) {
     const scripts = readFileSync(join(dist, String(f)), 'utf8').match(/<script\b[^>]*\bsrc=["'][^"']*["']|import\(?\s*["'][^"']*["']/g) ?? [];
-    const bad = scripts.filter((t) => /ReferralForm|EstimateForm/.test(t));
+    const bad = scripts.filter((t) => /ReferralForm|EstimateForm|ConfirmationPreview/.test(t));
     expect(bad.length === 0, `${f} references ${bad.join(', ')}`);
   }
+});
+
+/** The text of every script a built page loads, following relative imports between chunks. */
+function loadedJs(distDir, page) {
+  const seen = new Set();
+  const read = (file) => {
+    if (seen.has(file)) return '';
+    seen.add(file);
+    let text = '';
+    try { text = readFileSync(file, 'utf8'); } catch { return ''; }
+    const refs = [...text.matchAll(/(?:from|import)\s*["'](\.[^"']+\.js)["']/g)].map((m) => join(file, '..', m[1]));
+    return text + refs.map(read).join('');
+  };
+  const srcs = [...readFileSync(join(distDir, page), 'utf8').matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/g)].map((m) => m[1]);
+  return srcs.map((src) => read(join(distDir, src))).join('');
+}
+
+await step('reminders off: /book/ has no sample confirmation and loads no reminders code', async () => {
+  const page = html('book/index.html');
+  expect(!page.includes('data-preview'), '/book/ has the confirmation preview markup');
+  expect(!loadedJs(join('dist', SITE_ID), 'book/index.html').includes('data-preview-text'), '/book/ loads the reminders render code');
+  const control = join('dist', 'fernway-au');
+  if (existsSync(join(control, 'book/index.html'))) {
+    expect(loadedJs(control, 'book/index.html').includes('data-preview-text'), 'control: a demo site with reminders on should load it');
+  }
+});
+
+await step('reminders off: the console shows no message timelines', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/console/`);
+    await page.fill('#console-email', 'clinic@demo.reozix');
+    await page.fill('#console-password', 'demo1234');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.locator('[data-inbox] button').first().click();
+    expect((await page.locator('[data-timeline-off]').innerText()) === 'Message previews are off.', 'expected the previews-off notice');
+    expect((await page.locator('[data-timeline] li').count()) === 0, 'a timeline rendered');
+  });
 });
 
 await closeBrowser();

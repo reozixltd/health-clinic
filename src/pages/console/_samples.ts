@@ -34,6 +34,11 @@ function specs(vet: boolean, day: (n: number) => string): Spec[] {
   ];
 }
 
+/** Sample requests load on the first sign-in of a demo site only, never on a live one. */
+export function shouldAutoSeed(demo: boolean, seededFlag: string | null): boolean {
+  return demo && !seededFlag;
+}
+
 export function sampleLeads(now: Date, site: SampleSite): Lead[] {
   const today = todayIn(site.clinic.timeZone, now);
   const day = (n: number) => addDays(today, n);

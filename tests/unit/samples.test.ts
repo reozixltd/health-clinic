@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sampleLeads } from '@/pages/console/_samples';
+import { sampleLeads, shouldAutoSeed } from '@/pages/console/_samples';
 import { alliedHealth } from '@/presets/allied-health';
 import { vet } from '@/presets/vet';
 import { todayIn } from '@/core/format';
@@ -34,4 +34,12 @@ it('allied samples include one marketing-consent appointment; vet includes a vac
   expect(a.filter((l) => l.kind === 'appointment' && l.consent.marketingSms)).toHaveLength(1);
   const v = sampleLeads(now, { preset: vet, clinic: { timeZone: 'Europe/London' } });
   expect(v.some((l) => (l.payload as { service?: string }).service === 'vaccinations')).toBe(true);
+});
+
+describe('shouldAutoSeed', () => {
+  it('seeds only on a demo site that has not been seeded', () => {
+    expect(shouldAutoSeed(true, null)).toBe(true);
+    expect(shouldAutoSeed(true, '1')).toBe(false);
+    expect(shouldAutoSeed(false, null)).toBe(false);
+  });
 });

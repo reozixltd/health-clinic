@@ -50,7 +50,8 @@ const yes = (b: boolean) => (b ? 'Yes' : 'No');
 export interface DetailOptions {
   ctx: DetailCtx;
   demoMode: boolean;
-  messages: TimelineItem[];
+  /** Scheduled message previews, or null when the reminders module is off. */
+  messages: TimelineItem[] | null;
   onStatus: (status: LeadStatus) => void;
   onNote: (note: string) => void;
 }
@@ -73,7 +74,8 @@ export function renderDetail(container: HTMLElement, lead: Lead, opts: DetailOpt
     if (note.value.trim()) opts.onNote(note.value);
   });
   const timeline = el('div', { 'data-timeline': '' });
-  renderTimeline(timeline, opts.messages, { demoMode: opts.demoMode, locale: ctx.locale });
+  if (opts.messages) renderTimeline(timeline, opts.messages, { demoMode: opts.demoMode, locale: ctx.locale });
+  else timeline.append(el('p', { 'data-timeline-off': '' }, 'Message previews are off.'));
   const actions = ACTIONS[lead.status].map((a) => {
     const b = el('button', { type: 'button', class: `console-btn console-btn--${a.variant}` }, a.label);
     b.addEventListener('click', () => opts.onStatus(a.to));

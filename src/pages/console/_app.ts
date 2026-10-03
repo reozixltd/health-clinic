@@ -1,21 +1,20 @@
 import { el, fill } from '@/core/console/dom';
 import { filterLeads, renderInbox } from '@/core/console/inbox';
 import { initShell } from '@/core/console/shell';
-import { formatDay, todayIn } from '@/core/format';
+import { formatDay } from '@/core/format';
 import { getLeadRepository, LEAD_STATUSES, STATUS_LABELS, type Lead, type LeadKind, type LeadStatus } from '@/core/leads';
 import { leadsToCsv } from '@/core/leads/csv';
 import { getStorage } from '@/core/storage';
 import { getMarket, type MarketId } from '@/domain/markets';
 import type { BookingConfig, MessageTemplate, Provider, Service } from '@/domain/types';
-import { isStale } from '@/modules/price-list/price-list';
 import { schedule, type ScheduleContext } from '@/modules/reminders/schedule';
 import { describeLead, renderDetail, type DetailCtx } from './_detail';
-import { sampleLeads } from './_samples';
+import { sampleLeads, shouldAutoSeed } from './_samples';
 
 interface Data {
-  siteId: string; preset: 'allied-health' | 'vet'; leadKinds: LeadKind[]; messages: MessageTemplate[]; clinicName: string; demo: boolean;
+  siteId: string; preset: 'allied-health' | 'vet'; leadKinds: LeadKind[]; messages: MessageTemplate[]; clinicName: string; demo: boolean; reminders: boolean;
   marketId: MarketId; timeZones: Record<string, string>; reviewUrls: Record<string, string>;
-  windows: BookingConfig['windows']; services: Service[]; providers: Provider[]; pricesReviewedAt: string | null;
+  windows: BookingConfig['windows']; services: Service[]; providers: Provider[]; pricesStale: boolean;
 }
 
 const PLURAL: Record<LeadKind, string> = { appointment: 'Appointments', referral: 'Referrals', estimate: 'Estimates', enquiry: 'Enquiries' };
@@ -27,7 +26,7 @@ export function initConsole(): void {
   const market = getMarket(active);
   const tz = data.timeZones[active] ?? Object.values(data.timeZones)[0]!;
   const ctx: DetailCtx = { locale: market.locale, timeZone: tz, preset: data.preset, services: data.services, providers: data.providers, windows: data.windows };
-  const repo = getLeadRepository(`health:v1:${data.siteId}`);
+  const repo = getLeadRepository(`health:v1:${data.siteId}`, { demo: data.demo });
   const root = document.getElementById('console-root')!;
   const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
   const state = { leads: [] as Lead[], kind: '' as LeadKind | '', status: '' as LeadStatus | '', selected: null as string | null };
@@ -35,6 +34,7 @@ export function initConsole(): void {
   const say = (text: string) => { $('[data-message]').textContent = text; };
 
   function messagesFor(lead: Lead) {
+    if (!data.reminders) return null;
     const p = lead.payload as { service?: string; day?: string; windowId?: string };
     const window = data.windows.find((w) => w.id === p.windowId);
     const visit: ScheduleContext['visit'] = lead.kind === 'appointment' && p.day && window
@@ -58,7 +58,7 @@ export function initConsole(): void {
 
   function render() {
     const shown = filterLeads(state.leads, state);
-    renderInbox($('[data-inbox]'), shown, { selectedId: state.selected, describe: (l) => describeLead(l, ctx), onSelect: (id) => { state.selected = id; render(); $('#detail-title')?.focus(); } });
+    renderInbox($('[data-inbox]'), shown, { demo: data.demo, selectedId: state.selected, describe: (l) => describeLead(l, ctx), onSelect: (id) => { state.selected = id; render(); $('#detail-title')?.focus(); } });
     const lead = state.leads.find((l) => l.id === state.selected);
     const detail = $('[data-detail]');
     if (!lead) { fill(detail, el('p', {}, 'Choose a request to see its details.')); return; }
@@ -82,11 +82,14 @@ export function initConsole(): void {
     await refresh();
   }
 
-  $('[data-load]').addEventListener('click', () => void load());
-  $('[data-clear]').addEventListener('click', async () => {
-    if (!window.confirm('Remove every request on this device?')) return;
-    await repo.clear(); state.selected = null; say('All requests removed.'); await refresh();
-  });
+  // Sample data and clearing are demo features: a live console never seeds or wipes the store.
+  if (data.demo) {
+    $('[data-load]').addEventListener('click', () => void load());
+    $('[data-clear]').addEventListener('click', async () => {
+      if (!window.confirm('Remove every request on this device?')) return;
+      await repo.clear(); state.selected = null; say('All requests removed.'); await refresh();
+    });
+  }
   $('[data-export]').addEventListener('click', () => {
     const url = URL.createObjectURL(new Blob([leadsToCsv(state.leads)], { type: 'text/csv;charset=utf-8' }));
     const a = el('a', { href: url, download: `${data.siteId}-requests.csv` });
@@ -97,7 +100,7 @@ export function initConsole(): void {
   select.append(...LEAD_STATUSES.map((s) => el('option', { value: s }, STATUS_LABELS[s])));
   select.addEventListener('change', () => { state.status = select.value as LeadStatus | ''; render(); });
 
-  if (data.pricesReviewedAt && isStale(data.pricesReviewedAt, todayIn(tz, new Date()))) {
+  if (data.pricesStale) {
     const warn = $('[data-stale]'); warn.hidden = false;
     warn.textContent = 'Price list last reviewed over 180 days ago. Check the prices before the next review date.';
   }
@@ -110,7 +113,7 @@ export function initConsole(): void {
       const store = getStorage();
       renderChips();
       void (async () => {
-        if (!store.getItem(flag)) { await load(); try { store.setItem(flag, '1'); } catch { /* seeds again next visit */ } }
+        if (shouldAutoSeed(data.demo, store.getItem(flag))) { await load(); try { store.setItem(flag, '1'); } catch { /* seeds again next visit */ } }
         else await refresh();
       })();
     },

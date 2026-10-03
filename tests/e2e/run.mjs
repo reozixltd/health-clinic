@@ -12,6 +12,7 @@ const SITES = ['fernway-au', 'fernway-ca', 'hollybank'].map((id, i) => ({ id, po
 const FIXTURES = [
   { id: 'fixture-minimal', port: BASE_PORT + 3, files: ['modules.e2e.mjs'] },
   { id: 'fixture-no-booking', port: BASE_PORT + 4, files: ['booking-off.e2e.mjs'] },
+  { id: 'fixture-live', port: BASE_PORT + 5, files: ['live.e2e.mjs'] },
 ];
 const FIXTURE_FILES = FIXTURES.flatMap((f) => f.files);
 const only = process.env.E2E_SITES?.split(',');

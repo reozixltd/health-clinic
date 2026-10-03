@@ -5,11 +5,16 @@ import '@/styles/console.css';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, marketVariants } from '@/layouts/site';
 import { isOn } from '@/domain/modules';
+import { todayIn } from '@/core/format';
+import { isStale } from '@/modules/price-list/price-list';
 
 const variants = marketVariants(site, allSites());
 const services = (await getCollection('services')).map((s) => s.data);
 const providers = (await getCollection('providers')).map((p) => p.data);
 const prices = isOn('price-list', site) ? await getEntry('prices', 'prices') : undefined;
+const marketId = configuredMarket(site).id;
+// Computed when the site is built, so the console JavaScript carries no price-list code.
+const pricesStale = prices ? isStale(prices.data.reviewedAt, todayIn(site.clinic.timeZone, new Date())) : false;
 const data = {
   siteId: site.id,
   preset: site.preset.id,
@@ -17,13 +22,14 @@ const data = {
   messages: site.messages,
   clinicName: site.clinic.name,
   demo: site.demoMode,
-  marketId: configuredMarket(site).id,
+  marketId,
+  reminders: isOn('reminders', site),
   timeZones: Object.fromEntries(variants.map((v) => [v.id, v.clinic.timeZone])),
   reviewUrls: Object.fromEntries(variants.map((v) => [v.id, v.clinic.reviewsUrl ?? ''])),
   windows: site.booking.windows,
   services: services.map(({ slug, title }) => ({ slug, title })),
   providers: providers.map(({ slug, name }) => ({ slug, name })),
-  pricesReviewedAt: prices?.data.reviewedAt ?? null,
+  pricesStale,
 };
 const json = JSON.stringify(data).replace(/</g, '\\u003c');
 ---
@@ -44,8 +50,8 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
         <h1>{site.clinic.name} console</h1>
         <div class="app__tools">
           <button type="button" class="console-btn console-btn--secondary" data-export>Export CSV</button>
-          <button type="button" class="console-btn console-btn--secondary" data-load>Load samples</button>
-          <button type="button" class="console-btn console-btn--secondary" data-clear>Clear</button>
+          {site.demoMode && <button type="button" class="console-btn console-btn--secondary" data-load>Load samples</button>}
+          {site.demoMode && <button type="button" class="console-btn console-btn--secondary" data-clear>Clear</button>}
           <button type="button" class="console-btn console-btn--secondary" data-signout>Sign out</button>
         </div>
       </header>

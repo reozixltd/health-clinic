@@ -47,6 +47,9 @@ describe('inbox', () => {
     const list = document.createElement('ul');
     renderInbox(list, [], { selectedId: null, describe: () => '', onSelect: () => {} });
     expect(list.textContent).toContain('No requests here yet');
+    expect(list.textContent).not.toContain('Load samples');
+    renderInbox(list, [], { selectedId: null, describe: () => '', onSelect: () => {}, demo: true });
+    expect(list.textContent).toContain('Load samples');
   });
 });
 
@@ -66,5 +69,19 @@ describe('timeline', () => {
     expect(box.querySelectorAll('.timeline__preview')).toHaveLength(5);
     renderTimeline(box, [{ ...base, templateId: 'confirmation', sendAt: '2026-10-09T08:00:00+11:00' }], { demoMode: false });
     expect(box.textContent).not.toContain('Preview, not sent');
+  });
+});
+
+describe('detail with the reminders module off', () => {
+  it('shows a notice instead of a message timeline', async () => {
+    const { renderDetail } = await import('@/pages/console/_detail');
+    const box = document.createElement('div');
+    const ctx = { locale: 'en-AU', timeZone: 'Australia/Melbourne', preset: 'allied-health' as const, services: [], providers: [], windows: [] };
+    const l = { ...lead('1', 'enquiry', 'new'), payload: { message: 'Hi' } };
+    renderDetail(box, l, { ctx, demoMode: false, messages: null, onStatus: () => {}, onNote: () => {} });
+    expect(box.querySelector('[data-timeline-off]')?.textContent).toBe('Message previews are off.');
+    expect(box.querySelector('[data-timeline] li')).toBeNull();
+    renderDetail(box, l, { ctx, demoMode: false, messages: [], onStatus: () => {}, onNote: () => {} });
+    expect(box.querySelector('[data-timeline-off]')).toBeNull();
   });
 });

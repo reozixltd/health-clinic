@@ -29,6 +29,11 @@ await step('demo ribbon visible', async () => {
   });
 });
 
+await step('demo sites ship the component gallery', async () => {
+  const res = await fetch(`${BASE}/dev/ui/`);
+  expect(res.status === 200, `/dev/ui/ returned ${res.status}`);
+});
+
 if (SITE_ID === 'fernway-au') {
   await step('?market=CA switches market for the session', async () => {
     await withPage({}, async (page) => {

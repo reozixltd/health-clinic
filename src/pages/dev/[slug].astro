@@ -1,4 +1,5 @@
 ---
+import { site } from '@/config';
 import '../../styles/global.css';
 import Button from '@/core/ui/Button.astro';
 import Field from '@/core/ui/Field.astro';
@@ -8,6 +9,11 @@ import Badge from '@/core/ui/Badge.astro';
 import Photo from '@/core/ui/Photo.astro';
 import Placeholder from '@/core/ui/Placeholder.astro';
 import { icons, type IconName } from '@/core/ui/icons';
+
+/** The component gallery is a demo tool: a live site does not build it. */
+export function getStaticPaths() {
+  return site.demoMode ? [{ params: { slug: 'ui' } }] : [];
+}
 
 const themes = ['fernway', 'harbour'];
 const names = Object.keys(icons) as IconName[];

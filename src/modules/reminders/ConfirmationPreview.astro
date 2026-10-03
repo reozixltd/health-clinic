@@ -1,0 +1,31 @@
+---
+/** Demo-only sample of the confirmation text, filled in when the request is sent. Only pages with `reminders` on render it. */
+interface Props {
+  body: string;
+  clinicName: string;
+}
+const { body, clinicName } = Astro.props;
+---
+
+<div data-preview data-body={body} data-clinic={clinicName} hidden>
+  <h3>Sample confirmation text</h3>
+  <p class="sample" data-preview-text></p>
+  <p>Sample only. This is what a confirmation message looks like.</p>
+</div>
+
+<script>
+  import { render } from './render';
+
+  /** The booking page announces a sent request; this fills in and shows the sample text. */
+  window.addEventListener('booking:sent', (e) => {
+    const box = document.querySelector<HTMLElement>('[data-preview]');
+    if (!box) return;
+    const { firstName, dayLabel, windowLabel } = (e as CustomEvent<{ firstName: string; dayLabel: string; windowLabel: string }>).detail;
+    box.querySelector('[data-preview-text]')!.textContent = render(box.dataset.body ?? '', { firstName, clinicName: box.dataset.clinic ?? '', dayLabel, windowLabel });
+    box.hidden = false;
+  });
+</script>
+
+<style>
+  .sample { padding: var(--space-3); background: var(--color-surface); border-radius: var(--radius-control); }
+</style>

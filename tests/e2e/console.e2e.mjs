@@ -102,8 +102,14 @@ if (vet) {
       await page.locator('[data-inbox] button').first().waitFor();
       expect(await page.locator('[data-stale]').isHidden(), 'fresh price list should not warn');
     });
+    // Staleness is decided when the site is built (isStale has unit tests); flip the built flag to check the warning shows.
     await withPage({}, async (page) => {
-      await page.clock.setFixedTime(new Date('2027-06-01T10:00:00Z'));
+      await page.route('**/console/', async (route) => {
+        const res = await route.fetch();
+        const body = await res.text();
+        expect(body.includes('"pricesStale":false'), 'console data should carry pricesStale');
+        await route.fulfill({ response: res, body: body.replace('"pricesStale":false', '"pricesStale":true') });
+      });
       await signIn(page);
       await page.locator('[data-stale]').waitFor();
       expect((await page.locator('[data-stale]').innerText()).includes('Price list last reviewed over 180 days ago'), 'warning text missing');

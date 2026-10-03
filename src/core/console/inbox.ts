@@ -12,12 +12,14 @@ export interface InboxOptions {
   /** One line summarising the request, e.g. "Physiotherapy, Fri 9 Oct, Morning". */
   describe: (lead: Lead) => string;
   onSelect: (id: string) => void;
+  /** Demo sites point at "Load samples" when the list is empty; live sites have no such button. */
+  demo?: boolean;
 }
 
 /** One button per lead inside `list` (a ul). The selected row carries aria-current. */
 export function renderInbox(list: HTMLElement, leads: readonly Lead[], opts: InboxOptions): void {
   if (leads.length === 0) {
-    fill(list, el('li', { class: 'inbox__empty' }, 'No requests here yet. Requests sent from the booking page appear in this list, or use Load samples.'));
+    fill(list, el('li', { class: 'inbox__empty' }, `No requests here yet. Requests sent from the booking page appear in this list${opts.demo ? ', or use Load samples' : ''}.`));
     return;
   }
   fill(list, ...leads.map((lead) => {
