@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { photoAlt, photoRoles, photoSlots, rolePhoto, slotPhoto } from '@/config/photo-slots';
+import { hasPhoto } from '@/core/photos';
 import { initials } from '@/modules/providers/registration';
 
 describe('photo roles', () => {
@@ -17,6 +18,10 @@ describe('photo roles', () => {
       if (slot.startsWith('provider-')) expect(photoAlt[slot]).toBeUndefined();
       else expect(photoAlt[slot], slot).toBeTruthy();
     }
+  });
+
+  it('every room slot with alt text has a photo file', () => {
+    for (const slot of Object.keys(photoAlt)) expect(hasPhoto(slot), slot).toBe(true);
   });
 
   it('each brand has its own building', () => {

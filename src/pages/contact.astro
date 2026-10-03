@@ -25,13 +25,13 @@ const photo = rolePhoto(site.contentDir, 'exterior');
         </div>
       ))}
     </div>
-    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 768px) 480px, 100vw" />}
+    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 768px) 50vw, 100vw" />}
   </div>
 </PolicyPage>
 
 <style>
   .details { display: grid; gap: var(--space-5); max-width: var(--measure); }
-  @media (min-width: 768px) { .details.has-photo { max-width: none; grid-template-columns: minmax(0, var(--measure)) 1fr; align-items: start; column-gap: var(--space-7); } }
+  @media (min-width: 768px) { .details.has-photo { max-width: none; grid-template-columns: 1fr 1fr; align-items: start; column-gap: var(--space-7); } }
   .detail { display: grid; gap: var(--space-2); }
   h2 { margin: var(--space-3) 0 0; font-size: var(--text-22); }
   address { font-style: normal; }

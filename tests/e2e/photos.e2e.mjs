@@ -80,5 +80,15 @@ await step('hero photo sits beside the text at 1280 and below it at 375', async 
   });
 });
 
+await step('contact photo keeps a usable width at 768 and the page does not scroll sideways', async () => {
+  await withPage({ viewport: { width: 768, height: 900 } }, async (page) => {
+    await page.goto(`${BASE}/contact/`);
+    const w = (await page.locator('main img').first().boundingBox()).width;
+    console.log(`       contact photo width at 768: ${Math.round(w)}px`);
+    expect(w >= 280, `contact photo is ${Math.round(w)}px wide at 768`);
+    expect((await page.evaluate(() => document.documentElement.scrollWidth)) <= 768, 'page scrolls sideways at 768');
+  });
+});
+
 await closeBrowser();
 finish();
