@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { faqSchema, organizationSchema, personSchema, serviceSchema } from '@/core/schema';
+import { faqSchema, jsonLd, organizationSchema, personSchema, serviceSchema } from '@/core/schema';
 
 const org = {
   type: 'PhysicalTherapy',
@@ -45,5 +45,13 @@ describe('serviceSchema and faqSchema', () => {
     const s = faqSchema([{ q: 'Q?', a: 'A.' }]) as { mainEntity: { name: string; acceptedAnswer: { text: string } }[] };
     expect(s.mainEntity[0].name).toBe('Q?');
     expect(s.mainEntity[0].acceptedAnswer.text).toBe('A.');
+  });
+});
+
+describe('jsonLd', () => {
+  it('escapes </script> so content cannot close the tag', () => {
+    const out = jsonLd({ a: '</script><script>alert(1)</script>' });
+    expect(out).not.toContain('</script');
+    expect(JSON.parse(out).a).toBe('</script><script>alert(1)</script>');
   });
 });
