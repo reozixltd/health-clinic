@@ -10,7 +10,7 @@ Generated from `src/config/photo-slots.ts` by `npm run photos:status`. Do not ed
 - Rooms and equipment only. Never use stock photos of people as clinicians.
 - Clinician portraits come from the real clinician, with their consent.
 - No patients, no pets in distress, no screens showing records.
-- Landscape slots: at least 1600 px wide. Portrait slots: at least 800 px wide.
+- Suggestion, not enforced: shoot landscape slots at 1600 px wide or more and portrait slots at 800 px or more.
 - Provider slots are the only ones pages render today. Room slots are listed so a shoot can cover them.
 
 ## Fernway

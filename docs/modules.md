@@ -128,6 +128,6 @@ The after-hours note shown in the hero and footer, from `clinic.emergency`. When
 
 ## Vet modules and the competition remedies
 
-`price-list`, `estimates` and `ownership` were built for the remedies the CMA proposed for UK vets: a published price list, written estimates above a threshold, and an ownership statement.
+`price-list`, `estimates` and `ownership` were built for the CMA remedies in the final report (24 March 2026): a published price list, written estimates above a threshold, and an ownership statement.
 
-Order status to confirm: whether the final Order was made, and its exact wording, was not verified when these modules were built. The 180-day review limit and the GBP 500 estimate threshold follow the draft remedies. Confirm the final Order wording before Hollybank or any real clinic goes live with these modules.
+Order status to confirm: whether the Order was made, and its exact wording, was not verified when these modules were built. Confirm the final Order wording before sale. The 180-day review limit and the GBP 500 estimate threshold are defaults in config, not legal advice.

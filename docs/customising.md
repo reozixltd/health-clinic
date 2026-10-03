@@ -39,7 +39,7 @@ modules: { referrals: true, 'price-list': false }
 ## Content rules
 
 - Links in content must match the modules that are on. If `fees` is off, no page may link to `/fees/`. The demo content links to `/fees/`, `/prices/` and `/estimates/` only on the brand that has them.
-- Fees keep one file for every market. Each fee has `amount` keyed by market (`AU`, `CA`), and `funding` keys (`fund`, `medicare`, `extended`, `direct`). A fee with no amount for a market is left out of that market's table.
+- Fees keep one file for every market. Each fee has `amount` keyed by market (`AU`, `CA`, `UK`), and `funding` keys (`fund`, `medicare`, `extended`, `direct`). A fee with no amount for a market is left out of that market's table.
 - Clinicians can carry `registration.byMarket.CA` when the same person shows a different register in Canada.
 - Never ask for symptoms, history, medications or a pet's condition anywhere on the site. Clinical intake happens in the practice system.
 - Write in sentence case, with short sentences. No eyebrow labels, no all-caps, no arrows on buttons.

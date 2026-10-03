@@ -31,6 +31,7 @@ function describe(slot) {
     'consult-room': ['Vet consult room with exam table and scales, empty, clean.', 'veterinary consulting room empty exam table'],
     'prep-and-theatre': ['Prep area and theatre with table and monitoring equipment, empty.', 'veterinary surgery theatre empty'],
   };
+  if (!rooms[slot]) console.warn(`Warning: no description for slot "${slot}". Add one to describe() in tools/photo-brief.mjs.`);
   const [shows, search] = rooms[slot] ?? ['Describe this slot.', slot.replace(/-/g, ' ')];
   return { shows, search, orientation: 'landscape' };
 }
@@ -62,7 +63,7 @@ Generated from \`src/config/photo-slots.ts\` by \`npm run photos:status\`. Do no
 - Rooms and equipment only. Never use stock photos of people as clinicians.
 - Clinician portraits come from the real clinician, with their consent.
 - No patients, no pets in distress, no screens showing records.
-- Landscape slots: at least 1600 px wide. Portrait slots: at least 800 px wide.
+- Suggestion, not enforced: shoot landscape slots at 1600 px wide or more and portrait slots at 800 px or more.
 - Provider slots are the only ones pages render today. Room slots are listed so a shoot can cover them.
 
 ${sections.join('\n')}`;
