@@ -1,0 +1,58 @@
+/* Reset, base typography and layout primitives. Component styles live in their components. */
+@import '@fontsource-variable/atkinson-hyperlegible-next';
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; font-size: var(--body-size); }
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-16);
+  line-height: var(--leading-body);
+}
+
+img, svg, video { display: block; max-width: 100%; height: auto; }
+input, button, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+p, h1, h2, h3, h4, figure, blockquote, dl, dd { margin: 0; }
+
+h1, h2, h3, h4 { line-height: 1.2; text-wrap: balance; }
+h1 { font-size: var(--text-hero); }
+h2 { font-size: var(--text-28); }
+h3 { font-size: var(--text-22); }
+p { max-width: var(--measure); text-wrap: pretty; }
+a { color: inherit; text-underline-offset: 0.2em; }
+
+:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important;
+  overflow: hidden !important; clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important; border: 0 !important;
+}
+
+.skip-link {
+  position: absolute; left: var(--space-4); top: -100px; z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-ink); color: var(--color-on-ink);
+  border-radius: var(--radius-control);
+}
+.skip-link:focus { top: var(--space-4); }
+
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transform: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition-property: color, background-color, border-color, opacity !important;
+  }
+}

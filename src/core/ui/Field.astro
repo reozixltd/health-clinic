@@ -1,0 +1,52 @@
+---
+/** Labelled input. Error text is written into [data-error-for] by core/forms.ts. */
+interface Props {
+  name: string;
+  label: string;
+  type?: 'text' | 'email' | 'tel' | 'number' | 'date' | 'password' | 'search' | 'url';
+  required?: boolean;
+  autocomplete?: string;
+  hint?: string;
+  inputmode?: 'text' | 'numeric' | 'tel' | 'email' | 'decimal' | 'search' | 'url';
+  value?: string;
+}
+
+const { name, label, type = 'text', required = false, autocomplete, hint, inputmode, value } = Astro.props;
+const describedBy = [hint && `${name}-hint`, `${name}-error`].filter(Boolean).join(' ');
+---
+
+<div class="field">
+  <label for={name}>{label}{!required && <span class="field__opt"> (optional)</span>}</label>
+  {hint && <p class="field__hint" id={`${name}-hint`}>{hint}</p>}
+  <input
+    id={name}
+    name={name}
+    type={type}
+    required={required}
+    autocomplete={autocomplete}
+    inputmode={inputmode}
+    value={value}
+    aria-describedby={describedBy}
+    aria-invalid="false"
+  />
+  <p class="field__error" id={`${name}-error`} data-error-for={name}></p>
+</div>
+
+<style>
+  .field { display: grid; gap: var(--space-1); }
+  label { font-weight: 600; }
+  .field__opt { font-weight: 400; color: var(--color-ink-muted); }
+  .field__hint { margin: 0; font-size: var(--text-14); color: var(--color-ink-muted); }
+  input {
+    min-height: var(--target);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-field-border);
+    border-radius: var(--radius-control);
+    background: var(--color-card);
+    color: var(--color-ink);
+    font-size: var(--text-16);
+  }
+  input[aria-invalid='true'] { border-color: var(--color-danger); border-width: 2px; }
+  .field__error { margin: 0; min-height: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }
+  .field__error:empty { display: none; }
+</style>

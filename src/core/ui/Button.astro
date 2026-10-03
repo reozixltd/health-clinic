@@ -1,0 +1,44 @@
+---
+/** Button or link styled as a button. `primary` is the accent fill; `secondary` is outlined; `quiet` is text-only. */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'type'> {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'quiet';
+  size?: 'md' | 'lg';
+  type?: 'button' | 'submit';
+}
+
+const { href, variant = 'primary', size = 'md', type = 'button', class: className, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag href={href} type={href ? undefined : type} class:list={['btn', `btn--${variant}`, `btn--${size}`, className]} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--target);
+    padding: 0 var(--space-5);
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-size: var(--text-16);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color var(--dur-fill), border-color var(--dur-fill), color var(--dur-fill);
+  }
+  .btn--lg { min-height: 3.25rem; padding: 0 var(--space-6); font-size: var(--text-18); }
+  .btn--primary { background: var(--color-accent); color: var(--color-ink); border-color: var(--color-ink); }
+  .btn--primary:hover { background: var(--color-ink); color: var(--color-on-ink); }
+  .btn--secondary { background: var(--color-card); color: var(--color-ink); border-color: var(--color-field-border); }
+  .btn--secondary:hover { border-color: var(--color-ink); background: var(--color-surface); }
+  .btn--quiet { background: transparent; color: var(--color-ink); }
+  .btn--quiet:hover { background: var(--color-surface); }
+  .btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+</style>

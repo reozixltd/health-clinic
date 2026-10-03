@@ -1,0 +1,63 @@
+---
+import '../../styles/global.css';
+import Button from '@/core/ui/Button.astro';
+import Field from '@/core/ui/Field.astro';
+import ErrorSummary from '@/core/ui/ErrorSummary.astro';
+import Icon from '@/core/ui/Icon.astro';
+import Badge from '@/core/ui/Badge.astro';
+import Photo from '@/core/ui/Photo.astro';
+import Placeholder from '@/core/ui/Placeholder.astro';
+import { icons, type IconName } from '@/core/ui/icons';
+
+const themes = ['fernway', 'harbour'];
+const names = Object.keys(icons) as IconName[];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>UI primitives</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <main id="main">
+      <h1>UI primitives</h1>
+      {themes.map((theme) => (
+        <section class="theme" data-theme={theme} aria-labelledby={`h-${theme}`}>
+          <h2 id={`h-${theme}`}>Theme: {theme}</h2>
+          <div class="row">
+            <Button>Book a visit</Button>
+            <Button variant="secondary">Call us</Button>
+            <Button variant="quiet">Learn more</Button>
+            <Button size="lg">Large button</Button>
+          </div>
+          <div class="row">
+            <Badge>Neutral</Badge><Badge tone="success">Open now</Badge><Badge tone="warning">Busy</Badge><Badge tone="danger">Closed</Badge>
+          </div>
+          <div class="row">
+            {names.map((n) => <Icon name={n} size={24} label={n} />)}
+          </div>
+          <form class="form" novalidate>
+            <ErrorSummary id={`err-${theme}`} />
+            <Field name={`name-${theme}`} label="Full name" required autocomplete="name" />
+            <Field name={`phone-${theme}`} label="Phone" type="tel" inputmode="tel" hint="We only use this to confirm your visit." />
+          </form>
+          <div class="row">
+            <Photo slot="demo-missing" alt="Reception desk" ratio="16 / 9" />
+            <Placeholder label="Treatment room" ratio="4 / 3" />
+          </div>
+        </section>
+      ))}
+    </main>
+  </body>
+</html>
+
+<style>
+  main { max-width: 60rem; margin: 0 auto; padding: var(--space-5); }
+  .theme { margin-block: var(--space-6); padding: var(--space-5); background: var(--color-paper); color: var(--color-ink); border: 1px solid var(--color-line); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-block: var(--space-4); }
+  .row > :global(figure) { flex: 1 1 14rem; }
+  .form { display: grid; gap: var(--space-3); max-width: 24rem; }
+</style>
