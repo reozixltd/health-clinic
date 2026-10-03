@@ -22,6 +22,12 @@ describe('booking lead', () => {
     expect(lead.payload.pet).toEqual({ name: 'Biscuit', species: 'dog' });
   });
 
+  it('buildAppointmentInput throws for an incomplete state', () => {
+    for (const patch of [{ service: null }, { day: null }, { windowId: null }, { patientType: null }]) {
+      expect(() => buildAppointmentInput(ok, { state: { ...state, ...patch }, consentAt: 'x', clientRef: 'r' })).toThrow('Booking is incomplete');
+    }
+  });
+
   it('CA postcode rule', () => {
     const rules = appointmentRules(getMarket('CA'));
     expect(validate({ ...ok, postcode: 'K1P 1J1' }, rules).ok).toBe(true);

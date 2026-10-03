@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { cardFields } from '@/modules/booking/card';
 import { todayIn } from '@/core/format';
 import { availableDays, firstUnfinished, fromParams, nextStep, prevStep, providersFor, toParams, type BookingState } from '@/modules/booking/state';
 import type { BookingConfig, Provider } from '@/domain/types';
@@ -42,5 +43,14 @@ describe('booking state', () => {
     const list = [prov('ana', ['psychology'], false), prov('sam', ['physiotherapy'], true)];
     expect(providersFor('psychology', 'new', list)).toEqual([]);
     expect(providersFor('psychology', 'returning', list).map((p) => p.slug)).toEqual(['ana']);
+  });
+
+  it('fromParams rejects impossible dates and cardFields does not throw', () => {
+    for (const d of ['2026-99-99', '2026-02-30']) {
+      const s = fromParams(`?day=${d}`, ctx);
+      expect(s.day).toBeNull();
+      expect(() => cardFields(s, { services: [], providers: [], windows: [], preset: 'vet', locale: 'en-AU' })).not.toThrow();
+    }
+    expect(fromParams('?day=2026-10-09', ctx).day).toBe('2026-10-09');
   });
 });

@@ -45,12 +45,13 @@ export function buildAppointmentInput(
   ctx: { state: BookingState; consentAt: string; clientRef: string },
 ): LeadInput<AppointmentPayload> {
   const s = ctx.state;
+  if (!s.service || !s.day || !s.windowId || !s.patientType) throw new Error('Booking is incomplete');
   const payload: AppointmentPayload = {
-    service: s.service ?? '',
+    service: s.service,
     provider: s.provider,
-    patientType: s.patientType ?? 'new',
-    day: s.day ?? '',
-    windowId: s.windowId ?? '',
+    patientType: s.patientType,
+    day: s.day,
+    windowId: s.windowId,
     forWhom: s.forWhom,
   };
   const petName = text(form.petName) || s.pet?.name;

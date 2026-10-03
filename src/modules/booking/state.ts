@@ -20,6 +20,13 @@ export interface BookingState {
 
 export interface ParamsCtx { services: string[]; providers: string[]; windows: string[] }
 
+/** True for a real calendar date "YYYY-MM-DD" (rejects 2026-99-99 and 2026-02-30). */
+function isRealDate(iso: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+  const d = new Date(`${iso}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === iso;
+}
+
 export function fromParams(search: string, ctx: ParamsCtx): BookingState {
   const q = new URLSearchParams(search);
   const pick = (key: string, allowed: string[]) => {
@@ -37,7 +44,7 @@ export function fromParams(search: string, ctx: ParamsCtx): BookingState {
     patientType: type,
     forWhom: q.get('for') === 'someone-else' ? 'someone-else' : 'me',
     pet: name ? { name, species } : null,
-    day: /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : null,
+    day: isRealDate(day) ? day : null,
     windowId: pick('window', ctx.windows),
     step,
   };
