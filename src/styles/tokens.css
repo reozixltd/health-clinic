@@ -1,0 +1,73 @@
+/*
+ * Design tokens: the only place raw colour values live. Components use var(--...) only.
+ * Two themes: fernway (sage accent, default) and harbour (blue accent). Both pass the AA test
+ * in tests/unit/contrast.test.ts.
+ */
+
+:root {
+  --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+
+  --text-14: 0.875rem;
+  --text-16: 1rem;
+  --text-18: 1.125rem;
+  --text-22: 1.375rem;
+  --text-28: 1.75rem;
+  --text-36: 2.25rem;
+  --text-hero: clamp(2.25rem, 4.5vw, 3.25rem);
+  --body-size: 17px;
+  --leading-body: 1.6;
+  --measure: 68ch;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-control: 6px;
+  --radius-card: 2px;
+  --target: 44px;
+  --dur-fill: 160ms;
+}
+
+:root,
+[data-theme='fernway'] {
+  --color-paper: #f6f7f3;
+  --color-ink: #1f2a24;
+  --color-ink-muted: #4a5750;
+  --color-card: #ffffff;
+  --color-accent: #a3c4a2;
+  --color-line: #d9dfd6;
+  --color-field-border: #6b7a70;
+  --color-surface: #eceee8;
+  --color-on-ink: #ffffff;
+  --color-success: #1f6b3a;
+  --color-success-soft: #e6f3ea;
+  --color-warning: #8a5300;
+  --color-warning-soft: #fdf1d9;
+  --color-danger: #a6262b;
+  --color-danger-soft: #fbe9e8;
+  --color-focus: #2f5d46;
+}
+
+[data-theme='harbour'] {
+  --color-paper: #f5f8fb;
+  --color-ink: #17263a;
+  --color-ink-muted: #475a70;
+  --color-card: #ffffff;
+  --color-accent: #9ec3e6;
+  --color-line: #d6dfe9;
+  --color-field-border: #66788c;
+  --color-surface: #e9eef4;
+  --color-on-ink: #ffffff;
+  --color-success: #1f6b3a;
+  --color-success-soft: #e6f3ea;
+  --color-warning: #8a5300;
+  --color-warning-soft: #fdf1d9;
+  --color-danger: #a6262b;
+  --color-danger-soft: #fbe9e8;
+  --color-focus: #1d4f8c;
+}

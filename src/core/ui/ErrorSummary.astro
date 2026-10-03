@@ -1,0 +1,26 @@
+---
+/** Hidden until core/forms.ts fills [data-error-list] and focuses it. */
+interface Props {
+  id?: string;
+  heading?: string;
+}
+const { id, heading = 'Please fix the following' } = Astro.props;
+---
+
+<div class="error-summary" id={id} role="alert" tabindex="-1" hidden data-error-summary>
+  <h2 class="error-summary__heading">{heading}</h2>
+  <ul data-error-list></ul>
+</div>
+
+<style>
+  .error-summary {
+    padding: var(--space-4);
+    border: 2px solid var(--color-danger);
+    border-radius: var(--radius-card);
+    background: var(--color-danger-soft);
+    color: var(--color-ink);
+  }
+  .error-summary__heading { margin: 0 0 var(--space-2); font-size: var(--text-18); }
+  ul { margin: 0; padding-left: var(--space-5); }
+  ul :global(a) { color: var(--color-danger); font-weight: 600; }
+</style>
