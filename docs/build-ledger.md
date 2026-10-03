@@ -1,4 +1,4 @@
-# SDD ledger — plan: docs/plans/2026-10-03-health-clinic-site.md
+# Build ledger — plan: docs/plans/2026-10-03-health-clinic-site.md
 
 Spec: docs/spec.md (reachable). Repo: /home/claude/health-clinic, branch build/health-clinic-v1 off main (commit with spec + plan). Port source cloned at /tmp/trades.
 

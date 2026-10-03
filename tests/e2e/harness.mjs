@@ -1,4 +1,9 @@
+import { existsSync } from 'node:fs';
 import { chromium } from 'playwright';
+
+// CHROMIUM_PATH wins; the sandbox path is used when it exists; otherwise Playwright's own download.
+const SANDBOX_CHROMIUM = '/opt/pw-browsers/chromium';
+const executablePath = process.env.CHROMIUM_PATH ?? (existsSync(SANDBOX_CHROMIUM) ? SANDBOX_CHROMIUM : undefined);
 
 export const BASE = process.env.SITE_URL ?? 'http://localhost:4321';
 export const SITE_ID = process.env.SITE_ID ?? 'fernway-au';
@@ -15,7 +20,8 @@ export async function step(name, fn) {
 }
 
 export function finish() {
-  process.exit(failures ? 1 : 0);
+  // Windows: process.exit() while Playwright handles are closing trips a libuv assertion (exit 134). Let the loop drain.
+  process.exitCode = failures ? 1 : 0;
 }
 
 export function skip(name) {
@@ -24,7 +30,7 @@ export function skip(name) {
 
 let browser;
 export async function withPage(opts, fn) {
-  browser ??= await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium' });
+  browser ??= await chromium.launch({ executablePath });
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, ...opts });
   const page = await context.newPage();
   try {

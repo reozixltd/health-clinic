@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const WIN = process.platform === 'win32';
 // Ports run from E2E_PORT_BASE (default 4321) upward, so parallel worktrees can use separate ranges.
 const BASE_PORT = Number(process.env.E2E_PORT_BASE ?? 4321);
 const SITES = ['fernway-au', 'fernway-ca', 'hollybank'].map((id, i) => ({ id, port: BASE_PORT + i }));
@@ -24,7 +25,10 @@ let failed = false;
 
 function stopAll() {
   for (const s of servers) {
-    try { process.kill(-s.pid, 'SIGTERM'); } catch {}
+    try {
+      if (WIN) spawnSync('taskkill', ['/pid', String(s.pid), '/T', '/F'], { stdio: 'ignore' });
+      else process.kill(-s.pid, 'SIGTERM');
+    } catch {}
   }
 }
 for (const [sig, code] of [['SIGINT', 130], ['SIGTERM', 143]]) process.on(sig, () => { stopAll(); process.exit(code); });
@@ -55,11 +59,11 @@ try {
   }
   for (const { id } of sites) {
     console.log(`build ${id}`);
-    const b = spawnSync('npx', ['astro', 'build', '--outDir', `dist/${id}`], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'inherit' });
+    const b = spawnSync('npx', ['astro', 'build', '--outDir', `dist/${id}`], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'inherit', shell: WIN });
     if (b.status !== 0) throw new Error(`build failed for ${id}`);
   }
   for (const { id, port } of sites) {
-    servers.push(spawn('npx', ['astro', 'preview', '--outDir', `dist/${id}`, '--port', String(port)], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'ignore', detached: true }));
+    servers.push(spawn('npx', ['astro', 'preview', '--outDir', `dist/${id}`, '--port', String(port)], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'ignore', detached: !WIN, shell: WIN }));
   }
   for (const { port } of sites) await waitFor(`http://localhost:${port}/`);
   for (const { id } of demo) {
