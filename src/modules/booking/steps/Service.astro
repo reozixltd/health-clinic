@@ -1,0 +1,30 @@
+---
+import Button from '@/core/ui/Button.astro';
+
+interface Props { services: { slug: string; title: string; summary: string }[]; handoff: boolean; embed: boolean; hidden?: boolean }
+const { services, handoff, embed, hidden = false } = Astro.props;
+---
+
+<section class="step" data-step="service" aria-labelledby="h-service" hidden={hidden}>
+  <h2 id="h-service" tabindex="-1">Choose a service</h2>
+  <fieldset class="choices">
+    <legend class="visually-hidden">Service</legend>
+    {services.map((s) => (
+      <label class="choice">
+        <input type="radio" name="service" id={`service-${s.slug}`} value={s.slug} aria-describedby="service-error" />
+        <span class="choice__text"><strong>{s.title}</strong><span>{s.summary}</span></span>
+      </label>
+    ))}
+  </fieldset>
+  <p class="err" id="service-error" data-error-for="service"></p>
+  {handoff && (
+    <div class="handoff" data-handoff>
+      <p>Our online booking system shows live times.</p>
+      <a class="handoff__link" data-handoff-link href="#" target="_blank" rel="noopener" hidden>Book online</a>
+      {embed && <iframe title="Online booking system" data-embed-frame loading="lazy" hidden></iframe>}
+    </div>
+  )}
+  <div class="nav">
+    <Button data-next>{handoff ? "Can't find a time? Send a request" : 'Continue'}</Button>
+  </div>
+</section>

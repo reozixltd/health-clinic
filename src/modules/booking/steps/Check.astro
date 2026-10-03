@@ -1,0 +1,16 @@
+---
+import Button from '@/core/ui/Button.astro';
+
+interface Props { confirmPromise: string; hidden?: boolean }
+const { confirmPromise, hidden = true } = Astro.props;
+---
+
+<section class="step" data-step="check" aria-labelledby="h-check" hidden={hidden}>
+  <h2 id="h-check" tabindex="-1">Check and send</h2>
+  <p>Check your appointment card. We'll confirm by SMS {confirmPromise}.</p>
+  <p class="status" role="alert" data-form-status></p>
+  <div class="nav">
+    <Button variant="secondary" data-back>Back</Button>
+    <Button type="submit" size="lg" data-send>Send appointment request</Button>
+  </div>
+</section>
