@@ -1,14 +1,15 @@
 ---
 import Button from '@/core/ui/Button.astro';
+import type { MarketId } from '@/domain/markets';
 
-interface Props { windows: { id: string; label: string; start: string; end: string }[]; horizonDays: number; phone: string; phoneHref: string; hidden?: boolean }
-const { windows, horizonDays, phone, phoneHref, hidden = true } = Astro.props;
+interface Props { windows: { id: string; label: string; start: string; end: string }[]; horizonDays: number; phones: { id: MarketId; phone: string; href: string }[]; hidden?: boolean }
+const { windows, horizonDays, phones, hidden = true } = Astro.props;
 ---
 
 <section class="step" data-step="when" aria-labelledby="h-when" hidden={hidden}>
   <h2 id="h-when" tabindex="-1">Pick a day and time</h2>
   <p>Choose a day that suits. This is a request: we'll confirm the time.</p>
-  <p class="note" data-no-days hidden>No times are open in the next {horizonDays} days. Call us and we'll find one. <a href={phoneHref}>{phone}</a></p>
+  <p class="note" data-no-days hidden>No times are open in the next {horizonDays} days. Call us and we'll find one. {phones.map((v) => <a data-market-only={v.id} href={v.href}>{v.phone}</a>)}</p>
   <div data-when-fields>
     <fieldset class="choices choices--row">
       <legend>Day</legend>

@@ -1,7 +1,7 @@
 ---
 /** Markup for the six-step request: appointment card, progress list and steps. Behaviour lives in booking.ts. */
 import ErrorSummary from '@/core/ui/ErrorSummary.astro';
-import type { MarketPack } from '@/domain/markets';
+import { telHref, type Variant } from '@/layouts/site';
 import type { BookingConfig } from '@/domain/types';
 import AppointmentCard from './AppointmentCard.astro';
 import Check from './steps/Check.astro';
@@ -14,34 +14,33 @@ import You from './steps/You.astro';
 interface Props {
   clinicName: string;
   preset: 'allied-health' | 'vet';
-  market: MarketPack;
+  variants: Variant[];
   booking: BookingConfig;
   services: { slug: string; title: string; summary: string }[];
   providers: { slug: string; name: string; role: string; services: string[] }[];
-  phone: string;
-  phoneHref: string;
 }
-const { clinicName, preset, market, booking, services, providers, phone, phoneHref } = Astro.props;
+const { clinicName, preset, variants, booking, services, providers } = Astro.props;
+const phones = variants.map((v) => ({ id: v.id, phone: v.clinic.phone, href: telHref(v.clinic.phone, v.id) }));
 const vet = preset === 'vet';
 const handoff = booking.provider !== 'none' && Boolean(booking.url);
 const names = ['Service', vet ? 'Vet' : 'Clinician', vet ? 'Pet' : 'Patient', 'When', 'You', 'Check'];
 ---
 
 <div class="book" data-booking>
-  <div class="book__card"><AppointmentCard {clinicName} {preset} locale={market.locale} /></div>
+  <div class="book__card"><AppointmentCard {clinicName} {preset} locale={variants[0]!.market.locale} /></div>
   <div class="book__main">
     <ol class="progress" aria-label="Steps">
       {names.map((n, i) => <li data-progress={['service', 'clinician', 'patient', 'when', 'you', 'check'][i]} aria-current={i === 0 ? 'step' : undefined}><span class="progress__num" aria-hidden="true">{i + 1}</span> {n}</li>)}
     </ol>
-    <noscript><p class="note">This form needs JavaScript. Call us on <a href={phoneHref}>{phone}</a> to ask for a time.</p></noscript>
+    <noscript><p class="note">This form needs JavaScript. Call us on {phones.map((v) => <a data-market-only={v.id} href={v.href}>{v.phone}</a>)} to ask for a time.</p></noscript>
     <form novalidate>
       <ErrorSummary heading="Please fix the following" />
       <Service {services} {handoff} embed={booking.provider === 'embed'} />
       <Clinician {providers} {vet} />
       <Patient {vet} />
-      <When windows={booking.windows} horizonDays={booking.horizonDays} {phone} {phoneHref} />
-      <You postcodeLabel={market.postcode.label} />
-      <Check consent={market.consent} confirmPromise={booking.confirmPromise} />
+      <When windows={booking.windows} horizonDays={booking.horizonDays} {phones} />
+      <You {variants} />
+      <Check confirmPromise={booking.confirmPromise} />
     </form>
   </div>
 </div>
@@ -76,6 +75,10 @@ const names = ['Service', vet ? 'Vet' : 'Clinician', vet ? 'Pet' : 'Patient', 'W
   @media (min-width: 640px) { .book .pair { grid-template-columns: 1fr 1fr; } }
   .book .field { display: grid; gap: var(--space-1); }
   .book .field label { font-weight: 600; }
+  .book .field input { min-height: var(--target); padding: 0 var(--space-3); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); background: var(--color-card); font-size: var(--text-16); }
+  .book .field input[aria-invalid='true'] { border-color: var(--color-danger); border-width: 2px; }
+  .book .field__error { margin: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }
+  .book .field__error:empty { display: none; }
   .book select { min-height: var(--target); padding: 0 var(--space-3); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); background: var(--color-card); }
   .book .nav { display: flex; flex-wrap: wrap; gap: var(--space-3); }
   .book .err { margin: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }

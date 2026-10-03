@@ -1,9 +1,10 @@
 ---
 import Button from '@/core/ui/Button.astro';
 import Field from '@/core/ui/Field.astro';
+import type { MarketId, MarketPack } from '@/domain/markets';
 
-interface Props { postcodeLabel: string; hidden?: boolean }
-const { postcodeLabel, hidden = true } = Astro.props;
+interface Props { variants: { id: MarketId; market: MarketPack }[]; hidden?: boolean }
+const { variants, hidden = true } = Astro.props;
 ---
 
 <section class="step" data-step="you" aria-labelledby="h-you" hidden={hidden}>
@@ -15,10 +16,23 @@ const { postcodeLabel, hidden = true } = Astro.props;
   </div>
   <Field name="phone" label="Mobile number" type="tel" required autocomplete="tel" inputmode="tel" />
   <Field name="email" label="Email" type="email" required autocomplete="email" inputmode="email" />
-  <Field name="postcode" label={postcodeLabel} required autocomplete="postal-code" />
+  <div class="field">
+    <label for="postcode">{variants.map((v) => <span data-market-only={v.id}>{v.market.postcode.label}</span>)}</label>
+    <input id="postcode" name="postcode" type="text" required autocomplete="postal-code" aria-describedby="postcode-error" aria-invalid="false" />
+    <p class="field__error" id="postcode-error" data-error-for="postcode"></p>
+  </div>
   <div class="trap" aria-hidden="true">
     <label for="website">Leave this empty</label>
     <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <div class="ticks">
+    <div class="tick">
+      <label><input type="checkbox" name="terms" id="terms" aria-describedby="terms-error" /> <span>I agree to the <a href="/terms/" target="_blank" rel="noopener">terms</a> and <a href="/privacy/" target="_blank" rel="noopener">privacy policy</a>.</span></label>
+      <p class="err" id="terms-error" data-error-for="terms"></p>
+    </div>
+    <div class="tick"><label><input type="checkbox" name="remindersSms" id="remindersSms" checked /> <span>Text me my confirmation and appointment reminders.</span></label></div>
+    <div class="tick"><label><input type="checkbox" name="marketingSms" id="marketingSms" /> <span>{variants.map((v) => <span data-market-only={v.id} data-consent="sms">{v.market.consent.sms}</span>)}</span></label></div>
+    <div class="tick"><label><input type="checkbox" name="marketingEmail" id="marketingEmail" /> <span>{variants.map((v) => <span data-market-only={v.id} data-consent="email">{v.market.consent.email}</span>)}</span></label></div>
   </div>
   <div class="nav">
     <Button variant="secondary" data-back>Back</Button>

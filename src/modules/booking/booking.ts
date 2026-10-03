@@ -28,7 +28,7 @@ export function initBooking(root: HTMLElement, deps: BookingDeps): void {
   const { data } = deps;
   const now = deps.now ?? Date.now;
   const startedAt = now();
-  const clientRef = crypto.randomUUID();
+  const clientRef = globalThis.crypto?.randomUUID?.() ?? `r-${now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
   const form = root.querySelector('form')!;
   const summary = form.querySelector<HTMLElement>('[data-error-summary]')!;
   const status = form.querySelector<HTMLElement>('[data-form-status]')!;
@@ -36,12 +36,11 @@ export function initBooking(root: HTMLElement, deps: BookingDeps): void {
   const steps = [...form.querySelectorAll<HTMLElement>('[data-step]')];
   const ctx = { services: data.services.map((s) => s.slug), providers: data.providers.map((p) => p.slug), windows: data.windows.map((w) => w.id) };
   const all = appointmentRules(data.market, data.preset);
-  const { terms, ...contact } = all;
   const pick = (r: Rules, keys: string[]) => Object.fromEntries(keys.filter((k) => r[k]).map((k) => [k, r[k]!])) as Rules;
   const rules: Record<StepId, Rules> = {
-    service: stepRules('service'), clinician: {}, when: stepRules('when'), check: { terms: terms! },
+    service: stepRules('service'), clinician: {}, when: stepRules('when'), check: {},
     patient: { ...stepRules('patient'), ...pick(all, ['petName']) },
-    you: contact,
+    you: pick(all, ['firstName', 'lastName', 'phone', 'email', 'postcode', 'terms', ...(data.preset === 'vet' ? ['petName'] : [])]),
   };
   const radios = (name: string) => [...form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`)];
   let state = fromParams(location.search, ctx);
@@ -166,7 +165,7 @@ export function initBooking(root: HTMLElement, deps: BookingDeps): void {
 
   /** Run every step in order; jump to the first step that still has errors. */
   function firstFailing(): boolean {
-    for (const id of ['service', 'patient', 'when', 'you', 'check'] as StepId[]) {
+    for (const id of ['service', 'patient', 'when', 'you'] as StepId[]) {
       const errors = check(id);
       if (Object.keys(errors).length) {
         show(id, true, false);

@@ -39,8 +39,8 @@ async function fillYou(page) {
 async function toCheck(page, opts) {
   await toYou(page, opts);
   await fillYou(page);
-  await next(page);
   await page.check('#terms');
+  await next(page);
 }
 
 const leads = (page) => page.evaluate((id) => JSON.parse(localStorage.getItem(`health:v1:${id}:leads`) ?? '[]'), SITE_ID);
@@ -48,11 +48,9 @@ const leads = (page) => page.evaluate((id) => JSON.parse(localStorage.getItem(`h
 if (!ca) {
   await step('book from a service page', async () => {
     await withPage({}, async (page) => {
-      const hasService = (await page.request.get(`${BASE}/services/${SERVICE}/`)).ok();
-      if (hasService) {
-        await page.goto(`${BASE}/services/${SERVICE}/`);
-        await page.getByRole('link', { name: /^Book/ }).first().click();
-      } else await page.goto(`${BASE}/book/?service=${SERVICE}`); // service pages are another task's
+      await page.goto(`${BASE}/services/${SERVICE}/`);
+      await page.getByRole('link', { name: 'Book this' }).click();
+      await page.waitForURL(/\/book\/\?service=/);
       expect(await page.locator(`#service-${SERVICE}`).isChecked(), 'service not preselected');
       await next(page);
       await next(page);
@@ -65,10 +63,10 @@ if (!ca) {
       await page.check('#windowId-morning');
       await next(page);
       await fillYou(page);
+      await page.check('#terms');
       await next(page);
       const card = await page.locator('[data-card]').innerText();
       expect(card.includes(label.trim()) && card.includes('Morning') && card.includes('First available'), `card: ${card}`);
-      await page.check('#terms');
       await page.waitForTimeout(TOO_FAST_MS);
       await page.getByRole('button', { name: 'Send appointment request' }).click();
       await page.getByRole('heading', { name: 'Appointment request sent' }).waitFor();
@@ -116,22 +114,26 @@ await step('step 5 errors are summarised and focused', async () => {
     await next(page);
     const alert = page.locator('[role=alert]:focus');
     await alert.waitFor();
-    expect((await alert.locator('li').count()) === 5, `expected 5 errors, got ${await alert.innerText()}`);
+    expect((await alert.locator('li').count()) === 6, `expected 6 errors, got ${await alert.innerText()}`);
     if (vet) {
       await page.evaluate(() => { const el = document.querySelector('#petName'); el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true })); });
       await next(page);
-      expect((await page.locator('[role=alert]:focus li').count()) === 6, 'vet should list 6 errors with a missing pet name');
+      expect((await page.locator('[role=alert]:focus li').count()) === 7, 'vet should list 7 errors with a missing pet name');
     }
   });
 });
 
+const CONSENT = {
+  sms: 'Send me reminders and occasional offers by SMS. Reply STOP to opt out.',
+  email: 'Send me occasional news and offers by email. Unsubscribe any time.',
+};
+
 await step('marketing boxes start unticked; consent text matches the pack', async () => {
   await withPage({}, async (page) => {
     await toYou(page);
-    await fillYou(page);
-    await next(page);
     for (const id of ['terms', 'marketingSms', 'marketingEmail']) expect(!(await page.locator(`#${id}`).isChecked()), `${id} should start unticked`);
-    expect(/Reply STOP to opt out/.test(await page.locator('[data-step="check"]').innerText()), 'SMS consent text missing');
+    expect((await page.locator('[data-consent=sms]:visible').innerText()) === CONSENT.sms, 'SMS consent text differs from the pack');
+    expect((await page.locator('[data-consent=email]:visible').innerText()) === CONSENT.email, 'email consent text differs from the pack');
   });
 });
 
@@ -166,6 +168,31 @@ await step('double click sends one request', async () => {
     expect((await leads(page)).length === 1, `expected 1 lead, got ${(await leads(page)).length}`);
   });
 });
+
+if (au) {
+  await step('?market=CA uses CA wording and accepts a Canadian postal code', async () => {
+    await withPage({}, async (page) => {
+      await page.goto(`${BASE}/book/?market=CA&service=${SERVICE}`);
+      await next(page);
+      await next(page);
+      await page.check('#patientType-new');
+      await next(page);
+      await page.locator('input[name=day]').first().check();
+      await page.check('#windowId-morning');
+      await next(page);
+      expect((await page.locator('label[for=postcode]').innerText()) === 'Postal code', 'CA label expected');
+      expect((await page.locator('[data-consent=sms]:visible').innerText()) === CONSENT.sms, 'CA SMS consent missing');
+      await page.fill('#firstName', 'Sam');
+      await page.fill('#lastName', 'Lee');
+      await page.fill('#phone', '613-555-0123');
+      await page.fill('#email', 'sam@example.com');
+      await page.fill('#postcode', 'K1P 1J1');
+      await page.check('#terms');
+      await next(page);
+      expect((await heading(page)) === 'Check and send', `CA postal code rejected: ${await page.locator('[role=alert]').first().innerText()}`);
+    });
+  });
+} else skip('?market=CA booking (AU build only)');
 
 if (ca) {
   await step('CA hand-off links to the practice system and the request flow continues', async () => {

@@ -1,23 +1,23 @@
 ---
 import { getCollection } from 'astro:content';
-import { site } from '@/config';
+import { allSites, site } from '@/config';
 import BookingForm from '@/modules/booking/BookingForm.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { telHref } from '@/layouts/site';
+import { configuredMarket, marketVariants } from '@/layouts/site';
 import PageHeader from '@/sections/PageHeader.astro';
 
-const { market } = site;
+const variants = marketVariants(site, allSites());
+const configured = configuredMarket(site);
 const services = (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order);
 const providers = (await getCollection('providers')).map((p) => p.data);
 const confirmation = site.messages.find((m) => m.id === 'confirmation');
-const phoneHref = telHref(site.clinic.phone, market.id);
 const data = {
   siteId: site.id,
-  marketId: market.id,
+  marketId: configured.id,
+  phones: Object.fromEntries(variants.map((v) => [v.id, v.clinic.phone])),
+  timeZones: Object.fromEntries(variants.map((v) => [v.id, v.clinic.timeZone])),
   preset: site.preset.id,
   clinicName: site.clinic.name,
-  timeZone: site.clinic.timeZone,
-  phone: site.clinic.phone,
   booking: site.booking,
   demo: site.demoMode,
   confirmation: confirmation?.body ?? null,
@@ -33,12 +33,10 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
     <BookingForm
       clinicName={site.clinic.name}
       preset={site.preset.id}
-      {market}
+      {variants}
       booking={site.booking}
       services={data.services}
       providers={data.providers}
-      phone={site.clinic.phone}
-      {phoneHref}
     />
     <section class="sent" id="booking-sent" aria-labelledby="sent-title" tabindex="-1" hidden>
       <h2 id="sent-title">Appointment request sent</h2>
@@ -63,19 +61,21 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
   import { render } from '@/modules/reminders/render';
 
   const data = JSON.parse(document.getElementById('booking-data')!.textContent!) as {
-    siteId: string; marketId: MarketId; preset: 'allied-health' | 'vet'; clinicName: string; timeZone: string; phone: string;
+    siteId: string; marketId: MarketId; preset: 'allied-health' | 'vet'; clinicName: string; phones: Record<string, string>; timeZones: Record<string, string>;
     booking: BookingConfig; demo: boolean; confirmation: string | null; services: Service[]; providers: Provider[];
   };
-  const market = getMarket(data.marketId);
+  // Same resolution as the rest of the site: ThemeBoot sets html[data-market] (build market unless ?market= is allowed).
+  const active = (document.documentElement.getAttribute('data-market') as MarketId | null) ?? data.marketId;
+  const market = getMarket(active);
   const root = document.querySelector<HTMLElement>('[data-booking]')!;
   const sent = document.getElementById('booking-sent')!;
   const windows = data.booking.windows;
 
   initBooking(root, {
     repo: getLeadRepository(`health:v1:${data.siteId}`),
-    fallbackPhone: data.phone,
+    fallbackPhone: data.phones[active] ?? Object.values(data.phones)[0]!,
     data: { services: data.services, providers: data.providers, windows, preset: data.preset, market, booking: data.booking,
-      days: availableDays(todayIn(data.timeZone, new Date()), data.booking, market.locale) },
+      days: availableDays(todayIn(data.timeZones[active] ?? Object.values(data.timeZones)[0]!, new Date()), data.booking, market.locale) },
     onSent(lead) {
       const p = lead.payload;
       root.querySelector('form')!.hidden = true;
