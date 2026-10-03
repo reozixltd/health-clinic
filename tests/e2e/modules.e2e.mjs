@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BASE, SITE_ID, closeBrowser, expect, finish, skip, step, withPage } from './harness.mjs';
 
 if (SITE_ID !== 'fixture-minimal') {
@@ -25,6 +27,17 @@ await step('switched-off modules leave no trace', async () => {
     await page.goto(`${BASE}/`);
     expect((await page.locator('#reviews').count()) === 0, 'home has a reviews band');
   });
+});
+
+await step('no page loads JavaScript for switched-off modules', async () => {
+  const dist = join('dist', SITE_ID);
+  const htmlFiles = readdirSync(dist, { recursive: true }).filter((f) => String(f).endsWith('.html'));
+  expect(htmlFiles.length > 5, `expected built html in ${dist}`);
+  for (const f of htmlFiles) {
+    const scripts = readFileSync(join(dist, String(f)), 'utf8').match(/<script\b[^>]*\bsrc=["'][^"']*["']|import\(?\s*["'][^"']*["']/g) ?? [];
+    const bad = scripts.filter((t) => /ReferralForm|EstimateForm/.test(t));
+    expect(bad.length === 0, `${f} references ${bad.join(', ')}`);
+  }
 });
 
 await closeBrowser();

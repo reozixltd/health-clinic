@@ -1,6 +1,7 @@
 /* Lists third-party <script src> and <link rel=preconnect> origins in the request pages of a build. */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const PAGES = ['book/index.html', 'estimates/index.html', 'referrers/index.html'];
 
@@ -19,11 +20,15 @@ export function thirdParty(html, own = 'https://health.reozix.com') {
   return found;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dist = process.argv[2];
   if (!dist) {
     console.error('usage: node tools/third-party.mjs <distDir>');
     process.exit(2);
+  }
+  if (!existsSync(join(dist, 'book/index.html'))) {
+    console.error(`  FAIL ${dist}: book/index.html is missing`);
+    process.exit(1);
   }
   let bad = 0;
   let checked = 0;
@@ -35,6 +40,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log(`  FAIL ${page}: ${f}`);
       bad += 1;
     }
+  }
+  if (checked === 0) {
+    console.error('  FAIL no request pages were checked');
+    process.exit(1);
   }
   console.log(`third-party check ${dist}: ${checked} page(s), ${bad} third-party origin(s)`);
   process.exit(bad ? 1 : 0);
