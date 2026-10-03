@@ -36,7 +36,7 @@ const schema = serviceSchema({
   <PageHeader title={service.title} lede={service.summary} />
   {photo && (
     <div class="shot">
-      <Photo slot={photo.slot} alt={photo.alt} ratio="16 / 9" sizes="(min-width: 1152px) 1120px, 100vw" priority />
+      <Photo slot={photo.slot} alt={photo.alt} ratio="16 / 9" sizes="(min-width: 800px) 760px, 100vw" priority />
     </div>
   )}
   <ServiceBody
@@ -51,4 +51,5 @@ const schema = serviceSchema({
 
 <style>
   .shot { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-6); }
+  .shot > :global(.photo) { max-width: var(--measure); }
 </style>

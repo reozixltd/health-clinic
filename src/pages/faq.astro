@@ -4,7 +4,7 @@ import { site } from '@/config';
 import { faqSchema } from '@/core/schema';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/sections/PageHeader.astro';
-import { linkHtml, plainText } from '@/sections/inline';
+import { linkHtml, plainText } from '@/core/inline';
 
 const faqs = (await getCollection('faqs')).map((f) => f.data);
 const schema = faqSchema(faqs.map((f) => ({ q: f.q, a: plainText(f.a) })));

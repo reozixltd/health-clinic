@@ -2,6 +2,7 @@
 /** One service: what to expect, who offers it, questions, and a Book this link. */
 import Button from '@/core/ui/Button.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
+import { linkHtml } from '@/core/inline';
 import { fromPriceLabel } from './from-price';
 
 interface Props {
@@ -39,7 +40,7 @@ const { service, clinicians, variants, bookLabel } = Astro.props;
   <section aria-labelledby="faq">
     <h2 id="faq">Common questions</h2>
     <dl>
-      {service.faqs.map((f) => (<><dt>{f.q}</dt><dd>{f.a}</dd></>))}
+      {service.faqs.map((f) => (<><dt>{f.q}</dt><dd set:html={linkHtml(f.a)} /></>))}
     </dl>
   </section>
 </div>
@@ -54,5 +55,6 @@ const { service, clinicians, variants, bookLabel } = Astro.props;
   .plain a { display: inline-flex; align-items: center; min-height: var(--target); }
   dt { font-weight: 700; margin-top: var(--space-4); }
   dd { margin: var(--space-1) 0 0; color: var(--color-ink-muted); }
+  dd :global(a) { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
   .prose :global(a) { text-decoration: underline; }
 </style>
