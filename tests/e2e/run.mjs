@@ -8,8 +8,11 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 // Ports run from E2E_PORT_BASE (default 4321) upward, so parallel worktrees can use separate ranges.
 const BASE_PORT = Number(process.env.E2E_PORT_BASE ?? 4321);
 const SITES = ['fernway-au', 'fernway-ca', 'hollybank'].map((id, i) => ({ id, port: BASE_PORT + i }));
+// The module-off fixture is built for modules.e2e.mjs only and is not part of build:all.
+const FIXTURE = { id: 'fixture-minimal', port: BASE_PORT + 3, files: ['modules.e2e.mjs'] };
 const only = process.env.E2E_SITES?.split(',');
-const sites = only ? SITES.filter((s) => only.includes(s.id)) : SITES;
+const demo = only ? SITES.filter((s) => only.includes(s.id)) : SITES;
+const sites = only && !only.includes(FIXTURE.id) ? demo : [...demo, FIXTURE];
 const files = readdirSync(dirname(fileURLToPath(import.meta.url))).filter((f) => f.endsWith('.e2e.mjs')).sort();
 const servers = [];
 let failed = false;
@@ -54,8 +57,13 @@ try {
     servers.push(spawn('npx', ['astro', 'preview', '--outDir', `dist/${id}`, '--port', String(port)], { cwd: root, env: { ...process.env, SITE: id }, stdio: 'ignore', detached: true }));
   }
   for (const { port } of sites) await waitFor(`http://localhost:${port}/`);
+  for (const { id } of demo) {
+    console.log(`third-party ${id}`);
+    const t = spawnSync('node', ['tools/third-party.mjs', `dist/${id}`], { cwd: root, stdio: 'inherit' });
+    if (t.status !== 0) failed = true;
+  }
   for (const { id, port } of sites) {
-    for (const file of files) {
+    for (const file of id === FIXTURE.id ? FIXTURE.files : files.filter((f) => f !== 'modules.e2e.mjs')) {
       console.log(`${id} ${file}`);
       const r = spawnSync('node', [join('tests/e2e', file)], { cwd: root, env: { ...process.env, SITE_ID: id, SITE_URL: `http://localhost:${port}` }, stdio: 'inherit' });
       if (r.status !== 0) failed = true;

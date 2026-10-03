@@ -2,9 +2,9 @@ import { defineCollection, z } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { file, glob } from 'astro/loaders';
 import type { Loader } from 'astro/loaders';
-import { allSites, selectedSiteId } from './config';
+import { selectedSite } from './config';
 
-const dir = `./src/content/${allSites()[selectedSiteId()].contentDir}`;
+const dir = `./src/content/${selectedSite().contentDir}`;
 
 /** Only fees (Fernway) and prices (Hollybank) may be absent; anything else missing must fail the build. */
 const empty: Loader = { name: 'empty', load: async () => {} };
