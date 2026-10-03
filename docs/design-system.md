@@ -56,7 +56,21 @@ The logic lives in `src/modules/booking/card.ts` (`cardFields`). The component i
 
 ## Motion
 
-Only the card line fill and button press feedback move. `prefers-reduced-motion` removes movement and keeps short colour fades.
+Motion is calm and brief, and only opacity and transform animate.
+
+| Where | What moves |
+|---|---|
+| Home hero | Photo settles from 1.04 scale, 600 ms. Text rises 12 px, 60 ms apart. |
+| Sections and lists | Fade in and rise 12 px over 400 ms on entering view, once. Rows 40 ms apart, first eight. |
+| Page change | 200 ms cross-fade, where supported. |
+| Booking steps | Slide in 16 px from the side of travel, 250 ms. |
+| Appointment card | Line fill, 160 ms colour fade. |
+| Portrait rows | Portrait zooms to 1.03 on hover. |
+| Buttons | Press feedback. |
+
+To reveal an element on scroll, add `data-reveal` to it. To stagger a list, add `data-reveal-group` to the list. Do not nest one inside the other. The script is `src/core/motion.ts`.
+
+`prefers-reduced-motion` removes movement and keeps short colour fades. Set `motion: false` in `src/config/sites/<site>/site.ts` to turn motion off for a clinic. The staff console has no motion. Do not add parallax, pinned sections or scroll-linked effects.
 
 ## Anti-template rules
 
@@ -66,7 +80,7 @@ Do not add any of these:
 - Eyebrow labels or all-caps text, including in docs headings.
 - Arrow symbols on buttons, or dot separators in copy.
 - Grids of identical cards. Services are a list.
-- Stock photos presented as clinicians. Empty slots show a labelled placeholder.
+- Stock photos presented as clinicians. A clinician without a portrait shows a tile with their initials.
 - Numbered markers anywhere except "How your first visit works" and the `/book/` steps.
 - Buttons that say "Submit". Say what happens, for example "Send appointment request".
 

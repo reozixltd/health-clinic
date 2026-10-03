@@ -17,6 +17,18 @@ How to turn this repo into a real clinic site. You edit config, content, tokens 
 
 The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernway-ca` and `hollybank`. `SITE` picks one at build time (see the README). A real client build has one site folder and one content folder.
 
+## Photos on pages
+
+`src/config/photo-slots.ts` holds three things for each content folder:
+
+| Name | Purpose |
+|---|---|
+| `photoSlots` | Every slot a shoot should cover. |
+| `photoRoles` | Which slot shows in the home hero, beside the first-visit steps, and beside the address. |
+| `photoAlt` | The alt text for each room slot. |
+
+A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
+
 ## Set up a new clinic from a preset
 
 1. Copy the closest demo folder, for example `src/config/sites/fernway-au/`, to `src/config/sites/<your-id>/`. Keep the four files: `site.ts`, `clinic.ts`, `booking.ts`, `messages.ts`.

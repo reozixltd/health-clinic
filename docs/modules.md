@@ -30,6 +30,10 @@ A module is a switchable feature. Turn one on or off in `modules` in `src/config
 
 The `enquiry` lead kind belongs to the preset, not to a module.
 
+## Motion
+
+Motion is a site setting, not a module. `motion: false` in a site's `site.ts` removes the reveal script, the hero entrance, the page cross-fade and the hover zoom. It is on when not set.
+
 ## providers
 
 Lists clinicians and gives each a profile: photo slot, name, role, registration body and number, languages, services, whether they are accepting new patients, a short bio and a **Book with** link that opens `/book/` with the clinician chosen. The registration links to the public register when `clinic.registerUrl` is set.
