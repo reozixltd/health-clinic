@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MODULES, isOn, routesFor, validateModules } from '@/domain/modules';
+import { MODULES, indexPaths, isOn, routesFor, validateModules } from '@/domain/modules';
 
 describe('module registry', () => {
   it('has the eleven spec ids', () => {
@@ -22,12 +22,8 @@ describe('module registry', () => {
 });
 
 describe('booking route gate', () => {
-  it('indexPaths for booking is empty when the module is off and the page uses it', async () => {
-    const { indexPaths } = await import('@/domain/modules');
-    const { readFileSync, existsSync } = await import('node:fs');
+  it('indexPaths for booking follows the module switch', () => {
     expect(indexPaths('booking', { modules: ['fees'] })).toEqual([]);
     expect(indexPaths('booking', { modules: ['booking'] })).toHaveLength(1);
-    expect(existsSync('src/pages/book.astro')).toBe(false);
-    expect(readFileSync('src/pages/book/[...slug].astro', 'utf8')).toContain("indexPaths('booking', site)");
   });
 });

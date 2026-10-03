@@ -1,7 +1,7 @@
 /* Clinic console styles. Tokens only. */
 .console { max-width: 80rem; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-8); }
 .login { max-width: 28rem; margin: var(--space-7) auto; display: grid; gap: var(--space-4); }
-.login__error { color: var(--color-danger); min-height: 1.6em; }
+.login__error { color: var(--color-danger); margin: 0; }
 .field { display: grid; gap: var(--space-1); }
 .field label, .detail__note label { font-weight: 600; }
 .field input, .field select, .detail__note textarea {

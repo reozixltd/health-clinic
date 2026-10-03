@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Jordan P.",
+    "date": "2026-08-14",
+    "rating": 5,
+    "source": "Sample review for demonstration",
+    "text": "Easy to book, and the fee was clear before I came. My shoulder feels much better."
+  },
+  {
+    "name": "Meera S.",
+    "date": "2026-07-22",
+    "rating": 5,
+    "source": "Sample review for demonstration",
+    "text": "The dentist explained everything in plain words. I was less nervous than I expected."
+  },
+  {
+    "name": "Chris L.",
+    "date": "2026-09-02",
+    "rating": 4,
+    "source": "Sample review for demonstration",
+    "text": "Good plan and simple exercises. I would have liked a later evening time."
+  },
+  {
+    "name": "Alex D.",
+    "date": "2026-06-30",
+    "rating": 5,
+    "source": "Sample review for demonstration",
+    "text": "Calm room and no pressure. I felt listened to."
+  }
+]

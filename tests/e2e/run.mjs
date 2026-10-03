@@ -9,10 +9,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const BASE_PORT = Number(process.env.E2E_PORT_BASE ?? 4321);
 const SITES = ['fernway-au', 'fernway-ca', 'hollybank'].map((id, i) => ({ id, port: BASE_PORT + i }));
 // The module-off fixture is built for modules.e2e.mjs only and is not part of build:all.
-const FIXTURE = { id: 'fixture-minimal', port: BASE_PORT + 3, files: ['modules.e2e.mjs'] };
+const FIXTURES = [
+  { id: 'fixture-minimal', port: BASE_PORT + 3, files: ['modules.e2e.mjs'] },
+  { id: 'fixture-no-booking', port: BASE_PORT + 4, files: ['booking-off.e2e.mjs'] },
+];
+const FIXTURE_FILES = FIXTURES.flatMap((f) => f.files);
 const only = process.env.E2E_SITES?.split(',');
 const demo = only ? SITES.filter((s) => only.includes(s.id)) : SITES;
-const sites = only && !only.includes(FIXTURE.id) ? demo : [...demo, FIXTURE];
+const sites = only ? [...demo, ...FIXTURES.filter((f) => only.includes(f.id))] : [...demo, ...FIXTURES];
 const files = readdirSync(dirname(fileURLToPath(import.meta.url))).filter((f) => f.endsWith('.e2e.mjs')).sort();
 const servers = [];
 let failed = false;
@@ -63,7 +67,7 @@ try {
     if (t.status !== 0) failed = true;
   }
   for (const { id, port } of sites) {
-    for (const file of id === FIXTURE.id ? FIXTURE.files : files.filter((f) => f !== 'modules.e2e.mjs')) {
+    for (const file of FIXTURES.find((f) => f.id === id)?.files ?? files.filter((f) => !FIXTURE_FILES.includes(f))) {
       console.log(`${id} ${file}`);
       const r = spawnSync('node', [join('tests/e2e', file)], { cwd: root, env: { ...process.env, SITE_ID: id, SITE_URL: `http://localhost:${port}` }, stdio: 'inherit' });
       if (r.status !== 0) failed = true;

@@ -20,7 +20,7 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 ## Set up a new clinic from a preset
 
 1. Copy the closest demo folder, for example `src/config/sites/fernway-au/`, to `src/config/sites/<your-id>/`. Keep the four files: `site.ts`, `clinic.ts`, `booking.ts`, `messages.ts`.
-2. Register it in `src/config/index.ts`. Import the four files and add an entry to `inputs`. Add the id to the `SITES` list in `tests/e2e/run.mjs` and to `build:all` in `package.json`.
+2. Register it in `src/config/registry.ts`. Import the four files and add an entry to `registry`. `astro.config.mjs` and `src/config/index.ts` both read that file, and a build with an unknown `SITE` fails with a message. Also add the id to the `SITES` list in `tests/e2e/run.mjs` and to `build:all` in `package.json`. A unit test fails if `build:all` names a site that is not registered.
 3. In `site.ts`, set `id`, `preset` (`allied-health` or `vet`), `market`, `modules`, `theme` and `contentDir`. Set `demoMode: false` when you are ready to go live (see below).
 4. Fill `clinic.ts`. Use the clinic's real legal name, identifier, hours and time zone. The time zone drives every date the site shows, so use an IANA name such as `Australia/Melbourne`.
 5. Copy `src/content/<demo>/` to `src/content/<contentDir>/` and replace every file with real text. The content schemas in `src/content.config.ts` fail the build when a field is missing.

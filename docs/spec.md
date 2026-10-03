@@ -462,9 +462,9 @@ Differences from the spec above, and what was measured.
 
 **Measured results (3 October 2026)**
 
-- Unit tests: 184 pass. `astro check`: 0 errors. Boundary checker clean.
+- Unit tests: 187 pass. `astro check`: 0 errors. Boundary checker clean.
 - Page JavaScript, gzipped, largest page on each site (`/book/`): Fernway AU 9,256 bytes, Fernway CA 9,256, Hollybank 9,263. The limit is 30,720.
-- End to end: all three sites and the module-off fixture pass. axe finds no serious or critical issues on the home page, `/book/` (step 1 and step 5 with errors), a team page, fees or prices, and the signed-in console, in both themes.
+- End to end: all three sites and both module-off fixtures (`fixture-minimal`, and `fixture-no-booking` where `/book/` is a 404, absent from the sitemap and unlinked, header and mobile bar included) pass. axe finds no serious or critical issues on the home page, `/book/` (step 1 and step 5 with errors), a team page, fees or prices, and the signed-in console, in both themes.
 - Tap targets are at least 44px in the header, hero, mobile bar and booking form at 375px. Reduced motion removes the button press scale and keeps the card fade at 160ms.
 - Lighthouse was not run. `npx lighthouse` is not installed and the sandbox is offline, so the JS budget and the axe, tap-target and motion checks stood in for it. Run it before sale.
 - Visual review (375 and 1280, both themes) found and fixed: the header Book button text spilling out of its box (a `.book` class clash with the booking form), uneven service-row columns, cramped team photo placeholders, and raw markdown links in home FAQ answers.

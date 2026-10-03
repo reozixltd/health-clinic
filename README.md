@@ -38,7 +38,8 @@ Notes:
 |---|---|
 | Pick a preset, market, modules, theme, demo mode | `src/config/sites/<id>/site.ts` |
 | Clinic details, booking, message templates | `src/config/sites/<id>/` (`clinic.ts`, `booking.ts`, `messages.ts`) |
-| Site registry and `SITE_ID` handling | `src/config/index.ts` |
+| Site registry (add a site here) | `src/config/registry.ts` |
+| `SITE_ID` handling | `src/config/index.ts` |
 | Services, clinicians, fees, prices, reviews, FAQs, policies | `src/content/<contentDir>/` |
 | Content schemas | `src/content.config.ts` |
 | Preset defaults (modules, nav, wording, messages) | `src/presets/allied-health.ts`, `src/presets/vet.ts` |
