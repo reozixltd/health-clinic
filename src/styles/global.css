@@ -58,15 +58,6 @@ a { color: inherit; text-underline-offset: 0.2em; }
   [data-reveal], [data-reveal-group] > * { opacity: 1 !important; transform: none !important; }
 }
 
-/* Page to page: a short cross-fade in browsers with cross-document view transitions. Others navigate as usual. */
-@media (prefers-reduced-motion: no-preference) {
-  @view-transition { navigation: auto; }
-}
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }
-html[data-motion='off']::view-transition-group(*),
-html[data-motion='off']::view-transition-old(*),
-html[data-motion='off']::view-transition-new(*) { animation: none; }
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {

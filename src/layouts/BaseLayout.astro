@@ -20,6 +20,10 @@ interface Props {
 }
 
 const { title, description, schema, noindex, bare = false, hideMobileBar = false } = Astro.props;
+// Page to page: a short cross-fade in browsers with cross-document view transitions. Others navigate as usual.
+// Inline and only here, so the console and bare pages never get it. The global reduce-motion rule is not enough: the transition is a browser feature, not an animation on an element.
+const viewTransitionCss = `@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }`;
 ---
 
 <!doctype html>
@@ -29,6 +33,7 @@ const { title, description, schema, noindex, bare = false, hideMobileBar = false
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <ThemeBoot />
     <Seo {title} {description} {schema} {noindex} />
+    {site.motion && !bare && <style is:inline set:html={viewTransitionCss} />}
   </head>
   <body data-mobile-bar={!bare && !hideMobileBar ? '' : undefined}>
     <a class="skip-link" href="#main">Skip to content</a>

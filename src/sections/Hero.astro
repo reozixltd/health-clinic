@@ -45,10 +45,10 @@ const { name, treats, preset, variants, bookingOn, emergencyOn, photo } = Astro.
   @media (prefers-reduced-motion: no-preference) {
     @keyframes hero-rise { from { opacity: 0; transform: translateY(12px); } }
     @keyframes hero-settle { from { opacity: 0; transform: scale(1.04); } }
-    :global(html:not([data-motion='off'])) .copy > * { animation: hero-rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+    :global(html:not([data-motion='off'])) .copy > * { animation: hero-rise 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
     :global(html:not([data-motion='off'])) .copy > :nth-child(2) { animation-delay: 60ms; }
     :global(html:not([data-motion='off'])) .copy > :nth-child(n + 3) { animation-delay: 120ms; }
-    :global(html:not([data-motion='off'])) .hero :global(.photo img) { animation: hero-settle 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+    :global(html:not([data-motion='off'])) .hero :global(.photo img) { animation: hero-settle 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
   }
   .phone { display: inline-flex; align-items: center; min-height: var(--target); font-weight: 600; text-decoration: underline; }
 </style>

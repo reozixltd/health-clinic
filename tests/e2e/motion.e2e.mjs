@@ -6,6 +6,10 @@ if (!['fernway-au', 'fernway-ca', 'hollybank'].includes(SITE_ID)) {
   finish();
 }
 
+/** True when a view-transition rule applies to the page (runs in the page). */
+const viewTransitionRule = () => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } })
+  .some((r) => r.cssText.includes('@view-transition') && matchMedia(r.conditionText ?? 'all').matches);
+
 const ITEMS = '[data-reveal], [data-reveal-group] > *';
 
 /** Opacity and transform of every reveal element that is rendered. */
@@ -115,7 +119,22 @@ await step('the console has no reveal markup', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/console/`);
     expect((await page.locator('[data-reveal], [data-reveal-group]').count()) === 0, 'console has reveal attributes');
+    expect(!(await page.evaluate(viewTransitionRule)), 'console carries a view-transition rule');
     expect(!loadedJs(join('dist', SITE_ID), 'console/index.html').includes('data-reveal-group'), 'console loads the reveal script');
+  });
+});
+
+await step('mobile menu opens above the hero and takes the clicks', async () => {
+  await withPage({ viewport: { width: 375, height: 800 } }, async (page) => {
+    await page.goto(`${BASE}/`);
+    await page.waitForTimeout(1000);
+    await page.locator('[data-menu-toggle]').click();
+    const hits = await page.locator('#site-nav a').evaluateAll((links) => links.map((a) => {
+      const r = a.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !!hit?.closest('#site-nav');
+    }));
+    expect(hits.length > 0 && hits.every(Boolean), `nav links hit-tested inside the menu: ${hits}`);
   });
 });
 
@@ -167,15 +186,13 @@ await step('booking under reduced motion: steps change with no animation', async
 });
 
 await step('page changes cross-fade where the browser supports it, and never under reduced motion', async () => {
-  const rule = () => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } })
-    .some((r) => r.cssText.includes('@view-transition') && matchMedia(r.conditionText ?? 'all').matches);
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/`);
-    expect(await page.evaluate(rule), 'view transition rule should apply');
+    expect(await page.evaluate(viewTransitionRule), 'view transition rule should apply');
   });
   await withPage({ reducedMotion: 'reduce' }, async (page) => {
     await page.goto(`${BASE}/`);
-    expect(!(await page.evaluate(rule)), 'view transition rule should not apply under reduced motion');
+    expect(!(await page.evaluate(viewTransitionRule)), 'view transition rule should not apply under reduced motion');
   });
 });
 

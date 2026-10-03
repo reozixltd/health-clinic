@@ -12,7 +12,7 @@ async function setTheme(page, theme) {
 
 async function scan(page, label) {
   // Entrance animations pass through partial opacity; scan the settled page, as a visitor reads it.
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+  await page.evaluate(() => Promise.race([Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))), new Promise((r) => setTimeout(r, 2000))]));
   const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   const bad = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(bad.length === 0, `${label}: ${bad.map((v) => `${v.id} (${v.nodes.length}) ${v.nodes[0]?.target?.join(' ')}`).join('; ')}`);

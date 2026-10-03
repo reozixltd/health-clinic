@@ -79,6 +79,9 @@ await step('motion off: no page carries reveal code or hides anything', async ()
     await page.waitForTimeout(300);
     const hidden = await page.locator('main *').evaluateAll((els) => els.filter((e) => e.getClientRects().length && getComputedStyle(e).opacity === '0').length);
     expect(hidden === 0, `${hidden} hidden elements on a motion-off site`);
+    expect(await page.locator('h1').evaluate((e) => getComputedStyle(e).animationName) === 'none', 'hero heading animates on a motion-off site');
+    const vt = await page.evaluate(() => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } }).some((r) => r.cssText.includes('@view-transition')));
+    expect(!vt, 'motion-off site carries a view-transition rule');
   });
 });
 
