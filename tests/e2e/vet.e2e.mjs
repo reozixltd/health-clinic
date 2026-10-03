@@ -73,7 +73,8 @@ if (SITE_ID !== 'hollybank') {
       await page.goto(`${BASE}/ownership/`);
       const text = await page.locator('main').innerText();
       expect(/independently owned/.test(text), 'independent statement missing');
-      expect(/Hollybank Veterinary Practice Ltd/.test(text), 'owner name missing');
+      const owner = await page.locator('dt', { hasText: /^Owner$/ }).locator('xpath=following-sibling::dd[1]').innerText();
+      expect(owner.trim() === 'Hollybank Veterinary Practice Ltd', `Owner row: ${owner}`);
     });
   });
 
