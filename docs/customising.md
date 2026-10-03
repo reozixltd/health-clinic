@@ -19,21 +19,21 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 
 ## Photos on pages
 
-`src/config/photo-slots.ts` holds three things for each content folder:
+`src/config/photo-slots.ts` holds three things:
 
 | Name | Purpose |
 |---|---|
-| `photoSlots` | Every slot a shoot should cover. |
-| `photoRoles` | Which slot shows in the home hero, beside the first-visit steps, and beside the address. |
-| `photoAlt` | The alt text for each room slot. |
+| `photoSlots` | Every slot a shoot should cover, for each content folder. |
+| `photoRoles` | Which slot shows in the home hero, beside the first-visit steps, and beside the address, for each content folder. |
+| `photoAlt` | The alt text for each room slot, keyed by slot name. |
 
-A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
+A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter and that slot has a line in `photoAlt`. Without the alt text no photo shows. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
 
 ## Set up a new clinic from a preset
 
 1. Copy the closest demo folder, for example `src/config/sites/fernway-au/`, to `src/config/sites/<your-id>/`. Keep the four files: `site.ts`, `clinic.ts`, `booking.ts`, `messages.ts`.
 2. Register it in `src/config/registry.ts`. Import the four files and add an entry to `registry`. `astro.config.mjs` and `src/config/index.ts` both read that file, and a build with an unknown `SITE` fails with a message. Also add the id to the `SITES` list in `tests/e2e/run.mjs` and to `build:all` in `package.json`. A unit test fails if `build:all` names a site that is not registered.
-3. In `site.ts`, set `id`, `url`, `preset` (`allied-health` or `vet`), `market`, `modules`, `theme` and `contentDir`. `url` is the clinic's public origin, for example `https://www.example-clinic.com`. `astro.config.mjs` reads it as Astro's `site`, so canonical links, the sitemap, `og:url` and JSON-LD all use it, and `tools/third-party.mjs` treats that origin as your own. Without the right `url` every page points at the wrong domain. Set `demoMode: false` when you are ready to go live (see below).
+3. In `site.ts`, set `id`, `url`, `preset` (`allied-health` or `vet`), `market`, `modules`, `theme` and `contentDir`. `url` is the clinic's public origin, for example `https://www.example-clinic.com`. `astro.config.mjs` reads it as Astro's `site`, so canonical links, the sitemap, `og:url` and JSON-LD all use it, and `tools/third-party.mjs` treats that origin as your own. Without the right `url` every page points at the wrong domain. Set `demoMode: false` when you are ready to go live (see below). Set `motion: false` to turn the site's motion off.
 4. Fill `clinic.ts`. Use the clinic's real legal name, identifier, hours and time zone. The time zone drives every date the site shows, so use an IANA name such as `Australia/Melbourne`. Two optional fields hold claims about the clinic, and nothing is shown until you set them: `trust` (the lines under the home page hero, for example `['Registered with AHPRA', 'Accessible entrance']`; leave it out to use the preset's generic lines) and `accessibility` (one sentence about the building, shown under "Find us" on the home page). Only state what is true for this clinic.
 5. Copy `src/content/<demo>/` to `src/content/<contentDir>/` and replace every file with real text. The content schemas in `src/content.config.ts` fail the build when a field is missing.
 6. Choose the booking provider in `booking.ts`. `none` uses the built-in request form. `link` sends people to the practice system with the service preselected. `embed` shows the practice system in an iframe. The request form stays as a fallback in both cases.

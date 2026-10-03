@@ -376,19 +376,19 @@ One self-hosted variable family; body 17px, line height 1.6, measure 68ch; scale
 
 ### 8.4 Anti-template and trust rules
 
-No carousels, popups, eyebrow labels, all-caps, "→" on buttons, identical card grids or stock photos presented as clinicians. A clinician without a portrait shows a tile with their initials. Buttons say what happens ("Send appointment request").
+No carousels, popups, eyebrow labels, all-caps, "→" on buttons, identical card grids or stock photos presented as clinicians. A clinician without a portrait shows a tile with their initials. A room slot without a photo shows a labelled placeholder. Buttons say what happens ("Send appointment request").
 
 ### 8.5 Motion
 
-Calm and brief. Only opacity and transform animate.
+Calm and brief. Movement uses only opacity and transform. Colour fades stay short.
 
-- Home hero on load: the photo fades in and settles from 1.04 scale over 600 ms; heading, line and actions rise 12 px, 60 ms apart.
+- Home hero on load: the photo fades in and settles from 1.04 scale over 600 ms. Heading, line and actions rise 12 px, 60 ms apart.
 - Sections and lists below the fold fade in and rise 12 px over 400 ms as they enter view, once. List rows follow 40 ms apart, for the first eight rows.
 - Page to page: a 200 ms cross-fade where the browser supports cross-document view transitions.
 - Booking: the next step slides in 16 px from the side of travel over 250 ms. The card line fill is unchanged.
 - A clinician portrait zooms to 1.03 when its row is hovered. Buttons keep their press feedback.
 
-`prefers-reduced-motion` removes all movement and keeps short colour fades. Nothing is hidden by CSS, so a page shows in full with JavaScript off. `motion: false` in a site's config turns all of the above off and loads no motion script. The staff console has no motion.
+`prefers-reduced-motion` removes all movement and keeps short colour fades. Nothing is hidden by CSS, so a page shows in full with JavaScript off. `motion: false` in a site's config turns off the hero entrance, the scroll reveals, the page cross-fade, the booking step slide and the hover zoom. It loads no motion script. Button press feedback and the card line fill stay. The staff console has no motion.
 
 ## 9. SEO, compliance, performance
 
