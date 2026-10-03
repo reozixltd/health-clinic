@@ -4,6 +4,7 @@ title: Physiotherapy
 order: 1
 summary: Help with aches, strains and stiff joints, and a plan to get you moving again.
 duration: 45 minutes for a first visit
+fromPrice: 95
 whatToExpect:
   - We talk about what is bothering you and what you want to get back to.
   - We check how you move.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addHoursIso, formatDay, formatMoney, todayIn } from '@/core/format';
+import { addHoursIso, formatDate, formatDay, formatMoney, todayIn } from '@/core/format';
 
 describe('format', () => {
   it('formatMoney per currency', () => {
@@ -15,6 +15,10 @@ describe('format', () => {
     expect(formatMoney(12.5, 'GBP', 'en-GB')).not.toBe('£13');
   });
 
+  it('formatDate is day, month and year with no weekday', () => {
+    expect(formatDate('2026-09-03', 'en-GB')).toBe('3 September 2026');
+    expect(formatDate('2026-09-03', 'en-AU')).toBe('3 September 2026');
+  });
   it('formatDay is weekday, day and month', () => {
     expect(formatDay('2026-10-09', 'en-AU')).toBe('Fri 9 Oct');
   });

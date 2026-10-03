@@ -1,0 +1,36 @@
+---
+/** Patient reviews: a Google link only (link-only) or up to three named, dated reviews with their source. */
+import type { Review } from './reviews';
+import { latestReviews } from './reviews';
+
+interface Props {
+  items: Review[];
+  mode: 'link-only' | 'display';
+  googleUrl?: string;
+  locale?: string;
+}
+const { items, mode, googleUrl, locale = 'en-GB' } = Astro.props;
+const day = (iso: string) =>
+  new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+---
+
+{mode === 'link-only' ? (
+  googleUrl ? <p><a class="link" href={googleUrl}>Read our reviews on Google</a></p> : null
+) : (
+  <ul class="list">
+    {latestReviews(items).map((r) => (
+      <li data-review>
+        <blockquote>{r.text}</blockquote>
+        <p class="by">{r.name}, <time datetime={r.date}>{day(r.date)}</time>. {r.source}.</p>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+  li { padding: var(--space-4) 0; border-bottom: 1px solid var(--color-line); }
+  blockquote { margin: 0; max-width: var(--measure); }
+  .by { margin: var(--space-2) 0 0; color: var(--color-ink-muted); font-size: var(--text-16); }
+  .link { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: underline; }
+</style>

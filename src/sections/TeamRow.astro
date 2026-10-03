@@ -1,0 +1,42 @@
+---
+/** Team as ruled rows: photo slot, name, role, registration body and number. */
+import Photo from '@/core/ui/Photo.astro';
+import type { MarketId } from '@/domain/markets';
+import { registrationFor } from '@/modules/providers/registration';
+
+type Provider = Parameters<typeof registrationFor>[0] & { slug: string; name: string; role: string; photoSlot: string };
+interface Props {
+  providers: Provider[];
+  variants: { id: MarketId }[];
+}
+const { providers, variants } = Astro.props;
+---
+
+<section id="team" aria-labelledby="team-title">
+  <h2 id="team-title">Our team</h2>
+  <ul class="rows">
+    {providers.map((p) => (
+      <li>
+        <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} ratio="1 / 1" sizes="72px" class="pic" />
+        <div>
+          <h3><a href={`/team/${p.slug}/`}>{p.name}</a></h3>
+          <p>{p.role}</p>
+          {variants.map((v) => {
+            const r = registrationFor(p, v.id);
+            return <p class="reg" data-market-only={v.id}>{r.body} {r.number}</p>;
+          })}
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); display: grid; }
+  @media (min-width: 768px) { .rows { grid-template-columns: 1fr 1fr; column-gap: var(--space-6); } }
+  li { display: grid; grid-template-columns: 72px 1fr; gap: var(--space-4); align-items: center; padding: var(--space-3) 0; border-bottom: 1px solid var(--color-line); }
+  h3 { font-size: var(--text-18); }
+  h3 a { display: inline-flex; align-items: center; min-height: var(--target); }
+  p { color: var(--color-ink-muted); }
+  .reg { font-size: var(--text-16); }
+</style>

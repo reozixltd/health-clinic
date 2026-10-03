@@ -1,9 +1,50 @@
 ---
-import { site } from '@/config';
+import { getCollection, getEntry } from 'astro:content';
+import { site, allSites } from '@/config';
+import { isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import { configuredMarket, hoursText, marketVariants, telHref } from '@/layouts/site';
+import CtaBand from '@/sections/CtaBand.astro';
+import Faq from '@/sections/Faq.astro';
+import FeesTeaser from '@/sections/FeesTeaser.astro';
+import FirstVisit from '@/sections/FirstVisit.astro';
+import Hero from '@/sections/Hero.astro';
+import Location from '@/sections/Location.astro';
+import ReviewsBand from '@/sections/ReviewsBand.astro';
+import ServicesBand from '@/sections/ServicesBand.astro';
+import TeamRow from '@/sections/TeamRow.astro';
+import TrustRow from '@/sections/TrustRow.astro';
+
+const { clinic, preset, booking } = site;
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id), hours: v.clinic.hours.map(hoursText) }));
+const on = (id: Parameters<typeof isOn>[0]) => isOn(id, site);
+
+const services = on('services') ? (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order) : [];
+const providers = on('providers') ? (await getCollection('providers')).map((p) => p.data).sort((a, b) => a.name.localeCompare(b.name)) : [];
+const reviews = on('reviews') ? (await getCollection('reviews')).map((r) => r.data) : [];
+const faqs = (await getCollection('faqs')).map((f) => f.data).filter((f) => f.tags.includes('home')).slice(0, 5);
+const prices = on('price-list') && !on('fees') ? await getEntry('prices', 'prices') : undefined;
+const reviewedAt = prices?.data.reviewedAt;
+const treats = services.length ? `${preset.copy.treatsLead} ${services.map((s) => s.title.toLowerCase()).join(', ')}.` : '';
 ---
 
-<BaseLayout title={site.clinic.name} description={site.preset.copy.heroLine}>
-  <PageHeader title={site.clinic.name} lede={site.preset.copy.heroLine} />
+<BaseLayout title={clinic.name} description={preset.copy.heroLine}>
+  <Hero name={clinic.name} treats={treats} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} />
+  <TrustRow variants={variants} preset={preset.id} pricesOn={on('price-list')} ownershipOn={on('ownership')} />
+  <div class="stack">
+    {services.length > 0 && <ServicesBand services={services} variants={variants} />}
+    {providers.length > 0 && <TeamRow providers={providers} variants={variants} />}
+    <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} />
+    <FeesTeaser variants={variants} feesOn={on('fees')} priceListOn={on('price-list')} reviewedAt={reviewedAt} />
+    {on('reviews') && <ReviewsBand items={reviews} variants={variants} />}
+    <Location variants={variants} />
+    {faqs.length > 0 && <Faq items={faqs} />}
+    <CtaBand variants={variants} bookLabel={preset.copy.bookLabel} bookingOn={on('booking')} />
+  </div>
 </BaseLayout>
+
+<style>
+  .stack { max-width: 72rem; margin: 0 auto; padding: var(--space-6) var(--space-4) 0; display: grid; gap: var(--space-8); }
+  .stack > :global(section) { display: grid; gap: var(--space-4); align-content: start; }
+  .stack :global(h2) { font-size: var(--text-28); }
+</style>

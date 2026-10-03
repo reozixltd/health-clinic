@@ -1,0 +1,29 @@
+---
+/** "How your first visit works": the one numbered list on the home page. */
+interface Props {
+  bookingOn: boolean;
+  confirmPromise: string;
+  /** Preset steps as "Title|text"; {booking} and {confirm} are filled from the site. */
+  items: string[];
+}
+const { bookingOn, confirmPromise, items } = Astro.props;
+const steps = items.map((item) => {
+  const [title, text] = item.split('|');
+  return {
+    title,
+    text: text === '{booking}' ? (bookingOn ? 'Send an appointment request online, or call us.' : 'Call us to ask for a time.') : text === '{confirm}' ? `We reply ${confirmPromise} to confirm your time.` : text,
+  };
+});
+---
+
+<section id="first-visit" aria-labelledby="first-visit-title">
+  <h2 id="first-visit-title">How your first visit works</h2>
+  <ol>
+    {steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}
+  </ol>
+</section>
+
+<style>
+  ol { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-3); max-width: var(--measure); }
+  li::marker { font-weight: 700; }
+</style>
