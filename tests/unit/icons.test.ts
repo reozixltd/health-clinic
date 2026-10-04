@@ -162,12 +162,35 @@ function angle(ux: number, uy: number, vx: number, vy: number): number {
 }
 
 /**
+ * Slack allowed before an arc counts as needing its radii scaled up.
+ *
+ * λ is exactly 1 when an arc's chord equals its diameter — that is the semicircle, one of the most
+ * common things to draw, and upstream Lucide hit it too. Since λ is computed from absolute
+ * coordinates after a rotation, a chord authored as exactly the diameter arrives as 1 plus a few
+ * units in the last place, around 1.000000000000003. A strict `λ > 1` therefore reports a perfectly
+ * valid semicircle as infeasible.
+ *
+ * That matters more than a wrong number would: the icon looks correct, so the cheapest response is to
+ * add its name to `RESCALED`, which turns a false positive into a permanent exemption and makes it
+ * indistinguishable from a real one. The tolerance keeps those arcs out of the allowlist.
+ *
+ * The bound is on λ rather than on the radius, so it scales with the figure instead of drifting with
+ * the coordinate magnitude, and it is compared before the `sqrt(λ)` correction rather than after.
+ *
+ * 1e-9 sits about six orders of magnitude above accumulated double round-off at these magnitudes
+ * (~1e-15), and about six orders below any authored mistake worth catching: a radius written as 0.4
+ * where 0.5 was meant gives λ = 1.5625. No one types 0.4999999995 by accident, so nothing real can
+ * hide under it. The boundary test below pins both directions.
+ */
+const LAMBDA_TOLERANCE = 1 + 1e-9;
+
+/**
  * Elliptical arc to centre parameterisation, per SVG 1.1 appendix F.6.5.
  *
  * F.6.6 also says what to do when the radii are too small to span the chord: scale them up. That
  * correction is why this exists rather than a literal sweep of the path data — an infeasible radius
  * is silently rewritten by every renderer, so the number in the source is not the number that draws.
- * `scaled` reports it when it happens.
+ * `scaled` reports it when it happens, subject to `LAMBDA_TOLERANCE`.
  */
 function arcToCentre(
   x1: number,
@@ -192,7 +215,7 @@ function arcToCentre(
   const y1p = -sinP * dx + cosP * dy;
   const lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
   let scaled = false;
-  if (lambda > 1) {
+  if (lambda > LAMBDA_TOLERANCE) {
     const s = Math.sqrt(lambda);
     rx *= s;
     ry *= s;
@@ -683,6 +706,41 @@ describe('the icon set', () => {
       [...RESCALED].sort(),
       `RESCALED lists ${RESCALED.size} but ${actual.length} icon(s) actually rescale: ${actual.join(', ') || 'none'}`,
     ).toEqual(actual.sort());
+  });
+
+  /**
+   * Pins `LAMBDA_TOLERANCE` from both sides, so it cannot quietly become either a no-op or a hole.
+   *
+   * Without this, `1 + 1e-9` is an unexplained float constant in a file whose purpose is removing
+   * exactly that, and removing the epsilon would leave every other test still green. The load-bearing
+   * case is the diagonal chord: an axis-aligned diameter divides exactly, so λ is 1.0 with no error
+   * and would pass regardless, which would make the test decorative.
+   */
+  it('treats the semicircle boundary as feasible and a real shortfall as infeasible', () => {
+    // A 3-4-5 chord: 0.8 and 0.6 are not representable in binary, so although the chord is exactly
+    // the diameter and λ is mathematically 1, it arrives as 1.000000000000003. This is the case that
+    // flagged `star`'s corners, and it must not be reported.
+    const semicircle = '<path d="M20 12a.5.5 0 0 1-.8.6"/>';
+    expect(
+      exactBounds(semicircle).rescaled,
+      'a chord equal to the diameter is a valid semicircle and must not be flagged',
+    ).toEqual([]);
+
+    // An axis-aligned diameter divides exactly, so λ is 1.0 with no error at all. Pinned because it is
+    // the case a reader would reach for first, and it passes without the tolerance — which means on
+    // its own it cannot show the tolerance is doing anything.
+    expect(
+      exactBounds('<path d="M11.5 2.3a.5.5 0 0 1 1 0"/>').rescaled,
+      'an axis-aligned semicircle must not be flagged either',
+    ).toEqual([]);
+
+    // Chord 1.0 against radius 0.4, the 0.5-typed-as-0.4 mistake: λ = 0.25 / 0.16 = 1.5625. Well
+    // clear of the tolerance, so it must still be caught.
+    const tooSmall = '<path d="M11.5 2.3a.4.4 0 0 1 1 0"/>';
+    expect(
+      exactBounds(tooSmall).rescaled.length,
+      'a radius that cannot span its chord must be reported',
+    ).toBe(1);
   });
 
   /**
