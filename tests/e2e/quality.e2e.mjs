@@ -100,6 +100,8 @@ await step('reduced motion removes the button press scale and keeps the card fad
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
     const transform = await btn.evaluate((e) => getComputedStyle(e).transform);
+    // Release off the button: a click on this link would race the goto below.
+    await page.mouse.move(0, 0);
     await page.mouse.up();
     expect(transform === 'none', `button transform while pressed: ${transform}`);
     await page.goto(`${BASE}/book/`);
