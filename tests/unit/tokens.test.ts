@@ -3,17 +3,37 @@ import { describe, expect, it } from 'vitest';
 
 const css = readFileSync('src/styles/tokens.css', 'utf8');
 
+/**
+ * The standalone `:root` block, not the whole file.
+ *
+ * Scoped deliberately: the themes below it may later vary type or spacing per site, and a helper
+ * that scanned the whole file would keep reporting the `:root` value while the rendered site used
+ * something else. The suite would pass over a real divergence.
+ */
+function rootBlock(): string {
+  const m = css.match(/:root\s*\{([^}]*)\}/);
+  if (!m) throw new Error('no standalone :root block in tokens.css');
+  return m[1];
+}
+
 /** Value of a custom property declared in the `:root` block. */
 function token(name: string): string {
-  const m = css.match(new RegExp(`--${name}:\\s*([^;]+);`));
+  const m = rootBlock().match(new RegExp(`--${name}:\\s*([^;]+);`));
   if (!m) throw new Error(`--${name} is missing`);
   return m[1]!.trim();
 }
+
+/** Names declared in the `:root` block, in declaration order. */
+const declared = [...rootBlock().matchAll(/--([\w-]+)\s*:/g)].map((m) => m[1]);
 
 describe('Stitch type scale', () => {
   it('keeps the body size and leads at Stitch values', () => {
     expect(token('body-size')).toBe('106.25%');
     expect(token('leading-body')).toBe('1.55');
+  });
+
+  it('holds the measure so long-form pages stay readable', () => {
+    expect(token('measure')).toBe('68ch');
   });
 
   it('uses the Stitch display and headline sizes', () => {
@@ -26,8 +46,40 @@ describe('Stitch type scale', () => {
     expect(token('text-36')).toBe('2.25rem');
   });
 
-  it('runs the hero from 36px on mobile to 56px on desktop', () => {
+  it('names every scale step for the pixels it renders', () => {
+    // Anchored to the 16px browser default, not --body-size, which is how the scale is named: a
+    // step called --text-24 is 1.5rem, and it renders slightly larger at this project's 17px root.
+    for (const name of declared.filter((n) => /^text-\d+$/.test(n))) {
+      const px = parseFloat(token(name)) * 16;
+      expect(px, `--${name} is ${px}px at a 16px root, so the name should be --text-${px}`).toBe(Number(name.replace('text-', '')));
+    }
+  });
+
+  it('pins the hero clamp literal', () => {
     expect(token('text-hero')).toBe('clamp(2.25rem, 4.5vw, 3.5rem)');
+  });
+
+  it('resolves the hero clamp bounds against the project root size', () => {
+    // global.css sets html { font-size: var(--body-size) }, so 1rem is the browser default of
+    // 16px scaled by --body-size, not 16px. Derived, never hardcoded, so the two cannot drift.
+    const rem = 16 * (parseFloat(token('body-size')) / 100);
+    const [min, preferred, max] = token('text-hero')
+      .match(/^clamp\((.+)\)$/)![1]!
+      .split(',')
+      .map((t) => t.trim());
+    const length = /^[\d.]+(rem|em|px|%|vw|vh|vmin|vmax|ch)$/;
+
+    for (const term of [min!, preferred!, max!]) {
+      expect(term, `"${term}" is not a length`).toMatch(length);
+    }
+    expect(
+      parseFloat(min!) * rem,
+      `clamp min ${min} resolves above max ${max} at a ${rem}px root, so the hero has no range`
+    ).toBeLessThan(parseFloat(max!) * rem);
+    expect(min!).toMatch(/rem$/);
+    expect(max!).toMatch(/rem$/);
+    expect(parseFloat(min!) * rem, 'hero floor at the project root size').toBe(38.25);
+    expect(parseFloat(max!) * rem, 'hero ceiling at the project root size').toBe(59.5);
   });
 
   it('uses Stitch letter spacing for the hero, headings and labels', () => {
@@ -67,5 +119,24 @@ describe('spacing', () => {
     for (const [name, value] of [['space-1', '4px'], ['space-2', '8px'], ['space-3', '12px'], ['space-4', '16px'], ['space-5', '24px'], ['space-6', '32px'], ['space-7', '48px'], ['space-8', '64px'], ['space-xl', '40px']] as const) {
       expect(token(name), name).toBe(value);
     }
+  });
+});
+
+/**
+ * Parity guards for the `:root` block. contrast.test.ts does the same two jobs for colours: catch
+ * a duplicate declaration, and catch a token that escapes the tests that are supposed to cover it.
+ */
+describe('the :root block is well formed', () => {
+  it('declares every token exactly once', () => {
+    const dupes = declared.filter((n, i) => declared.indexOf(n) !== i);
+    expect(dupes, `duplicate declaration in :root, last one silently wins: ${[...new Set(dupes)].join(', ')}`).toEqual([]);
+  });
+
+  it('declares no colour tokens', () => {
+    const colours = declared.filter((n) => n.startsWith('color-'));
+    expect(
+      colours,
+      `contrast.test.ts parses only the theme blocks, so a --color-* token declared in :root is never contrast-tested. Colours belong in the theme blocks: ${colours.join(', ')}`
+    ).toEqual([]);
   });
 });

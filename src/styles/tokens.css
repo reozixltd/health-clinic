@@ -5,6 +5,11 @@
  * built from cool blue-grey neutrals with a pale blue accent fill. In both, accent is a light
  * fill used only under ink text, never as a text colour itself.
  *
+ * This file also holds the elevation and hairline rgba() values. Those are not theme colours:
+ * they are ink-derived shadows lifted from the source design at these exact alphas, hardcoded on
+ * purpose. They stay the same in both themes because a shadow is a darker version of the ink
+ * beneath it, not a per-theme surface colour.
+ *
  * tests/unit/contrast.test.ts checks an explicit list of pairs against AA, and separately pins
  * the below-AA combinations so they cannot drift unnoticed. It does not cover whether a theme's
  * neutrals, accent and semantic colours are hue-coherent with each other; that remains a human
@@ -23,7 +28,8 @@
   --text-36: 2.25rem;
   --text-hero: clamp(2.25rem, 4.5vw, 3.5rem);
   --body-size: 106.25%; /* 17px at the browser default of 16px, and it follows a larger default */
-  --leading-body: 1.55;
+  --leading-body: 1.55; /* The source design's body leading, ported as given. Not a nudge: 1.6 here
+                            was the old value and loosening it is what regressed the measure. */
   --measure: 68ch;
 
   --track-hero: -0.03em;
@@ -36,9 +42,9 @@
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
+  --space-xl: 40px;
   --space-7: 48px;
   --space-8: 64px;
-  --space-xl: 40px;
 
   --radius-control: 8px;
   --radius-card: 16px;
@@ -51,7 +57,8 @@
   --shadow-1: 0 4px 20px -2px rgba(18,38,58,.04);
   --shadow-2: 0 12px 32px -4px rgba(18,38,58,.08);
   --shadow-3: 0 24px 48px -8px rgba(18,38,58,.14);
-  --hairline: 1px solid rgba(18,38,58,.08);
+  --hairline: 1px solid rgba(18,38,58,.08); /* A full border shorthand, not a width: border-width:
+                                               var(--hairline) is dropped at computed-value time. */
 }
 
 :root,
