@@ -1,12 +1,19 @@
 /**
  * Inline icon set: 24x24, stroke-only, geometry from Lucide (ISC licence).
  *
- * Provenance, because a blanket "from Lucide" is not true of every entry. Twenty-two are Lucide's
- * own drawings unchanged. Eleven are adapted: `phone`, `shield`, `sliders`, `paw` and `star` are
- * simplified or re-proportioned; `menu`, `calendar`, `flask` and `pill` come from an older Lucide
- * revision; `badge-check` is Lucide's rosette with the pre-v1.52 check mark. `heart-pulse` is ours
- * and is not covered by that grant — a closed heart with a pulse line centred on it, where Lucide's
- * leaves the heart open and runs the trace off-centre.
+ * Provenance, because "from Lucide" is not equally true of every entry. Checked against
+ * lucide-static v1.52.0:
+ *
+ *   unchanged (8)   `check` `minus` `clock` `user` `chevron-right` `filter` `award` `sparkle`
+ *   re-serialised (14) the same drawing written differently — subpaths merged into one path in
+ *                   `plus`, `arrow-right`, `scan-line` and `stethoscope`; a redundant `ry` dropped
+ *                   in `lock` and `smartphone`; coordinates rounded in `map-pin`, `search`,
+ *                   `mail`, `video` and `globe`. Not adaptation, and not a licence question.
+ *   adapted (10)    re-proportioned or simplified: `phone` `menu` `calendar` `shield` `star` `paw`
+ *                   `sliders` `flask` `pill`, plus `badge-check`, which is Lucide's rosette carrying
+ *                   the pre-v1.52 check mark
+ *   ours (1)        `heart-pulse` — a closed heart with the trace centred on it, where Lucide leaves
+ *                   the heart open and runs the trace off-centre. Not covered by the ISC grant.
  *
  * Nothing below sets `stroke`, `fill` or `stroke-width`. Icon.astro owns those on the wrapping svg,
  * so every icon inherits one contract and `currentColor` themes the whole set at once.

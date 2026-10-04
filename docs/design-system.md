@@ -64,13 +64,23 @@ Icons are inline SVG in `src/core/ui/icons.ts`, drawn on a 24x24 grid and render
 | Stroke | 1.75, round cap and join, `currentColor` |
 | Fill | `none` |
 | Corner radius on rects | `rx="2"` |
-| Sizes | 18 inline, 28 in stat tiles, 48 and up as a lone illustration |
+| Default size | 20, overridable per call |
 
 `Icon.astro` sets `fill`, `stroke`, `stroke-width`, `stroke-linecap` and `stroke-linejoin` on the wrapping `<svg>`. An icon entry carries geometry attributes only — `cx`, `cy`, `d`, `height`, `r`, `rx`, `width`, `x`, `y` — and nothing else. Setting `stroke-width` or `fill` on one path would break that inheritance and theme the icon differently from its neighbours, and `opacity` or `class` would leave an icon that occupies space and reads aloud while invisible.
 
 Geometry is Lucide's, under ISC, with the exceptions listed in the header of `icons.ts`: eleven entries are adapted from Lucide and `heart-pulse` is ours.
 
-To add one, put a single stroke-only string in the `icons` object, keyed in kebab-case. Then check three things, all covered by `tests/unit/icons.test.ts`: the name is in the required-names list if a composition needs it, the drawing lands inside 0.5..23.5 on both axes with half a stroke to spare, and its bounding box is centred within 1.5 of (12, 12). A name that resolves is already enforced by the type — `Icon.astro` types `name` as `keyof typeof icons`.
+`size` defaults to 20. Pass it explicitly where an icon needs to be bigger or smaller; there is no named size scale.
+
+To add one, put a single stroke-only string in the `icons` object, keyed in kebab-case. Five tests in `tests/unit/icons.test.ts` then hold it to the contract, and a name that resolves is already enforced by the type — `Icon.astro` types `name` as `keyof typeof icons`:
+
+1. the name is in the required-names list, if a composition needs it
+2. it carries geometry attributes only
+3. every authored position lands in `STROKE / 2` .. `24 - STROKE / 2` — 0.875 to 23.125 — so no stroke is half-clipped by the viewBox edge
+4. its exact bounding box is centred within 1.5 of (12, 12)
+5. no two shapes come within a stroke width of each other, so their strokes do not merge
+
+Tests 4 and 5 carry the most exemptions and are the ones to expect a new icon to trip. Shapes that are *meant* to touch — a handle rooted on a lens rim, a divider reaching both walls of a capsule — are listed in `SELF_TOUCHING`, and a test asserts each entry still genuinely touches, so an exemption cannot outlive its reason. The same applies to `RESCALED`, for arcs whose radius a renderer has to enlarge.
 
 ## Motion
 

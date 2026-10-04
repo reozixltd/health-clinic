@@ -45,33 +45,53 @@ const STROKE = 1.75;
 const GEOMETRY_ATTRS = new Set(['cx', 'cy', 'd', 'height', 'r', 'rx', 'width', 'x', 'y']);
 
 /**
- * Icons whose subpaths are meant to meet.
+ * Icons whose shapes are meant to meet.
  *
- * Nine of the thirty-three, and that ratio is the finding: in a well-drawn glyph a stroke routinely
- * terminates on the shape it belongs to, and no geometric rule can tell that from a mistake. The
- * groups below are the reasons, so a name added later has to arrive with one too.
+ * Thirteen of the thirty-three, and that ratio is the finding: in a well-drawn glyph a stroke
+ * routinely terminates on the shape it belongs to, and no geometric rule separates that from a
+ * mistake. The groups below are the reasons, so a name added later has to arrive with one too.
  *
  *   terminates on an enclosing shape — `calendar`'s header rule and rings reach the body's edge,
  *     `mail`'s flap reaches the envelope's sides, `lock`'s shackle sits on the body's top edge,
- *     `globe`'s equator and meridian span the full disc, `search`'s handle is rooted on the lens
+ *     `globe`'s equator and meridian span the full disc, `search`'s handle is rooted on the lens,
+ *     `map-pin`'s hole is drawn inside the pin and meets its outline
+ *   divides or fills a closed form — `pill`'s score reaches both capsule walls, `flask`'s liquid
+ *     line reaches both cone walls, `heart-pulse`'s trace runs inside the heart to within 0.16
  *   passes through another shape — `award`'s ribbon is behind the medal, `stethoscope`'s outgoing
  *     tube continues the U-bend it starts from
- *   a control sitting on its track — `sliders`' knobs, `video`'s lens against the body's edge
+ *   a control on its track — `sliders`' knobs, `video`'s lens against the body's edge
  *
- * The check below proves each one really does touch, so an entry cannot outlive its reason: redraw
- * `sliders` with a gap under the knob and this fails until the name is dropped.
+ * The check below proves each one really does come within a stroke width, so an entry cannot
+ * outlive its reason: redraw `sliders` with a gap under the knob and this fails until the name is
+ * dropped. At thirteen exemptions out of thirty-three this guard mostly documents the set's
+ * construction rather than constraining it; its value is in reviewing a *new* icon, and it is
+ * worth revisiting at the next rewrite of this file.
  */
 const SELF_TOUCHING: ReadonlySet<IconName> = new Set([
   'award',
   'calendar',
+  'flask',
   'globe',
+  'heart-pulse',
   'lock',
   'mail',
+  'map-pin',
+  'pill',
   'search',
   'sliders',
   'stethoscope',
   'video',
 ]);
+
+/**
+ * Icons carrying an arc the renderer has to rescale.
+ *
+ * `star` is upstream Lucide's own geometry: its corner arcs are authored `r=0.5` against a chord of
+ * about 1.0, so every renderer scales them to roughly 0.71 per F.6.6. Matching Lucide's rendering
+ * is the point, so this is a property of the drawing rather than a defect in it. The test below
+ * still proves the exemption is live, so it cannot outlive the reason.
+ */
+const RESCALED: ReadonlySet<IconName> = new Set(['star']);
 
 interface Box {
   x0: number;
@@ -80,12 +100,23 @@ interface Box {
   y1: number;
 }
 
+/** A run of points; consecutive points are the segments that actually get compared. */
+type Poly = Array<[number, number]>;
+/** One shape element's worth of polylines, split wherever the path data moves to a new subpath. */
+type Polys = Poly[];
+
 interface Parsed {
   box: Box;
-  /** Positions, as opposed to radii: what the drawing lands on. Checked against the viewBox. */
+  /**
+   * Authored positions, including cubic control points, as opposed to radii. Checked against the
+   * viewBox. Control points are not drawn, so including them over-rejects rather than under-rejects
+   * — the conservative direction, where a failure is a false alarm rather than a missed icon.
+   */
   coords: number[];
-  /** One sampled polyline per subpath, for the collision check. */
-  subpaths: Array<Array<[number, number]>>;
+  /** One entry per shape element, each holding that element's polylines. For the collision check. */
+  subpaths: Polys[];
+  /** Arcs whose radii could not span their chord, so a renderer rescales them per F.6.6. */
+  rescaled: string[];
 }
 
 const START: Box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
@@ -193,7 +224,7 @@ function arcToCentre(
  * the four axis crossings. Taking a control point as if it were drawn would inflate every box on a
  * curve, which is exactly the error that let an icon sit in the top half of the viewBox pass.
  */
-function pathBounds(d: string, box: Box, coords: number[], poly: Array<[number, number]>, scaledOut: string[]): void {
+function pathBounds(d: string, box: Box, coords: number[], polys: Polys, scaledOut: string[]): void {
   let i = 0;
   const s = d;
   const skip = (): void => {
@@ -221,6 +252,13 @@ function pathBounds(d: string, box: Box, coords: number[], poly: Array<[number, 
     i++;
     return c === '1' ? 1 : 0;
   };
+  /**
+   * The polyline being filled. A new `m` starts a new one: without that break the point after a
+   * subpath would be treated as joined to the point before it, inventing a segment the author never
+   * drew and reporting two parts of the same icon as colliding across the gap.
+   */
+  let poly: Poly = [];
+  polys.push(poly);
   const put = (x: number, y: number): void => {
     grow(box, x, y);
     coords.push(x, y);
@@ -237,6 +275,8 @@ function pathBounds(d: string, box: Box, coords: number[], poly: Array<[number, 
       case 'm': {
         const x = num() + (rel ? cur[0] : 0);
         const y = num() + (rel ? cur[1] : 0);
+        poly = [];
+        polys.push(poly);
         cur[0] = x;
         cur[1] = y;
         start[0] = x;
@@ -364,11 +404,11 @@ function pathBounds(d: string, box: Box, coords: number[], poly: Array<[number, 
   }
 }
 
-/** Parse one icon's markup into its exact box, its positions, and one polyline per subpath. */
+/** Parse one icon's markup into its exact box, its positions, and its polylines per shape. */
 function exactBounds(markup: string): Parsed {
   const box: Box = { ...START };
   const coords: number[] = [];
-  const subpaths: Array<Array<[number, number]>> = [];
+  const subpaths: Polys[] = [];
   const scaledOut: string[] = [];
 
   for (const tag of markup.matchAll(/<(path|circle|rect|line|polyline|polygon)\b([^>]*)\/?>/g)) {
@@ -385,7 +425,7 @@ function exactBounds(markup: string): Parsed {
       coords.push(cx, cy);
       grow(box, cx - r, cy - r);
       grow(box, cx + r, cy + r);
-      subpaths.push(circlePoly(cx, cy, r));
+      subpaths.push([circlePoly(cx, cy, r)]);
     } else if (kind === 'rect') {
       const x = num('x');
       const y = num('y');
@@ -394,21 +434,21 @@ function exactBounds(markup: string): Parsed {
       coords.push(x, y, x + width, y + height);
       grow(box, x, y);
       grow(box, x + width, y + height);
-      subpaths.push(rectPoly(x, y, width, height));
+      subpaths.push([rectPoly(x, y, width, height)]);
     } else if (kind === 'path') {
-      const poly: Array<[number, number]> = [];
-      pathBounds(raw['d'] ?? '', box, coords, poly, scaledOut);
-      subpaths.push(poly);
+      const polys: Polys = [];
+      pathBounds(raw['d'] ?? '', box, coords, polys, scaledOut);
+      subpaths.push(polys);
     } else {
       throw new Error(`${kind} is not supported by exactBounds; add it rather than skipping the check`);
     }
   }
-  return { box, coords, subpaths };
+  return { box, coords, subpaths, rescaled: scaledOut };
 }
 
-function circlePoly(cx: number, cy: number, r: number): Array<[number, number]> {
-  const out: Array<[number, number]> = [];
-  for (let k = 0; k < 48; k++) {
+function circlePoly(cx: number, cy: number, r: number): Poly {
+  const out: Poly = [];
+  for (let k = 0; k <= 48; k++) {
     const t = (k / 48) * 2 * Math.PI;
     out.push([cx + r * Math.cos(t), cy + r * Math.sin(t)]);
   }
@@ -420,8 +460,8 @@ function circlePoly(cx: number, cy: number, r: number): Array<[number, number]> 
  * the middle of the body's right edge, which no corner is near, so an unsampled rect reports those
  * two parts as far apart when they actually meet.
  */
-function rectPoly(x: number, y: number, w: number, h: number): Array<[number, number]> {
-  const out: Array<[number, number]> = [];
+function rectPoly(x: number, y: number, w: number, h: number): Poly {
+  const out: Poly = [];
   const corners: Array<[number, number]> = [
     [x, y],
     [x + w, y],
@@ -439,14 +479,73 @@ function rectPoly(x: number, y: number, w: number, h: number): Array<[number, nu
   return out;
 }
 
-/** Shortest distance between two sampled polylines. */
-function polyDistance(a: Array<[number, number]>, b: Array<[number, number]>): number {
+/** Distance from a point to a segment, 0 if it lands on it. */
+function pointSegmentDistance(p: Poly[number], a: Poly[number], b: Poly[number]): number {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const lenSq = dx * dx + dy * dy;
+  const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / lenSq));
+  return Math.hypot(p[0] - (a[0] + dx * t), p[1] - (a[1] + dy * t));
+}
+
+/** Twice the signed area of the triangle abc; its sign says which side of ab c falls on. */
+function cross(a: Poly[number], b: Poly[number], c: Poly[number]): number {
+  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+}
+
+function onSegment(a: Poly[number], b: Poly[number], p: Poly[number]): boolean {
+  return Math.min(a[0], b[0]) - 1e-9 <= p[0] && p[0] <= Math.max(a[0], b[0]) + 1e-9
+    && Math.min(a[1], b[1]) - 1e-9 <= p[1] && p[1] <= Math.max(a[1], b[1]) + 1e-9;
+}
+
+/** True where two segments cross or touch, which is a distance of zero by definition. */
+function segmentsTouch(a: Poly[number], b: Poly[number], c: Poly[number], d: Poly[number]): boolean {
+  const d1 = cross(c, d, a);
+  const d2 = cross(c, d, b);
+  const d3 = cross(a, b, c);
+  const d4 = cross(a, b, d);
+  if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) return true;
+  return (
+    (d1 === 0 && onSegment(c, d, a)) || (d2 === 0 && onSegment(c, d, b))
+    || (d3 === 0 && onSegment(a, b, c)) || (d4 === 0 && onSegment(a, b, d))
+  );
+}
+
+/**
+ * Distance between two segments.
+ *
+ * Endpoint-to-segment distances alone miss a crossing: two segments that intersect have no
+ * endpoint near the other, so the figure comes out positive for a pair that plainly overlaps. That
+ * is exactly the case worth catching — a line drawn straight through a circle — so the crossing test
+ * comes first and the endpoints only break the tie when the segments stay apart.
+ */
+function segmentDistance(a: Poly[number], b: Poly[number], c: Poly[number], d: Poly[number]): number {
+  if (segmentsTouch(a, b, c, d)) return 0;
+  return Math.min(
+    pointSegmentDistance(a, c, d),
+    pointSegmentDistance(b, c, d),
+    pointSegmentDistance(c, a, b),
+    pointSegmentDistance(d, a, b),
+  );
+}
+
+/** Shortest distance between two polylines, comparing the segments rather than the sampled points. */
+function polylineDistance(a: Poly, b: Poly): number {
   let best = Infinity;
-  for (const [x1, y1] of a) {
-    for (const [x2, y2] of b) {
-      const d = Math.hypot(x1 - x2, y1 - y2);
+  for (let i = 0; i + 1 < a.length; i++) {
+    for (let j = 0; j + 1 < b.length; j++) {
+      const d = segmentDistance(a[i]!, a[i + 1]!, b[j]!, b[j + 1]!);
       if (d < best) best = d;
     }
+  }
+  return best;
+}
+
+/** Shortest distance between two shape elements, across every polyline each one is made of. */
+function elementDistance(a: Polys, b: Polys): number {
+  let best = Infinity;
+  for (const pa of a) {
+    for (const pb of b) best = Math.min(best, polylineDistance(pa, pb));
   }
   return best;
 }
@@ -517,19 +616,19 @@ describe('the icon set', () => {
     expect(off, `icons not centred within 1.5 of (12,12):\n${off.join('\n')}`).toEqual([]);
   });
 
-  it('never lets one subpath run into another', () => {
+  it('never lets one shape run into another', () => {
     const offenders: string[] = [];
     for (const [name, markup] of entries) {
       if (SELF_TOUCHING.has(name)) continue;
       const { subpaths } = exactBounds(markup);
       for (let a = 0; a < subpaths.length; a++) {
         for (let b = a + 1; b < subpaths.length; b++) {
-          const d = polyDistance(subpaths[a]!, subpaths[b]!);
-          if (d < STROKE) offenders.push(`${name} parts ${a} and ${b} are ${d.toFixed(2)} apart, under the ${STROKE} stroke, so they merge`);
+          const d = elementDistance(subpaths[a]!, subpaths[b]!);
+          if (d < STROKE) offenders.push(`${name} shapes ${a} and ${b} are ${d.toFixed(2)} apart, under the ${STROKE} stroke, so their strokes merge`);
         }
       }
     }
-    expect(offenders, `parts closer than one stroke width:\n${offenders.join('\n')}`).toEqual([]);
+    expect(offenders, `shapes closer than one stroke width, or crossing:\n${offenders.join('\n')}`).toEqual([]);
   });
 
   it('justifies every self-touching exemption', () => {
@@ -537,9 +636,32 @@ describe('the icon set', () => {
       const { subpaths } = exactBounds(icons[name]);
       let closest = Infinity;
       for (let a = 0; a < subpaths.length; a++) {
-        for (let b = a + 1; b < subpaths.length; b++) closest = Math.min(closest, polyDistance(subpaths[a]!, subpaths[b]!));
+        for (let b = a + 1; b < subpaths.length; b++) closest = Math.min(closest, elementDistance(subpaths[a]!, subpaths[b]!));
       }
-      expect(closest, `${name} is allowlisted as self-touching but its parts are ${closest.toFixed(2)} apart; drop it from SELF_TOUCHING`).toBeLessThan(STROKE);
+      expect(closest, `${name} is allowlisted as self-touching but its shapes are ${closest.toFixed(2)} apart; drop it from SELF_TOUCHING`).toBeLessThan(STROKE);
+    }
+  });
+
+  /**
+   * An arc whose radii cannot span its chord is not drawn at the authored size.
+   *
+   * SVG F.6.6 tells the renderer to scale the radii up until the arc closes, so the radius in the
+   * source is not the radius on screen and nothing warns you. It is the same class of error as the
+   * one that made `pill` look wrong: an author-supplied number quietly replaced at render time.
+   */
+  it('never relies on an arc radius the renderer has to rescale', () => {
+    const offenders: string[] = [];
+    for (const [name, markup] of entries) {
+      if (RESCALED.has(name)) continue;
+      for (const note of exactBounds(markup).rescaled) offenders.push(`${name}: ${note}`);
+    }
+    expect(offenders, `arc radii too small for their chord, so F.6.6 rescales them:\n${offenders.join('\n')}`).toEqual([]);
+  });
+
+  it('justifies every arc-rescale exemption', () => {
+    for (const name of RESCALED) {
+      const { rescaled } = exactBounds(icons[name]);
+      expect(rescaled.length, `${name} is allowlisted as rescaled but no arc in it needs it; drop it from RESCALED`).toBeGreaterThan(0);
     }
   });
 

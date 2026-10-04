@@ -162,7 +162,7 @@ describe('spacing', () => {
    * inherits a value that was never exercised. `--space-xl` was exactly that, sitting unnumbered
    * between two numbered steps.
    *
-   * Scoped to `space-*` on purpose. A repo-wide version fails today on eleven other tokens that the
+   * Scoped to `space-*` on purpose. A repo-wide version fails today on ten other tokens that the
    * remaining tasks consume, which would make it a standing red rather than a signal.
    */
   it('gives every space token at least one consumer', () => {
