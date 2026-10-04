@@ -38,7 +38,7 @@ export interface SiteConfigInput {
     contentDir: string;
     /** Replaces the preset nav (same item shape). Items for modules that are off are still removed. */
     nav?: NavItem[];
-    /** Scroll reveals, hero entrance, page cross-fade and hover zoom. On unless set to false. */
+    /** Scroll reveals, hero entrance, page cross-fade, booking step slide and hover zoom. On unless set to false. */
     motion?: boolean;
   };
   clinic: Clinic;

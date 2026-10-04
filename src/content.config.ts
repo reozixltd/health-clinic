@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { file, glob } from 'astro/loaders';
 import type { Loader } from 'astro/loaders';
 import { selectedSite } from './config';
+import { photoAlt } from './config/photo-slots';
 
 const dir = `./src/content/${selectedSite().contentDir}`;
 
@@ -33,7 +34,10 @@ const services = defineCollection({
     whatToExpect: z.array(z.string()).min(1),
     providers: z.array(z.string()).min(1),
     fromPrice: z.number().optional(),
-    photoSlot: z.string().optional(),
+    photoSlot: z
+      .string()
+      .refine((slot) => Object.hasOwn(photoAlt, slot), { message: 'photoSlot needs an entry in photoAlt (src/config/photo-slots.ts)' })
+      .optional(),
     faqs: z.array(faqPair).length(3),
     seoDescription: z.string().max(160),
   }),

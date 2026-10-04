@@ -63,8 +63,8 @@ export function expect(cond, message) {
   if (!cond) throw new Error(message);
 }
 
-export /** The text of every script a built page loads, following relative imports between chunks. */
-function loadedJs(distDir, page) {
+/** The text of every script a built page loads, following relative imports between chunks. */
+export function loadedJs(distDir, page) {
   const seen = new Set();
   const read = (file) => {
     if (seen.has(file)) return '';

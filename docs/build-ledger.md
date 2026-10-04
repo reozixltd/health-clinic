@@ -152,3 +152,7 @@ Taste findings not applied (older content and layout): one price only on the Fer
 Taste advice that conflicts with the design system, not applied: card grids or carousels for long lists; bento layouts and pinned or perpetual motion; Tailwind and icon libraries; photo avatars for clinicians; dark mode; no hairline between rows.
 
 Photos worth swapping when real ones exist: `vet-exterior`, `vet-reception`, `clinic-exterior`, `treatment-room-physio`, and the retouched `reception`.
+
+Final review (2026-10-04): no critical or important findings. Fixed in d29064a: the axe scan now runs with reduced motion, so home is scanned fully revealed (107 contrast nodes, up from 48); the photo brief says "empty room slot".
+
+Follow-ups after the review: `linkHtml` has a unit test (`tests/unit/inline.test.ts`). A service `photoSlot` with no `photoAlt` entry now fails the build. `npm audit fix` updated `http-cache-semantics`.
