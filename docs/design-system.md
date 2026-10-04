@@ -34,7 +34,7 @@ All styling is plain CSS on tokens. There is no UI framework and no Tailwind.
 | Family | Atkinson Hyperlegible Next, variable, self-hosted (`@fontsource-variable`) |
 | Body | 17px, line height 1.55, measure 68ch |
 | Scale | `--text-14`, `-16`, `-18`, `-20`, `-24`, `-28`, `-36`, plus `--text-hero` (clamped, `2.25rem` to `3.5rem`) |
-| Space | `--space-1` (4px) to `--space-8` (64px), plus `--space-xl` (40px) |
+| Space | `--space-1` (4px) to `--space-8` (64px) |
 | Radius | `--radius-control` 8px, `--radius-card` 16px, `--radius-panel` 24px, `--radius-pill` 9999px |
 | Touch target | `--target` 44px |
 

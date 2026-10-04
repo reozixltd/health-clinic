@@ -130,10 +130,22 @@ describe('Stitch shapes and depth', () => {
 });
 
 describe('spacing', () => {
-  it('keeps the existing scale and adds Stitch space-xl', () => {
-    for (const [name, value] of [['space-1', '4px'], ['space-2', '8px'], ['space-3', '12px'], ['space-4', '16px'], ['space-5', '24px'], ['space-6', '32px'], ['space-7', '48px'], ['space-8', '64px'], ['space-xl', '40px']] as const) {
+  it('keeps the existing numbered scale', () => {
+    for (const [name, value] of [['space-1', '4px'], ['space-2', '8px'], ['space-3', '12px'], ['space-4', '16px'], ['space-5', '24px'], ['space-6', '32px'], ['space-7', '48px'], ['space-8', '64px']] as const) {
       expect(token(name), name).toBe(value);
     }
+  });
+
+  /**
+   * A token with no consumer is a guess about future work, and an unnumbered step wedged into a
+   * numbered ramp is worse than nothing: it reads as a mistake, so the next person "corrects" it.
+   * Reintroduce a step when something actually uses it.
+   */
+  it('declares no unnumbered space steps', () => {
+    const names = declared.filter((n) => n.startsWith('space-'));
+    expect(names, `every step in the space ramp should be numbered: ${names.join(', ')}`).toEqual(
+      names.filter((n) => /^space-\d+$/.test(n)),
+    );
   });
 });
 
