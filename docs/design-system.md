@@ -54,6 +54,24 @@ Rules for the card:
 
 The logic lives in `src/modules/booking/card.ts` (`cardFields`). The component is `src/modules/booking/AppointmentCard.astro`.
 
+## Icons
+
+Icons are inline SVG in `src/core/ui/icons.ts`, drawn on a 24x24 grid and rendered by `Icon.astro`. Inlining costs no request and lets one component own the whole contract.
+
+| Rule | Value |
+|---|---|
+| Grid | 24x24, geometry centred on (12, 12) |
+| Stroke | 1.75, round cap and join, `currentColor` |
+| Fill | `none` |
+| Corner radius on rects | `rx="2"` |
+| Sizes | 18 inline, 28 in stat tiles, 48 and up as a lone illustration |
+
+`Icon.astro` sets `fill`, `stroke`, `stroke-width`, `stroke-linecap` and `stroke-linejoin` on the wrapping `<svg>`. An icon entry carries geometry attributes only — `cx`, `cy`, `d`, `height`, `r`, `rx`, `width`, `x`, `y` — and nothing else. Setting `stroke-width` or `fill` on one path would break that inheritance and theme the icon differently from its neighbours, and `opacity` or `class` would leave an icon that occupies space and reads aloud while invisible.
+
+Geometry is Lucide's, under ISC, with the exceptions listed in the header of `icons.ts`: eleven entries are adapted from Lucide and `heart-pulse` is ours.
+
+To add one, put a single stroke-only string in the `icons` object, keyed in kebab-case. Then check three things, all covered by `tests/unit/icons.test.ts`: the name is in the required-names list if a composition needs it, the drawing lands inside 0.5..23.5 on both axes with half a stroke to spare, and its bounding box is centred within 1.5 of (12, 12). A name that resolves is already enforced by the type — `Icon.astro` types `name` as `keyof typeof icons`.
+
 ## Motion
 
 Motion is calm and brief. Movement uses only opacity and transform. Colour fades stay short.

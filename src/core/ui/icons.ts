@@ -1,4 +1,16 @@
-/** Inline icon set (24x24, stroke-based, paths adapted from Lucide, ISC licence). */
+/**
+ * Inline icon set: 24x24, stroke-only, geometry from Lucide (ISC licence).
+ *
+ * Provenance, because a blanket "from Lucide" is not true of every entry. Twenty-two are Lucide's
+ * own drawings unchanged. Eleven are adapted: `phone`, `shield`, `sliders`, `paw` and `star` are
+ * simplified or re-proportioned; `menu`, `calendar`, `flask` and `pill` come from an older Lucide
+ * revision; `badge-check` is Lucide's rosette with the pre-v1.52 check mark. `heart-pulse` is ours
+ * and is not covered by that grant — a closed heart with a pulse line centred on it, where Lucide's
+ * leaves the heart open and runs the trace off-centre.
+ *
+ * Nothing below sets `stroke`, `fill` or `stroke-width`. Icon.astro owns those on the wrapping svg,
+ * so every icon inherits one contract and `currentColor` themes the whole set at once.
+ */
 export const icons = {
   phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
   menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
@@ -18,8 +30,8 @@ export const icons = {
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   'chevron-right': '<path d="m9 18 6-6-6-6"/>',
   'arrow-right': '<path d="M5 12h14M12 5l7 7-7 7"/>',
-  'badge-check': '<path d="M3.9 12a9 9 0 0 1 9-9 9 9 0 0 1 6.4 2.6l1.4-1.4v5h-5l1.4-1.4A7 7 0 0 0 5 12a9 9 0 0 1-1.1 0Z"/><path d="m8.5 12.5 2.5 2.5 5-5"/>',
-  filter: '<path d="M3 5h18M6 12h12M10 19h4"/>',
+  'badge-check': '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>',
+  filter: '<path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/>',
   sliders: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>',
   flask: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 15h9"/>',
   pill: '<path d="m10.5 20.5-7-7a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7Z"/><path d="m8.5 8.5 7 7"/>',
@@ -28,11 +40,11 @@ export const icons = {
   mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
   lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/>',
-  award: '<circle cx="12" cy="8" r="6"/><path d="m8.2 13-1.4 8 5.2-3 5.2 3-1.4-8"/>',
-  'heart-pulse': '<path d="M22 8.5A5.5 5.5 0 0 0 12 5a5.5 5.5 0 0 0-10 3.5C2 12 7 17 12 21c5-4 10-9 10-12.5Z"/><path d="M3.5 12H8l1.5-3 3 6 1.5-3h3.5"/>',
+  award: '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+  'heart-pulse': '<path d="M22 8.5A5.5 5.5 0 0 0 12 5a5.5 5.5 0 0 0-10 3.5C2 12 7 17 12 21c5-4 10-9 10-12.5Z"/><path d="M5 12h3.5l1.5-3 3 6 1.5-3H19"/>',
   navigation: '<path d="m3 11 19-9-9 19-2-8-8-2Z"/>',
   video: '<path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
-  sparkle: '<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M18 15.5 18.8 18l2.2.8-2.2.8L18 21.5l-.8-1.9-2.2-.8 2.2-.8L18 15.5Z"/>',
+  sparkle: '<path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>',
 } as const;
 
 export type IconName = keyof typeof icons;

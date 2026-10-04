@@ -1,8 +1,24 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /** Comments stripped: the header names `:root` in prose, and a commented-out token is not declared. */
 const css = readFileSync('src/styles/tokens.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+/** Every file under `src/`, so the consumer guard reads the same tree the browser does. */
+function srcFiles(dir = 'src'): string[] {
+  return readdirSync(dir).flatMap((entry) => {
+    const p = join(dir, entry);
+    return statSync(p).isDirectory() ? srcFiles(p) : [p];
+  });
+}
+
+const srcText = srcFiles()
+  .filter((f) => /\.(astro|css|ts|tsx|js)$/.test(f))
+  .map((f) => readFileSync(f, 'utf8'))
+  .join('\n');
+
+const spaceTokens = [...css.matchAll(/--(space-[\w-]+)\s*:/g)].map((m) => m[1]!);
 
 /**
  * The standalone `:root` block, not the whole file.
@@ -137,15 +153,21 @@ describe('spacing', () => {
   });
 
   /**
-   * A token with no consumer is a guess about future work, and an unnumbered step wedged into a
-   * numbered ramp is worse than nothing: it reads as a mistake, so the next person "corrects" it.
-   * Reintroduce a step when something actually uses it.
+   * Every step has to earn its place.
+   *
+   * This replaces a guard that rejected unnumbered steps. Numbering is a naming preference that
+   * `docs/design-system.md` never states, so enforcing it hard-failed a convention nobody had agreed
+   * to — and its comment talked about consumers while the assertion checked names. What actually
+   * goes wrong is a token nothing reads: it looks available, so a later task reaches for it and
+   * inherits a value that was never exercised. `--space-xl` was exactly that, sitting unnumbered
+   * between two numbered steps.
+   *
+   * Scoped to `space-*` on purpose. A repo-wide version fails today on eleven other tokens that the
+   * remaining tasks consume, which would make it a standing red rather than a signal.
    */
-  it('declares no unnumbered space steps', () => {
-    const names = declared.filter((n) => n.startsWith('space-'));
-    expect(names, `every step in the space ramp should be numbered: ${names.join(', ')}`).toEqual(
-      names.filter((n) => /^space-\d+$/.test(n)),
-    );
+  it('gives every space token at least one consumer', () => {
+    const orphans = spaceTokens.filter((t) => !new RegExp(`var\\(--${t}[)\\s,]`).test(srcText));
+    expect(orphans, `these space tokens are declared but nothing uses them: ${orphans.join(', ')}`).toEqual([]);
   });
 });
 
