@@ -58,14 +58,21 @@ const widths = image ? [480, 800, 1200, 1600].filter((w) => w <= image.width) : 
    * behind it, so nothing justifies the curve at that size.
    *
    * So the tile keeps the control radius until it is big enough for the card curve to read as
-   * deliberate. The radius has to live on the tile surface, which is this span rather than the
-   * figure: `.initials` is the inline-size container, and an element cannot query its own
-   * container, so only a descendant can answer with the tile's own width. The figure's border and
-   * fill therefore move onto the span for this variant, where its corners are the visible tile
-   * edge. The figure keeps overflow so nothing escapes, and keeps role/aria-label, so the tile is
-   * still announced as one image.
+   * deliberate. That radius lives on the span, not the figure, and for two separate reasons:
+   *
+   *   1. `.initials` is the inline-size container and an element cannot query its own container, so
+   *      only a descendant can answer with the tile's own width.
+   *   2. `.photo` sets `overflow: hidden`, and an ancestor's overflow clips descendants to the
+   *      ancestor's own rounded padding box. So a radius left on the figure silently masks the
+   *      smaller radius on the span, whatever the span computes to. Measured: the span is 8px while
+   *      the tile still draws a 16px corner.
+   *
+   * Hence border, fill AND radius all move onto the span, and the figure gives up all three. The
+   * figure keeps `overflow` so nothing escapes the aspect-ratio box, and keeps role/aria-label, so
+   * the tile is still announced as one image. tests/e2e/photos.e2e.mjs measures the rendered corner
+   * so a missing reset here fails rather than passing quietly.
    */
-  .photo.initials { border: 0; background: none; }
+  .photo.initials { border: 0; border-radius: 0; background: none; }
   .initials { display: grid; place-items: center; container-type: inline-size; color: var(--color-ink); }
   .initials span { place-self: stretch; display: grid; place-items: center; border: 1px solid var(--color-line); border-radius: var(--radius-control); background: var(--color-surface); font-size: min(36cqw, 4rem); font-weight: 700; line-height: 1; }
   @container (min-width: 160px) { .initials span { border-radius: var(--radius-card); } }

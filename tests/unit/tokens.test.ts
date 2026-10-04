@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const css = readFileSync('src/styles/tokens.css', 'utf8');
+/** Comments stripped: the header names `:root` in prose, and a commented-out token is not declared. */
+const css = readFileSync('src/styles/tokens.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 
 /**
  * The standalone `:root` block, not the whole file.
@@ -9,11 +10,21 @@ const css = readFileSync('src/styles/tokens.css', 'utf8');
  * Scoped deliberately: the themes below it may later vary type or spacing per site, and a helper
  * that scanned the whole file would keep reporting the `:root` value while the rendered site used
  * something else. The suite would pass over a real divergence.
+ *
+ * Anchored on the first `:root` left in the file, and the match must reach its opening brace with
+ * nothing but whitespace, so it cannot settle for a theme block written as a bare `:root {`. The
+ * type scale and spacing tests below read only what this returns.
  */
 function rootBlock(): string {
-  const m = css.match(/:root\s*\{([^}]*)\}/);
-  if (!m) throw new Error('no standalone :root block in tokens.css');
-  return m[1];
+  const start = css.indexOf(':root');
+  if (start < 0) throw new Error('tokens.css has no :root block');
+  const open = css.indexOf('{', start);
+  if (open < 0 || !/^\s*$/.test(css.slice(start + ':root'.length, open))) {
+    throw new Error(`the first :root in tokens.css is not a plain ":root {" block: ${css.slice(start, open + 1)}`);
+  }
+  const close = css.indexOf('}', open);
+  if (close < 0) throw new Error('the :root block in tokens.css is not closed');
+  return css.slice(open + 1, close);
 }
 
 /** Value of a custom property declared in the `:root` block. */
@@ -50,7 +61,11 @@ describe('Stitch type scale', () => {
     // Anchored to the 16px browser default, not --body-size, which is how the scale is named: a
     // step called --text-24 is 1.5rem, and it renders slightly larger at this project's 17px root.
     for (const name of declared.filter((n) => /^text-\d+$/.test(n))) {
-      const px = parseFloat(token(name)) * 16;
+      const value = token(name);
+      // Required to be rem, or the arithmetic below is meaningless: parseFloat('24px') * 16 would
+      // report 384px for a 24px step and accuse the name of being wrong when the unit is.
+      expect(value, `--${name} must be a rem step to be checked against its name, got "${value}"`).toMatch(/^[\d.]+rem$/);
+      const px = parseFloat(value) * 16;
       expect(px, `--${name} is ${px}px at a 16px root, so the name should be --text-${px}`).toBe(Number(name.replace('text-', '')));
     }
   });
