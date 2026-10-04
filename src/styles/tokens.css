@@ -35,22 +35,24 @@
 
 :root,
 [data-theme='fernway'] {
-  --color-paper: #f6f7f3;
-  --color-ink: #1f2a24;
-  --color-ink-muted: #4a5750;
+  --color-paper: #f7f9ff;
+  --color-ink: #121d26;
+  --color-ink-muted: #3e4947;
   --color-card: #ffffff;
-  --color-accent: #a3c4a2;
-  --color-line: #d9dfd6;
-  --color-field-border: #6b7a70;
-  --color-surface: #eceee8;
+  --color-accent: #99f2e9;
+  --color-primary: #0d7a73;
+  --color-primary-text: #005f5a;
+  --color-line: #d8e4f1;
+  --color-field-border: #6e7977;
+  --color-surface: #e4effc;
   --color-on-ink: #ffffff;
-  --color-success: #1f6b3a;
+  --color-success: #345c49;
   --color-success-soft: #e6f3ea;
   --color-warning: #8a5300;
   --color-warning-soft: #fdf1d9;
-  --color-danger: #a6262b;
+  --color-danger: #ba1a1a;
   --color-danger-soft: #fbe9e8;
-  --color-focus: #2f5d46;
+  --color-focus: #0d7a73;
 }
 
 [data-theme='harbour'] {
@@ -58,7 +60,9 @@
   --color-ink: #17263a;
   --color-ink-muted: #475a70;
   --color-card: #ffffff;
-  --color-accent: #9ec3e6;
+  --color-accent: #c7ddf5;
+  --color-primary: #1d4f8c;
+  --color-primary-text: #163d6e;
   --color-line: #d6dfe9;
   --color-field-border: #66788c;
   --color-surface: #e9eef4;

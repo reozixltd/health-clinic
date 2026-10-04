@@ -20,6 +20,9 @@ function contrast(a: string, b: string): number {
 const pairs: [string, string, number][] = [
   ['ink', 'paper', 4.5], ['ink-muted', 'paper', 4.5], ['ink', 'card', 4.5], ['ink', 'accent', 4.5],
   ['on-ink', 'ink', 4.5], ['field-border', 'surface', 3], ['focus', 'paper', 3],
+  ['ink', 'surface', 4.5], ['ink-muted', 'surface', 4.5],
+  ['primary', 'card', 4.5], ['on-ink', 'primary', 4.5],
+  ['primary-text', 'card', 4.5], ['primary-text', 'surface', 4.5], ['primary-text', 'paper', 4.5],
 ];
 
 describe('tokens meet AA in both themes', () => {
