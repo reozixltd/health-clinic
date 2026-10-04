@@ -21,7 +21,7 @@ describe('Stitch type scale', () => {
     expect(token('text-16')).toBe('1rem');
     expect(token('text-18')).toBe('1.125rem');
     expect(token('text-20')).toBe('1.25rem');
-    expect(token('text-22')).toBe('1.5rem');
+    expect(token('text-24')).toBe('1.5rem');
     expect(token('text-28')).toBe('1.75rem');
     expect(token('text-36')).toBe('2.25rem');
   });

@@ -23,7 +23,7 @@ p, h1, h2, h3, h4, figure, blockquote, dl, dd { margin: 0; }
 h1, h2, h3, h4 { line-height: 1.2; text-wrap: balance; letter-spacing: var(--track-heading); }
 h1 { font-size: var(--text-hero); letter-spacing: var(--track-hero); }
 h2 { font-size: var(--text-28); }
-h3 { font-size: var(--text-22); }
+h3 { font-size: var(--text-24); }
 p { max-width: var(--measure); text-wrap: pretty; }
 a { color: inherit; text-underline-offset: 0.2em; }
 
