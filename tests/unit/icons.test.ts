@@ -86,12 +86,13 @@ const SELF_TOUCHING: ReadonlySet<IconName> = new Set([
 /**
  * Icons carrying an arc the renderer has to rescale.
  *
- * `star` is upstream Lucide's own geometry: its corner arcs are authored `r=0.5` against a chord of
- * about 1.0, so every renderer scales them to roughly 0.71 per F.6.6. Matching Lucide's rendering
- * is the point, so this is a property of the drawing rather than a defect in it. The test below
- * still proves the exemption is live, so it cannot outlive the reason.
+ * Empty. The set exists so that an arc which genuinely cannot span its chord has to be declared here
+ * with a reason, rather than quietly reshaping the icon at render time. Nothing needs it today: the
+ * one candidate, `star`, was authored `r=0.5` against a chord of exactly 1.0, which is the diameter,
+ * so λ was 1 and only binary floating point pushed it over the threshold. Its radii are now
+ * upstream Lucide's 0.53, comfortably feasible.
  */
-const RESCALED: ReadonlySet<IconName> = new Set(['star']);
+const RESCALED: ReadonlySet<IconName> = new Set();
 
 interface Box {
   x0: number;
@@ -258,7 +259,6 @@ function pathBounds(d: string, box: Box, coords: number[], polys: Polys, scaledO
    * drew and reporting two parts of the same icon as colliding across the gap.
    */
   let poly: Poly = [];
-  polys.push(poly);
   const put = (x: number, y: number): void => {
     grow(box, x, y);
     coords.push(x, y);
@@ -616,6 +616,19 @@ describe('the icon set', () => {
     expect(off, `icons not centred within 1.5 of (12,12):\n${off.join('\n')}`).toEqual([]);
   });
 
+  /**
+   * Across shape elements only.
+   *
+   * Two subpaths inside one `<path>` are never compared, which `plus`, `close`, `arrow-right`,
+   * `stethoscope`, `flask` and `globe` all depend on: each joins its own subpaths with an authored
+   * stroke. Checking within an element would flag those, and separating authored joins from
+   * accidental ones is not something a distance test can do.
+   *
+   * The gap is real and worth naming. `alert` draws a stem `M12 9v4` and a dot `M12 17h.01` in one
+   * path, so a genuine collision between them would go unnoticed. Nothing is masked today — every
+   * within-element pair in the set is a deliberate join — but a new icon that collides with itself
+   * will pass this test.
+   */
   it('never lets one shape run into another', () => {
     const offenders: string[] = [];
     for (const [name, markup] of entries) {
@@ -658,11 +671,18 @@ describe('the icon set', () => {
     expect(offenders, `arc radii too small for their chord, so F.6.6 rescales them:\n${offenders.join('\n')}`).toEqual([]);
   });
 
+  /**
+   * Paired with the guard above, which fails if any unexempted icon rescales. Together they make
+   * `RESCALED` an equality with the set of icons that actually rescale, checked from both sides.
+   * Asserting only that each listed name rescales would pass on an empty set without testing
+   * anything, so the entry count is compared too.
+   */
   it('justifies every arc-rescale exemption', () => {
-    for (const name of RESCALED) {
-      const { rescaled } = exactBounds(icons[name]);
-      expect(rescaled.length, `${name} is allowlisted as rescaled but no arc in it needs it; drop it from RESCALED`).toBeGreaterThan(0);
-    }
+    const actual = entries.filter(([name]) => exactBounds(icons[name]).rescaled.length > 0).map(([name]) => name);
+    expect(
+      [...RESCALED].sort(),
+      `RESCALED lists ${RESCALED.size} but ${actual.length} icon(s) actually rescale: ${actual.join(', ') || 'none'}`,
+    ).toEqual(actual.sort());
   });
 
   /**

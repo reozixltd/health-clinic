@@ -68,7 +68,7 @@ Icons are inline SVG in `src/core/ui/icons.ts`, drawn on a 24x24 grid and render
 
 `Icon.astro` sets `fill`, `stroke`, `stroke-width`, `stroke-linecap` and `stroke-linejoin` on the wrapping `<svg>`. An icon entry carries geometry attributes only — `cx`, `cy`, `d`, `height`, `r`, `rx`, `width`, `x`, `y` — and nothing else. Setting `stroke-width` or `fill` on one path would break that inheritance and theme the icon differently from its neighbours, and `opacity` or `class` would leave an icon that occupies space and reads aloud while invisible.
 
-Geometry is Lucide's, under ISC, with the exceptions listed in the header of `icons.ts`: eleven entries are adapted from Lucide and `heart-pulse` is ours.
+Geometry is Lucide's, under ISC. The header of `icons.ts` classifies all thirty-three entries into unchanged, re-serialised, adapted (thirteen) and ours (`heart-pulse`).
 
 `size` defaults to 20. Pass it explicitly where an icon needs to be bigger or smaller; there is no named size scale.
 
@@ -80,7 +80,9 @@ To add one, put a single stroke-only string in the `icons` object, keyed in keba
 4. its exact bounding box is centred within 1.5 of (12, 12)
 5. no two shapes come within a stroke width of each other, so their strokes do not merge
 
-Tests 4 and 5 carry the most exemptions and are the ones to expect a new icon to trip. Shapes that are *meant* to touch — a handle rooted on a lens rim, a divider reaching both walls of a capsule — are listed in `SELF_TOUCHING`, and a test asserts each entry still genuinely touches, so an exemption cannot outlive its reason. The same applies to `RESCALED`, for arcs whose radius a renderer has to enlarge.
+Test 5 is the one to expect a new icon to trip: it carries the exemptions. Shapes that are *meant* to touch — a handle rooted on a lens rim, a divider reaching both walls of a capsule — are listed in `SELF_TOUCHING`, and a test asserts each entry still genuinely touches, so an exemption cannot outlive its reason. `RESCALED` does the same job for arcs whose radius a renderer has to enlarge, and is currently empty. Test 4 has no exemptions at all.
+
+One limit worth knowing: test 5 compares across shape elements, so two subpaths inside a single `<path>` are never checked against each other. Several icons join their own subpaths deliberately, and no distance test can tell an authored join from an accident.
 
 ## Motion
 
