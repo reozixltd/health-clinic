@@ -1,7 +1,14 @@
 /*
  * Design tokens: the only place raw colour values live. Components use var(--...) only.
- * Two themes: fernway (sage accent, default) and harbour (blue accent). Both pass the AA test
- * in tests/unit/contrast.test.ts.
+ * Two themes: fernway, applied by default on :root, and harbour, selected with data-theme.
+ * Fernway is built from cool near-white neutrals with a bright cyan accent fill; harbour is
+ * built from cool blue-grey neutrals with a pale blue accent fill. In both, accent is a light
+ * fill used only under ink text, never as a text colour itself.
+ *
+ * tests/unit/contrast.test.ts checks an explicit list of pairs against AA, and separately pins
+ * the below-AA combinations so they cannot drift unnoticed. It does not cover whether a theme's
+ * neutrals, accent and semantic colours are hue-coherent with each other; that remains a human
+ * review concern.
  */
 
 :root {
@@ -40,6 +47,9 @@
   --color-ink-muted: #3e4947;
   --color-card: #ffffff;
   --color-accent: #99f2e9;
+  /* Use --color-primary for fills, borders and large display text on white only. It measures
+     4.46:1 against --color-surface, just under the 4.5:1 AA threshold for normal text, so use
+     --color-primary-text (6.48:1) as the only primary-coloured text allowed on a tinted panel. */
   --color-primary: #0d7a73;
   --color-primary-text: #005f5a;
   --color-line: #d8e4f1;
@@ -52,6 +62,7 @@
   --color-warning-soft: #fdf1d9;
   --color-danger: #ba1a1a;
   --color-danger-soft: #fbe9e8;
+  /* Focus tracks primary and must be changed together with it. */
   --color-focus: #0d7a73;
 }
 
@@ -61,6 +72,10 @@
   --color-ink-muted: #475a70;
   --color-card: #ffffff;
   --color-accent: #c7ddf5;
+  /* Use --color-primary for fills, borders and large display text on white only, and
+     --color-primary-text as the only primary-coloured text allowed on a tinted panel. In this
+     theme they measure 7.06:1 and 9.34:1 against --color-surface, but the rule is kept identical
+     across themes because fernway's primary is 4.46:1 there, under the 4.5:1 AA threshold. */
   --color-primary: #1d4f8c;
   --color-primary-text: #163d6e;
   --color-line: #d6dfe9;
@@ -73,5 +88,6 @@
   --color-warning-soft: #fdf1d9;
   --color-danger: #a6262b;
   --color-danger-soft: #fbe9e8;
+  /* Focus tracks primary and must be changed together with it. */
   --color-focus: #1d4f8c;
 }
