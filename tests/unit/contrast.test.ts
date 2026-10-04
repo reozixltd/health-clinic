@@ -24,51 +24,50 @@ function contrast(a: string, b: string): number {
 }
 
 /*
- * Pairs that must clear AA for normal text.
+ * Pairs that must clear AA for normal text. A fourth element, when present, restricts the pair
+ * to that one theme; the rest apply to every theme.
  *
- * field-border is checked against surface rather than paper because surface is the darker of
- * the two surfaces a field can sit on, so it is the stricter case. docs/design-system.md
- * currently describes this as "at least 3:1 against the page"; that wording is wrong and is
- * being corrected separately.
+ * field-border is checked against surface rather than paper because surface is the darker of the
+ * two surfaces a field can sit on, so it is the stricter case and clearing it clears paper too.
+ *
+ * primary on surface is scoped to harbour, where it measures 7.06:1 and may carry text. Fernway's
+ * primary is too dark on that panel at 4.46:1, so it is pinned as an exception below instead.
  */
-const pairs: [string, string, number][] = [
+const pairs: [string, string, number, string?][] = [
   ['ink', 'paper', 4.5], ['ink-muted', 'paper', 4.5], ['ink', 'card', 4.5], ['ink', 'accent', 4.5],
   ['on-ink', 'ink', 4.5], ['field-border', 'surface', 3], ['focus', 'paper', 3],
   ['ink', 'surface', 4.5], ['ink-muted', 'surface', 4.5],
   ['primary', 'card', 4.5], ['on-ink', 'primary', 4.5], ['on-ink', 'primary-text', 4.5],
   ['primary-text', 'card', 4.5], ['primary-text', 'surface', 4.5], ['primary-text', 'paper', 4.5],
+  ['primary', 'surface', 4.5, 'harbour'],
 ];
 
 /**
- * Combinations that must never carry normal-sized text, with their measured ratio pinned.
+ * Combinations that must not carry normal-sized text, with their measured ratio pinned.
  *
- * The values are recorded per theme because the two themes' palettes genuinely differ: fernway's
- * primary is far darker than harbour's, so the same token pair measures very differently. Each
- * ratio must stay within 0.05 of the number below, so darkening or lightening either colour
- * fails loudly and forces a conscious decision rather than a silent drift.
- *
- * These are not all failures -- harbour's primary on surface clears AA at 7.06:1 -- but every one
- * of them is pinned so that any future change to a primary is an explicit table edit.
+ * Every row here is genuinely below AA, so the title's claim holds for each one. The values are
+ * recorded per theme because the two palettes differ: fernway's primary is far darker than
+ * harbour's, so the same token pair measures very differently. Each ratio must stay within 0.05
+ * of the number below, so changing either colour fails loudly and forces a conscious decision
+ * rather than a silent drift.
  */
 const exceptions: Record<string, [string, string, number][]> = {
   fernway: [
     ['primary', 'surface', 4.4587],
     ['ink', 'primary', 3.2929],
     ['ink-muted', 'primary', 1.8003],
-    ['focus', 'primary', 1],
   ],
   harbour: [
-    ['primary', 'surface', 7.061],
     ['ink', 'primary', 1.8544],
     ['ink-muted', 'primary', 1.1628],
-    ['focus', 'primary', 1],
   ],
 };
 
 describe('tokens meet AA in both themes', () => {
   for (const name of ['fernway', 'harbour']) {
     const t = theme(name);
-    for (const [fg, bg, min] of pairs) {
+    for (const [fg, bg, min, only] of pairs) {
+      if (only && only !== name) continue;
       it(`${name}: ${fg} on ${bg} >= ${min}`, () => {
         expect(t['color-' + fg], `--color-${fg}`).toBeTruthy();
         expect(t['color-' + bg], `--color-${bg}`).toBeTruthy();
@@ -79,11 +78,11 @@ describe('tokens meet AA in both themes', () => {
   }
 });
 
-describe('below-AA combinations are pinned so they cannot drift', () => {
+describe('pinned below-AA combinations that must not drift', () => {
   for (const name of ['fernway', 'harbour']) {
     const t = theme(name);
     for (const [fg, bg, pinned] of exceptions[name]) {
-      it(`${name}: ${fg} on ${bg} must never carry normal text (pinned ${pinned.toFixed(2)}:1)`, () => {
+      it(`${name}: ${fg} on ${bg} must not carry normal text (pinned ${pinned.toFixed(2)}:1)`, () => {
         expect(t['color-' + fg], `--color-${fg}`).toBeTruthy();
         expect(t['color-' + bg], `--color-${bg}`).toBeTruthy();
         const got = contrast(t['color-' + fg], t['color-' + bg]);
@@ -94,6 +93,29 @@ describe('below-AA combinations are pinned so they cannot drift', () => {
       });
     }
   }
+});
+
+describe('focus tracks primary in both themes', () => {
+  for (const name of ['fernway', 'harbour']) {
+    it(`${name}: --color-focus equals --color-primary`, () => {
+      const t = theme(name);
+      expect(
+        t['color-focus'],
+        `${name}: --color-focus ${t['color-focus']} must equal --color-primary ${t['color-primary']}. Focus tracks primary; change both together.`
+      ).toBe(t['color-primary']);
+    });
+  }
+});
+
+describe('both themes declare the same colour tokens', () => {
+  it('fernway and harbour declare an identical set of --color-* names', () => {
+    const fernway = [...declaredColors('fernway')].sort();
+    const harbour = [...declaredColors('harbour')].sort();
+    expect(
+      harbour,
+      `harbour does not declare every colour token fernway does. A token declared in one theme only is invalid-at-computed-value-time in the other, so its components silently lose their colour. Missing from harbour: ${fernway.filter((n) => !harbour.includes(n)).join(', ') || '(none)'}. Not in fernway: ${harbour.filter((n) => !fernway.includes(n)).join(', ') || '(none)'}`
+    ).toEqual(fernway);
+  });
 });
 
 describe('every colour token is readable and unique in both themes', () => {
