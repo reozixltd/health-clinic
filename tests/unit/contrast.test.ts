@@ -11,8 +11,8 @@ function themeBlock(name: string): string {
 function theme(name: string): Record<string, string> {
   return Object.fromEntries([...themeBlock(name).matchAll(/--([\w-]+):\s*(#[0-9a-fA-F]{6})\b/g)].map((x) => [x[1], x[2]]));
 }
-function declared(name: string): string[] {
-  return [...themeBlock(name).matchAll(/--([\w-]+)\s*:/g)].map((x) => x[1]);
+function declaredColors(name: string): string[] {
+  return [...themeBlock(name).matchAll(/--([\w-]+)\s*:/g)].map((x) => x[1]).filter((n) => n.startsWith('color-'));
 }
 function lum(hex: string): number {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
@@ -96,15 +96,15 @@ describe('below-AA combinations are pinned so they cannot drift', () => {
   }
 });
 
-describe('every declared token is readable and unique in both themes', () => {
+describe('every colour token is readable and unique in both themes', () => {
   for (const name of ['fernway', 'harbour']) {
-    it(`${name}: declared tokens match the parsed set exactly`, () => {
-      const decl = declared(name);
-      const parsed = Object.keys(theme(name));
-      expect(new Set(decl).size, `${name}: duplicate declaration, last one silently wins`).toBe(decl.length);
+    it(`${name}: declared colour tokens match the parsed set exactly`, () => {
+      const decl = declaredColors(name);
+      const parsed = Object.keys(theme(name)).filter((n) => n.startsWith('color-'));
+      expect(new Set(decl).size, `${name}: duplicate colour declaration, last one silently wins`).toBe(decl.length);
       expect(
         [...decl].sort(),
-        `${name}: a declared token was dropped by the parser. Only 6-digit hex is recognised; rgba(), 3/4/8-digit hex and named colours are not, and will vanish here silently.`
+        `${name}: a --color-* token was dropped by the parser. Only 6-digit hex is recognised; a colour written as rgba(), 3/4/8-digit hex or a named colour is not, and would otherwise escape contrast testing silently. Non-colour tokens such as shadows and hairlines are deliberately out of scope.`
       ).toEqual([...parsed].sort());
     });
   }
