@@ -36,6 +36,10 @@ function contrast(a: string, b: string): number {
 const pairs: [string, string, number, string?][] = [
   ['ink', 'paper', 4.5], ['ink-muted', 'paper', 4.5], ['ink', 'card', 4.5], ['ink', 'accent', 4.5],
 ['on-ink', 'ink', 4.5], ['field-border', 'surface', 3], ['focus', 'paper', 3],
+  // Card's interactive resting border is --color-field-border (it was --color-line, which measured
+  // 1.22-1.26:1 and is not safely decorative when the border is the affordance). A card may sit on
+  // --color-paper or --color-card, so both adjacencies need 3:1 (introduced in Task 4 fix).
+  ['field-border', 'card', 3], ['field-border', 'paper', 3],
   // ink on surface is Chip's resting label (introduced in Task 4).
   ['ink', 'surface', 4.5], ['ink-muted', 'surface', 4.5],
   // primary on card is Stat's icon (a non-text graphical object, so 3:1 governs, not 4.5:1).
@@ -78,26 +82,30 @@ const exceptions: Record<string, [string, string, number][]> = {
 /**
  * Below-AA *non-text* combinations: boundaries that would need 3:1 as graphical objects if they
  * were the only thing identifying a control. These are pinned rather than asserted, because they
- * are an accepted decorative system-wide convention, not an oversight.
+ * are an accepted decorative convention, not an oversight.
  *
- * Introduced in Task 4 by Chip (whose hover fill is --color-line) and by Card (whose resting
- * border becomes --color-line when it wraps a link or button). The plain hairline border is the
- * same idea and predates Task 4: rgba(18,38,58,.08) over card composites to about 1.17:1. Card's
- * interactive resting border is the row to watch, because for a clickable card that border is the
- * affordance; the others are reinforced by text and elevation.
+ * Every remaining row is reachable only through Chip's hover fill. That is deliberate: the chip's
+ * label identifies the control at 13:1, so the fill underneath it is decoration and 1.4.11 does
+ * not reach it. Card's interactive resting border used to be --color-line too and was pinned
+ * here; it has moved to --color-field-border, which clears 3:1 and now lives in `pairs`, because
+ * for a clickable card that border *is* the affordance rather than decoration.
  *
- * Card's *hover* border is --color-primary and clears 3:1 in both themes, which is in `pairs`.
+ * The plain hairline border is the same decorative idea and predates Task 4: rgba(18,38,58,.08)
+ * over card composites to about 1.17:1.
+ *
+ * There is deliberately no `line` on `surface` row. It would need a Chip sitting on a
+ * --color-surface panel; the only such panel is the Footer, which holds no chip, and the sole
+ * Chip in the tree sits inside a Card. A pin nothing can reach is misleading, so it was removed
+ * rather than left behind.
  */
 const belowAaBoundaries: Record<string, [string, string, number][]> = {
   fernway: [
     ['line', 'card', 1.2893],
     ['line', 'paper', 1.2248],
-    ['line', 'surface', 1.1083],
   ],
   harbour: [
     ['line', 'card', 1.3469],
     ['line', 'paper', 1.2637],
-    ['line', 'surface', 1.1546],
   ],
 };
 

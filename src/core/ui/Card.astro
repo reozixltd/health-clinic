@@ -15,6 +15,10 @@ const { as: Tag = 'div', class: className } = Astro.props;
     display: grid;
     gap: var(--space-3);
     align-content: start;
+    /* Children hug their content. Without this a grid stretches its items, which turned a Chip
+       into a full-width bar across the card. Cards hold headings, prose, chips, stats and
+       buttons, all of which should size to their own text. */
+    justify-items: start;
     padding: var(--space-5);
     background: var(--color-card);
     border: var(--hairline);
@@ -23,7 +27,11 @@ const { as: Tag = 'div', class: className } = Astro.props;
     transition: box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms linear;
   }
   @media (hover: hover) and (pointer: fine) {
-    .card:where(:has(a), :has(button)) { border-color: var(--color-line); }
+    /* An interactive card's resting border is the affordance saying the whole box is a target,
+       so it has to clear 3:1 against the surface behind it. --color-field-border is the
+       palette's token for a load-bearing boundary and measures 4.28-4.54:1. --color-line was
+       1.22-1.26:1, which is fine for a decorative rule but not for this. */
+    .card:where(:has(a), :has(button)) { border-color: var(--color-field-border); }
     .card:where(:has(a), :has(button)):hover { box-shadow: var(--shadow-2); border-color: var(--color-primary); }
   }
 </style>
