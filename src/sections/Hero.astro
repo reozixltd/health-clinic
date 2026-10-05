@@ -1,6 +1,8 @@
 ---
-/** Clinic name, what it treats, Book an appointment beside the phone, and the after-hours note. */
+/** Clinic name, what it treats, a real search box, and the after-hours note. */
 import Button from '@/core/ui/Button.astro';
+import Chip from '@/core/ui/Chip.astro';
+import Icon from '@/core/ui/Icon.astro';
 import Photo from '@/core/ui/Photo.astro';
 import type { MarketId } from '@/domain/markets';
 import type { Preset } from '@/domain/presets';
@@ -15,40 +17,115 @@ interface Props {
   bookingOn: boolean;
   emergencyOn: boolean;
   photo?: { slot: string; alt: string };
+  /** Popular searches, already limited by the page. */
+  quickLinks: { label: string; href: string }[];
+  acceptingNew: number;
 }
-const { name, treats, preset, variants, bookingOn, emergencyOn, photo } = Astro.props;
+const { name, treats, preset, variants, bookingOn, emergencyOn, photo, quickLinks, acceptingNew } = Astro.props;
 ---
 
 <section class:list={['hero', photo && 'has-photo']} aria-labelledby="hero-title">
   <div class="copy">
+    {acceptingNew > 0 && (
+      <p class="pill">
+        <span class="pill__dot" aria-hidden="true"></span>
+        Taking new patients
+      </p>
+    )}
     <h1 id="hero-title">{name}</h1>
     <p class="line">{preset.copy.heroLine}. {treats}</p>
+
+    <form class="search" action="/team/" method="get" role="search">
+      <div class="search__field">
+        <label for="hero-q">Search a clinician or a service</label>
+        <span class="search__icon"><Icon name="search" size={20} /></span>
+        <input id="hero-q" name="q" type="search" placeholder="For example physiotherapy or Elena Marsh" />
+      </div>
+      <div class="search__field search__field--stub">
+        <span class="search__icon"><Icon name="shield" size={20} /></span>
+        <label for="hero-insurer">Health fund or insurer</label>
+        <p class="stub" id="hero-insurer-note">Not yet listed. Call us and we will check your cover.</p>
+      </div>
+      <Button type="submit" size="lg">
+        <Icon name="search" size={20} />
+        Find and book
+      </Button>
+    </form>
+
+    {quickLinks.length > 0 && (
+      <nav class="quick" aria-label="Popular searches">
+        <h2 class="quick__title">Popular searches</h2>
+        <ul>
+          {quickLinks.map((q) => (
+            <li><Chip href={q.href}>{q.label}</Chip></li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
     {variants.map((v) => (
       <div class="actions" data-market-only={v.id}>
         {bookingOn && <Button href="/book/" size="lg">{preset.copy.bookLabel}</Button>}
-        <a class="phone" href={v.tel}>Call {v.clinic.phone}</a>
+        <a class="phone" href={v.tel}>
+          <Icon name="phone" size={20} />
+          Call {v.clinic.phone}
+        </a>
         {emergencyOn && <EmergencyNote clinic={v.clinic} preset={preset} compact />}
       </div>
     ))}
   </div>
-  {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 560px, 100vw" priority />}
+
+  {photo && (
+    <div class="art">
+      <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 5" sizes="(min-width: 1024px) 560px, 100vw" priority />
+      {acceptingNew > 0 && (
+        <p class="badge">
+          <Icon name="user" size={20} />
+          <span>{acceptingNew} taking new patients</span>
+        </p>
+      )}
+    </div>
+  )}
 </section>
 
 <style>
-  .hero { max-width: 72rem; margin: 0 auto; padding: var(--space-8) var(--space-4) var(--space-6); display: grid; gap: var(--space-6); }
+  .hero { max-width: 72rem; margin: 0 auto; padding: var(--space-7) var(--space-4) var(--space-6); display: grid; gap: var(--space-6); }
   .copy { display: grid; gap: var(--space-4); }
-  @media (min-width: 1024px) { .has-photo { grid-template-columns: 1fr 1fr; align-items: center; column-gap: var(--space-7); } }
+  @media (min-width: 1024px) { .has-photo { grid-template-columns: 7fr 5fr; align-items: center; column-gap: var(--space-7); } }
+
+  .pill { display: inline-flex; align-items: center; gap: var(--space-2); justify-self: start; padding: var(--space-1) var(--space-4); background: var(--color-surface); border: var(--hairline); border-radius: var(--radius-pill); color: var(--color-primary-text); font-size: var(--text-14); font-weight: 600; }
+  .pill__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary); }
+
   h1 { font-size: var(--text-hero); max-width: 20ch; }
   .line { font-size: var(--text-18); max-width: var(--measure); color: var(--color-ink-muted); }
+
+  .search { display: grid; gap: var(--space-3); padding: var(--space-3); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
+  @media (min-width: 768px) { .search { grid-template-columns: 1fr 1fr auto; align-items: end; } }
+  .search__field { position: relative; display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3); background: var(--color-surface); border-radius: var(--radius-control); }
+  .search__field label { font-size: var(--text-14); font-weight: 600; }
+  .search__icon { position: absolute; top: var(--space-2); right: var(--space-3); color: var(--color-ink-muted); }
+  .search__field input { min-height: var(--target-field); padding-right: var(--space-7); background: transparent; border: 1px solid transparent; border-radius: var(--radius-control); }
+  .search__field input:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 1px; }
+  .stub { margin: 0; color: var(--color-ink-muted); font-size: var(--text-14); }
+
+  .quick { display: grid; gap: var(--space-2); }
+  .quick__title { font-size: var(--text-14); font-weight: 600; }
+  .quick ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; }
+
   .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
   .actions :global(.emergency-note) { flex-basis: 100%; }
+  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); font-weight: 600; text-decoration: underline; }
+
+  .art { position: relative; }
+  .art :global(.photo) { border-radius: var(--radius-panel); box-shadow: var(--shadow-2); }
+  .badge { position: absolute; top: var(--space-4); right: var(--space-4); display: flex; align-items: center; gap: var(--space-2); margin: 0; padding: var(--space-2) var(--space-4); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-2); font-size: var(--text-14); font-weight: 600; }
+
   @media (prefers-reduced-motion: no-preference) {
     @keyframes hero-rise { from { opacity: 0; transform: translateY(12px); } }
     @keyframes hero-settle { from { opacity: 0; transform: scale(1.04); } }
     :global(html:not([data-motion='off'])) .copy > * { animation: hero-rise 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
     :global(html:not([data-motion='off'])) .copy > :nth-child(2) { animation-delay: 60ms; }
     :global(html:not([data-motion='off'])) .copy > :nth-child(n + 3) { animation-delay: 120ms; }
-    :global(html:not([data-motion='off'])) .hero :global(.photo img) { animation: hero-settle 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+    :global(html:not([data-motion='off'])) .art :global(.photo img) { animation: hero-settle 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
   }
-  .phone { display: inline-flex; align-items: center; min-height: var(--target); font-weight: 600; text-decoration: underline; }
 </style>

@@ -29,11 +29,12 @@ const faqs = (await getCollection('faqs')).map((f) => f.data).filter((f) => f.ta
 const prices = on('price-list') && !on('fees') ? await getEntry('prices', 'prices') : undefined;
 const reviewedAt = prices?.data.reviewedAt;
 const treats = services.length ? `${preset.copy.treatsLead} ${services.map((s) => s.title.toLowerCase()).join(', ')}.` : '';
+const quickLinks = services.slice(0, 4).map((s) => ({ label: s.title, href: `/services/${s.slug}/` }));
 const photo = (role: Parameters<typeof rolePhoto>[1]) => rolePhoto(site.contentDir, role);
 ---
 
 <BaseLayout title={clinic.name} description={preset.copy.heroLine}>
-  <Hero name={clinic.name} treats={treats} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} photo={photo('hero')} />
+  <Hero name={clinic.name} treats={treats} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} photo={photo('hero')} quickLinks={quickLinks} acceptingNew={acceptingNew} />
   <TrustRow variants={variants} presetTrust={preset.copy.trust} pricesOn={on('price-list')} ownershipOn={on('ownership')} />
   <div class="stack">
     {on('providers') && <MetricsBand services={services.length} providers={providers.length} acceptingNew={acceptingNew} reviews={reviews} nouns={preset.copy.nouns} variants={variants} />}
