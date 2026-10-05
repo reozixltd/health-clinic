@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:all": "SITE=fernway-au astro build --outDir dist/fernway-au && SITE=fernway-ca astro build --outDir dist/fernway-ca && SITE=hollybank astro build --outDir dist/hollybank",
+    "build:all": "node tools/build-all.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "test": "node tools/check-boundaries.mjs && vitest run",

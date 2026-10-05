@@ -7,8 +7,10 @@ import { providersBySlug } from '@/modules/providers/lookup';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { hoursText, marketVariants, telHref } from '@/layouts/site';
 import CtaBand from '@/sections/CtaBand.astro';
+import CoverageBand from '@/sections/CoverageBand.astro';
 import Faq from '@/sections/Faq.astro';
 import FeesTeaser from '@/sections/FeesTeaser.astro';
+import FeaturesBand from '@/sections/FeaturesBand.astro';
 import FirstVisit from '@/sections/FirstVisit.astro';
 import Hero from '@/sections/Hero.astro';
 import Location from '@/sections/Location.astro';
@@ -17,6 +19,7 @@ import ReviewsBand from '@/sections/ReviewsBand.astro';
 import ServicesBand from '@/sections/ServicesBand.astro';
 import TeamRow from '@/sections/TeamRow.astro';
 import TrustRow from '@/sections/TrustRow.astro';
+import UrgentBand from '@/sections/UrgentBand.astro';
 
 const { clinic, preset, booking } = site;
 const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id), hours: v.clinic.hours.map(hoursText) }));
@@ -33,6 +36,8 @@ const reviewedAt = prices?.data.reviewedAt;
 const treats = services.length ? `${preset.copy.treatsLead} ${services.map((s) => s.title.toLowerCase()).join(', ')}.` : '';
 const quickLinks = services.slice(0, 4).map((s) => ({ label: s.title, href: `/services/${s.slug}/` }));
 const photo = (role: Parameters<typeof rolePhoto>[1]) => rolePhoto(site.contentDir, role);
+/* FirstVisit already claims the exterior slot elsewhere on some sites, so the facilities band takes it only when nothing else does. */
+const roomPhoto = on('services') ? photo('exterior') : undefined;
 ---
 
 <BaseLayout title={clinic.name} description={preset.copy.heroLine}>
@@ -43,9 +48,12 @@ const photo = (role: Parameters<typeof rolePhoto>[1]) => rolePhoto(site.contentD
     {services.length > 0 && <ServicesBand services={services} providerNames={providerNames} variants={variants} />}
     {providers.length > 0 && <TeamRow providers={providers} variants={variants} />}
     <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} photo={photo('firstVisit')} />
+    {on('emergency') && <UrgentBand variants={variants} preset={preset} emergencyOn={on('emergency')} hours={Object.fromEntries(variants.map((v) => [v.id, v.hours]))} />}
     <FeesTeaser variants={variants} feesOn={on('fees')} priceListOn={on('price-list')} reviewedAt={reviewedAt} />
+    <CoverageBand feesOn={on('fees')} priceListOn={on('price-list')} />
     {on('reviews') && <ReviewsBand items={reviews} variants={variants} />}
-    <Location variants={variants} photo={photo('exterior')} />
+    <Location variants={variants} />
+    {roomPhoto && <FeaturesBand photo={roomPhoto} />}
     {faqs.length > 0 && <Faq items={faqs} />}
     <CtaBand variants={variants} bookLabel={preset.copy.bookLabel} bookingOn={on('booking')} />
   </div>

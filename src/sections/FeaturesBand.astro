@@ -1,0 +1,68 @@
+---
+/** Why choose us: a room photo, and the facilities this clinic has not published yet. */
+import Card from '@/core/ui/Card.astro';
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import Photo from '@/core/ui/Photo.astro';
+
+interface Props {
+  /** Room slot for the photograph. Omit to render no picture. */
+  photo?: { slot: string; alt: string };
+}
+
+const { photo } = Astro.props;
+
+const PENDING: { icon: IconName; title: string; body: string }[] = [
+  { icon: 'flask', title: 'On-site pathology', body: 'Not published yet. Ask us whether samples are taken here or referred.' },
+  { icon: 'pill', title: 'Dispensing on site', body: 'Not published yet. Ask us whether prescriptions can be filled before you leave.' },
+  { icon: 'scan-line', title: 'Imaging', body: 'Not published yet. Ask us whether imaging happens here or nearby.' },
+  { icon: 'smartphone', title: 'An app', body: 'There is no app. Booking and every form on this site work without one.' },
+];
+---
+
+<section id="facilities" aria-labelledby="facilities-title" data-reveal>
+  <div class="split">
+    <div class="art">
+      {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 560px, 100vw" />}
+      <p class="callout">
+        <Icon name="clock" size={22} />
+        <span>
+          <strong>Same-day results</strong>
+          <br />
+          Turnaround times are not published yet. Ask when you book.
+        </span>
+      </p>
+    </div>
+    <div class="copy">
+      <Eyebrow>What this clinic has</Eyebrow>
+      <h2 id="facilities-title">Facilities, stated honestly</h2>
+      <p class="lede">We would rather tell you what we can do than list things we have not confirmed. Anything below marked as not published is a question to ask us, not a claim.</p>
+      <ul class="cards">
+        {PENDING.map((p) => (
+          <li>
+            <Card>
+              <span class="icon"><Icon name={p.icon} size={22} /></span>
+              <h3>{p.title}</h3>
+              <p>{p.body}</p>
+            </Card>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .split { display: grid; gap: var(--space-6); align-items: start; }
+  @media (min-width: 1024px) { .split { grid-template-columns: 1fr 1fr; column-gap: var(--space-7); } }
+  .art { position: relative; }
+  .art :global(.photo) { border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
+  .callout { position: absolute; right: var(--space-4); bottom: calc(-1 * var(--space-4)); display: flex; align-items: flex-start; gap: var(--space-3); max-width: 20rem; margin: 0; padding: var(--space-4); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-2); font-size: var(--text-14); }
+  .lede { font-size: var(--text-18); color: var(--color-ink-muted); }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  @media (min-width: 640px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  h3 { font-size: var(--text-18); }
+  .cards p { color: var(--color-ink-muted); font-size: var(--text-14); }
+  .icon { display: grid; place-items: center; width: 40px; height: 40px; background: var(--color-surface); border-radius: var(--radius-control); color: var(--color-primary); }
+</style>

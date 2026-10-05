@@ -1,0 +1,52 @@
+---
+/** Fees, which are real, beside the insurer list, which is not published yet. */
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Icon from '@/core/ui/Icon.astro';
+
+interface Props {
+  feesOn: boolean;
+  priceListOn: boolean;
+}
+const { feesOn, priceListOn } = Astro.props;
+const selfPayHref = priceListOn ? '/prices/' : '/fees/';
+
+const CARRIERS = ['Not yet listed', 'Not yet listed', 'Not yet listed', 'Not yet listed', 'Not yet listed', 'Not yet listed'];
+---
+
+{(feesOn || priceListOn) && (
+  <section id="coverage" aria-labelledby="coverage-title" data-reveal>
+    <div class="inner">
+      <div class="lead">
+        <Eyebrow>Fees and cover</Eyebrow>
+        <h2 id="coverage-title">We publish what things cost before you book</h2>
+        <p>Every fee for every service is on this site, so there is nothing to ask for at reception and nothing to be surprised by later.</p>
+        <ul class="links">
+          <li>
+            <a href={selfPayHref}>
+              See our {priceListOn ? 'price list' : 'fees'}
+              <Icon name="chevron-right" size={18} />
+            </a>
+          </li>
+          <li>
+            <span class="stub" role="note">Which insurers we work with is not published yet. Call us and we will check your cover.</span>
+          </li>
+        </ul>
+      </div>
+      <ul class="carriers" aria-label="Insurer list, not yet published">
+        {CARRIERS.map((c) => <li>{c}</li>)}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .inner { display: grid; gap: var(--space-6); padding: var(--space-6); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
+  @media (min-width: 1024px) { .inner { grid-template-columns: 3fr 2fr; align-items: center; gap: var(--space-7); } }
+  .lead { display: grid; gap: var(--space-3); }
+  .lead p { color: var(--color-ink-muted); }
+  .links { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+  .links a { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); color: var(--color-primary-text); font-weight: 600; }
+  .stub { display: block; color: var(--color-ink-muted); font-size: var(--text-14); }
+  .carriers { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); grid-template-columns: repeat(2, 1fr); }
+  .carriers li { display: grid; place-items: center; min-height: 48px; padding: var(--space-2); background: var(--color-surface); border-radius: var(--radius-control); color: var(--color-ink-muted); font-size: var(--text-14); font-weight: 600; text-align: center; }
+</style>

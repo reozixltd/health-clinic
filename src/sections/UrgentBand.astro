@@ -1,0 +1,74 @@
+---
+/** Out-of-hours and emergency information. Live status claims are not made, because nothing here knows them. */
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { MarketId } from '@/domain/markets';
+import type { Preset } from '@/domain/presets';
+import type { Clinic } from '@/domain/types';
+import EmergencyNote from '@/modules/emergency/EmergencyNote.astro';
+
+interface Props {
+  variants: { id: MarketId; clinic: Clinic; tel: string }[];
+  preset: Preset;
+  emergencyOn: boolean;
+  /** Hours already formatted per market, keyed by market id. */
+  hours: Record<string, string[]>;
+}
+const { variants, preset, emergencyOn, hours } = Astro.props;
+---
+
+<section id="urgent" aria-labelledby="urgent-title" data-reveal>
+  <div class="inner">
+    <div class="lead">
+      <Eyebrow>Urgent and after hours</Eyebrow>
+      <h2 id="urgent-title">When you cannot wait for an appointment</h2>
+      {variants.map((v) => (
+        <div data-market-only={v.id}>
+          {emergencyOn && <EmergencyNote clinic={v.clinic} preset={preset} compact />}
+          <ul class="times">
+            {(hours[v.id] ?? []).map((h) => <li>{h}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="aside">
+      <p class="stub" role="note">
+        <Icon name="clock" size={20} />
+        <span>
+          <strong>No live waiting time on this site.</strong>
+          <br />
+          We do not publish a queue, because nothing here measures one. Call and we will tell you what we know.
+        </span>
+      </p>
+      <p class="stub" role="note">
+        <Icon name="video" size={20} />
+        <span>
+          <strong>No video visits.</strong>
+          <br />
+          This clinic does not run telehealth, so there is nothing to start.
+        </span>
+      </p>
+      {variants.map((v) => (
+        <p class="cta" data-market-only={v.id}>
+          <a class="call" href={v.tel}><Icon name="phone" size={20} /> Call {v.clinic.phone}</a>
+          <a class="map" href={`https://www.openstreetmap.org/?mlat=${v.clinic.map.lat}&mlon=${v.clinic.map.lng}#map=17/${v.clinic.map.lat}/${v.clinic.map.lng}`}>
+            <Icon name="navigation" size={20} /> Directions
+          </a>
+        </p>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .inner { display: grid; gap: var(--space-5); padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
+  @media (min-width: 1024px) { .inner { grid-template-columns: 3fr 2fr; align-items: center; gap: var(--space-7); padding: var(--space-6); } }
+  .lead { display: grid; gap: var(--space-3); }
+  .times { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); color: var(--color-ink-muted); }
+  .aside { display: grid; gap: var(--space-3); }
+  .stub { display: flex; align-items: flex-start; gap: var(--space-3); margin: 0; padding: var(--space-4); background: var(--color-surface); border-radius: var(--radius-card); font-size: var(--text-14); }
+  .cta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+  .call, .map { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); padding: 0 var(--space-4); border-radius: var(--radius-control); font-weight: 600; text-decoration: none; }
+  .call { background: var(--color-primary); color: var(--color-on-ink); }
+  .map { background: var(--color-surface); color: var(--color-ink); }
+</style>

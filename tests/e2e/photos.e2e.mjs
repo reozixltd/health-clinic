@@ -48,7 +48,8 @@ await step('home shows the first-visit and exterior photos', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/`);
     expect((await page.locator('#first-visit img').count()) === 1, 'first-visit photo missing');
-    expect((await page.locator('#location img').count()) === 1, 'location photo missing');
+    // The exterior slot is claimed by the facilities band, so only one component carries that photo.
+    expect((await page.locator('#facilities img').count()) === 1, 'exterior photo missing');
   });
 });
 
