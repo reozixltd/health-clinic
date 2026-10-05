@@ -3,18 +3,22 @@ import { site, allSites } from '@/config';
 import Button from '@/core/ui/Button.astro';
 import Icon from '@/core/ui/Icon.astro';
 import { marketVariants, telHref } from './site';
+import UtilityBar from './UtilityBar.astro';
 
 const variants = marketVariants(site, allSites());
 const links = site.preset.nav.filter((n) => !n.footer);
 const booking = site.modules.includes('booking');
+/** Trailing slashes ignored, so `/team/` marks `/team` and `/` marks the wordmark. */
+const here = Astro.url.pathname.replace(/(.)\/$/, '$1');
 ---
 
 <header class="header">
+  <UtilityBar />
   <div class="bar">
     <a class="wordmark" href="/">{site.clinic.name}</a>
     <nav id="site-nav" class="nav" aria-label="Main">
       <ul>
-        {links.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        {links.map((n) => <li><a href={n.href} aria-current={n.href.replace(/(.)\/$/, '$1') === here ? 'page' : undefined}>{n.label}</a></li>)}
       </ul>
     </nav>
     {variants.map((v) => (
@@ -36,21 +40,22 @@ const booking = site.modules.includes('booking');
 </script>
 
 <style>
-  .header { background: var(--color-paper); border-bottom: 1px solid var(--color-line); position: relative; z-index: 20; view-transition-name: site-header; }
+  .header { background: var(--color-card); border-bottom: var(--hairline); position: relative; z-index: 20; view-transition-name: site-header; }
   .bar { display: flex; align-items: center; gap: var(--space-4); max-width: 72rem; margin: 0 auto; padding: var(--space-3) var(--space-4); }
-  .wordmark { font-weight: 700; font-size: var(--text-18); text-decoration: none; min-height: var(--target); display: inline-flex; align-items: center; margin-right: auto; }
-  .nav ul { display: flex; gap: var(--space-2); list-style: none; margin: 0; padding: 0; }
-  .nav a { display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--space-3); text-decoration: none; }
-  .nav a, .wordmark, .call { white-space: nowrap; }
+  .wordmark { display: inline-flex; align-items: center; min-height: var(--target); margin-right: auto; font-size: var(--text-20); font-weight: 700; letter-spacing: var(--track-heading); text-decoration: none; }
+  .nav ul { display: flex; gap: var(--space-1); list-style: none; margin: 0; padding: 0; }
+  .nav a { display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--space-3); border-radius: var(--radius-control); font-weight: 600; text-decoration: none; }
+  .nav a[aria-current='page'] { background: var(--color-surface); }
   .cta { flex: none; }
   .cta :global(.btn) { white-space: nowrap; }
-  .nav a:hover { text-decoration: underline; }
-  .call { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); font-weight: 600; text-decoration: none; }
+  .nav a, .wordmark, .call { white-space: nowrap; }
+  .call { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); color: var(--color-primary-text); font-weight: 600; text-decoration: none; }
   .menu { display: none; min-width: var(--target); min-height: var(--target); align-items: center; justify-content: center; background: transparent; border: 1px solid var(--color-field-border); border-radius: var(--radius-control); }
+  @media (hover: hover) and (pointer: fine) { .nav a:hover { background: var(--color-surface); } }
   @media (max-width: 1023px) {
     .menu { display: inline-flex; }
     .call span, .cta { display: none; }
-    .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--color-paper); border-bottom: 1px solid var(--color-line); padding: var(--space-2) var(--space-4); z-index: 20; }
+    .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--color-card); border-bottom: var(--hairline); padding: var(--space-2) var(--space-4); z-index: 20; }
     .nav[data-open] { display: block; }
     .nav ul { flex-direction: column; }
   }

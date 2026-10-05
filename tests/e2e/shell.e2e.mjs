@@ -8,14 +8,20 @@ await step('one h1, tap-to-call and legal id in footer', async () => {
     await page.goto(`${BASE}/`);
     expect((await page.locator('h1').count()) === 1, 'expected exactly one h1');
     const footer = await visibleText(page, 'footer');
+    // The header holds two tel links: the utility bar line and the nav bar call button. The labelled one is the call button.
+    // One exists per market variant, so only the current market's is visible.
+    const call = page.locator('header a[aria-label^="Call"]:visible');
     if (SITE_ID === 'fernway-au') {
-      expect(await page.locator('header a[href="tel:+61355501200"]').isVisible(), 'AU tap-to-call missing');
+      expect(await call.isVisible(), 'AU tap-to-call missing');
+      expect((await call.getAttribute('href')) === 'tel:+61355501200', `AU tap-to-call href ${await call.getAttribute('href')}`);
       expect(/ABN 00 000 000 000/.test(footer), `footer: ${footer}`);
     } else if (SITE_ID === 'fernway-ca') {
-      expect(await page.locator('header a[href="tel:+16135550123"]').isVisible(), 'CA tap-to-call missing');
+      expect(await call.isVisible(), 'CA tap-to-call missing');
+      expect((await call.getAttribute('href')) === 'tel:+16135550123', `CA tap-to-call href ${await call.getAttribute('href')}`);
       expect(/BN 000000000/.test(footer), `footer: ${footer}`);
     } else {
-      expect(await page.locator('header a[href="tel:+441134960123"]').isVisible(), 'UK tap-to-call missing');
+      expect(await call.isVisible(), 'UK tap-to-call missing');
+      expect((await call.getAttribute('href')) === 'tel:+441134960123', `UK tap-to-call href ${await call.getAttribute('href')}`);
       expect(/Company number 00000000/.test(footer), `footer: ${footer}`);
     }
   });
@@ -96,7 +102,11 @@ await step('nav only links generated routes', async () => {
 await step('mobile layout at 375px: compact header, full-width book button, footer not covered', async () => {
   await withPage({ viewport: { width: 375, height: 800 } }, async (page) => {
     await page.goto(`${BASE}/`);
-    expect(!(await page.locator('header a[href="/book/"]').isVisible()), 'header book button should be hidden');
+    // The header holds two book links: the nav bar cta, hidden on mobile, and the utility bar's, which is the mobile one.
+    expect(!(await page.locator('header .cta a[href="/book/"]').isVisible()), 'header book button should be hidden');
+    const utilityBook = page.locator('header .bar a[href="/book/"]').first();
+    if (SITE_ID === 'fixture-no-booking') expect(!(await utilityBook.isVisible()), 'no-booking fixture should have no book link');
+    else expect(await utilityBook.isVisible(), 'utility bar book link should carry the booking on mobile');
     expect(await page.locator('header [data-menu-toggle]').isVisible(), 'menu toggle missing');
     const call = page.locator('header a[aria-label^="Call"]:visible');
     expect((await call.count()) === 1, 'header call link should be visible and labelled');

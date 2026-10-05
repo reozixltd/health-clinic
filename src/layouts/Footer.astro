@@ -30,17 +30,33 @@ const links = site.preset.nav;
         </ul>
       </div>
     ))}
+    <div class="stub" role="note">
+      <h2 class="stub__title">Newsletter</h2>
+      <p class="stub__body">We have no mailing list service yet, so there is nothing to sign up for. Call the clinic and ask to be added when we have one.</p>
+    </div>
+    <div class="stub" role="note">
+      <h2 class="stub__title">Patient portal</h2>
+      <p class="stub__body">There is no patient portal and no online sign-in. Everything on this site works without an account, and your records are not stored here.</p>
+    </div>
+    <div class="stub" role="note">
+      <h2 class="stub__title">Accreditation</h2>
+      <p class="stub__body">Accreditation badges are not shown until the clinic has confirmed them in writing. Ask us which bodies our clinicians are registered with.</p>
+    </div>
   </div>
 </footer>
 
 <style>
-  .footer { margin-top: var(--space-8); background: var(--color-surface); border-top: 1px solid var(--color-line); font-size: var(--text-16); }
+  .footer { margin-top: var(--space-8); background: var(--color-surface); border-top: var(--hairline); font-size: var(--text-16); }
   .inner { max-width: 72rem; margin: 0 auto; padding: var(--space-7) var(--space-4); display: grid; gap: var(--space-6); }
   @media (min-width: 768px) { .inner { grid-template-columns: 1fr 2fr; } }
+  @media (min-width: 1024px) { .inner { grid-template-columns: 1fr 1fr 2fr; } }
   ul { list-style: none; margin: 0; padding: 0; }
   li a, .identity a { display: inline-flex; align-items: center; min-height: var(--target); }
   .identity { display: grid; gap: var(--space-2); align-content: start; }
   .name { font-weight: 700; }
   address { font-style: normal; }
   .policies { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+  .stub { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); }
+  .stub__title { font-size: var(--text-20); }
+  .stub__body { margin: 0; color: var(--color-ink-muted); font-size: var(--text-14); }
 </style>
