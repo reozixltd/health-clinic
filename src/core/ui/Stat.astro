@@ -1,0 +1,37 @@
+---
+/** One metric tile: a number, what it counts, and a note. */
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+interface Props {
+  value: string;
+  label: string;
+  note?: string;
+  icon: IconName;
+}
+const { value, label, note, icon } = Astro.props;
+---
+
+<div class="stat">
+  <span class="stat__icon"><Icon name={icon} size={28} /></span>
+  <p class="stat__value">{value}</p>
+  <p class="stat__label">{label}</p>
+  {note && <p class="stat__note">{note}</p>}
+</div>
+
+<style>
+  .stat {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-5);
+    background: var(--color-card);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-1);
+  }
+  .stat__icon { color: var(--color-primary); }
+  .stat__value { font-size: var(--text-36); font-weight: 700; line-height: 1.1; letter-spacing: var(--track-heading); }
+  .stat__label { font-weight: 600; }
+  .stat__note { color: var(--color-ink-muted); font-size: var(--text-14); }
+</style>

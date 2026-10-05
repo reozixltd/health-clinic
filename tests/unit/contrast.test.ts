@@ -35,11 +35,23 @@ function contrast(a: string, b: string): number {
  */
 const pairs: [string, string, number, string?][] = [
   ['ink', 'paper', 4.5], ['ink-muted', 'paper', 4.5], ['ink', 'card', 4.5], ['ink', 'accent', 4.5],
-  ['on-ink', 'ink', 4.5], ['field-border', 'surface', 3], ['focus', 'paper', 3],
+['on-ink', 'ink', 4.5], ['field-border', 'surface', 3], ['focus', 'paper', 3],
+  // ink on surface is Chip's resting label (introduced in Task 4).
   ['ink', 'surface', 4.5], ['ink-muted', 'surface', 4.5],
+  // primary on card is Stat's icon (a non-text graphical object, so 3:1 governs, not 4.5:1).
+  // It clears 4.5:1 anyway and the 4.5 row is kept as the stricter pin.
   ['primary', 'card', 4.5], ['on-ink', 'primary', 4.5], ['on-ink', 'primary-text', 4.5],
   ['primary-text', 'card', 4.5], ['primary-text', 'surface', 4.5], ['primary-text', 'paper', 4.5],
   ['primary', 'surface', 4.5, 'harbour'],
+  // Stat's note sits on a card tile, not on the page (introduced in Task 4).
+  ['ink-muted', 'card', 4.5],
+  // Chip's hover fill is --color-line, and its label is --color-ink. Introduced in Task 4 and
+  // held at 4.5:1: this was the pairing most likely to fail and it clears both themes.
+  ['ink', 'line', 4.5],
+  // Card's hover border is --color-primary. A boundary needs 3:1 against its adjacent
+  // background, and a card may sit on --color-paper or --color-card. The card case is the
+  // existing primary/card row; this is the paper case (introduced in Task 4).
+  ['primary', 'paper', 3],
 ];
 
 /**
@@ -60,6 +72,32 @@ const exceptions: Record<string, [string, string, number][]> = {
   harbour: [
     ['ink', 'primary', 1.8544],
     ['ink-muted', 'primary', 1.1628],
+  ],
+};
+
+/**
+ * Below-AA *non-text* combinations: boundaries that would need 3:1 as graphical objects if they
+ * were the only thing identifying a control. These are pinned rather than asserted, because they
+ * are an accepted decorative system-wide convention, not an oversight.
+ *
+ * Introduced in Task 4 by Chip (whose hover fill is --color-line) and by Card (whose resting
+ * border becomes --color-line when it wraps a link or button). The plain hairline border is the
+ * same idea and predates Task 4: rgba(18,38,58,.08) over card composites to about 1.17:1. Card's
+ * interactive resting border is the row to watch, because for a clickable card that border is the
+ * affordance; the others are reinforced by text and elevation.
+ *
+ * Card's *hover* border is --color-primary and clears 3:1 in both themes, which is in `pairs`.
+ */
+const belowAaBoundaries: Record<string, [string, string, number][]> = {
+  fernway: [
+    ['line', 'card', 1.2893],
+    ['line', 'paper', 1.2248],
+    ['line', 'surface', 1.1083],
+  ],
+  harbour: [
+    ['line', 'card', 1.3469],
+    ['line', 'paper', 1.2637],
+    ['line', 'surface', 1.1546],
   ],
 };
 
@@ -90,6 +128,24 @@ describe('pinned below-AA combinations that must not drift', () => {
           Math.abs(got - pinned),
           `${name}: --color-${fg} ${t['color-' + fg]} on --color-${bg} ${t['color-' + bg]} measured ${got.toFixed(2)}:1 but the exceptions table pins ${pinned.toFixed(2)}:1. Either the palette changed or the table is stale; update it deliberately.`
         ).toBeLessThanOrEqual(0.05);
+      });
+    }
+  }
+});
+
+describe('below-AA non-text boundaries are pinned, not silently drifting', () => {
+  for (const name of ['fernway', 'harbour']) {
+    const t = theme(name);
+    for (const [fg, bg, pinned] of belowAaBoundaries[name]) {
+      it(`${name}: ${fg} on ${bg} is a decorative boundary, not the sole affordance (pinned ${pinned.toFixed(2)}:1)`, () => {
+        expect(t['color-' + fg], `--color-${fg}`).toBeTruthy();
+        expect(t['color-' + bg], `--color-${bg}`).toBeTruthy();
+        const got = contrast(t['color-' + fg], t['color-' + bg]);
+        expect(
+          Math.abs(got - pinned),
+          `${name}: --color-${fg} ${t['color-' + fg]} on --color-${bg} ${t['color-' + bg]} measured ${got.toFixed(2)}:1 but the below-AA boundary table pins ${pinned.toFixed(2)}:1. If this crossed 3:1 the pair belongs in \`pairs\` instead.`
+        ).toBeLessThanOrEqual(0.05);
+        expect(got, `${name}: --color-${fg} on --color-${bg} is ${got.toFixed(2)}:1`).toBeLessThan(3);
       });
     }
   }

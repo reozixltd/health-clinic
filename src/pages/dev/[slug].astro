@@ -8,6 +8,10 @@ import Icon from '@/core/ui/Icon.astro';
 import Badge from '@/core/ui/Badge.astro';
 import Photo from '@/core/ui/Photo.astro';
 import Placeholder from '@/core/ui/Placeholder.astro';
+import Card from '@/core/ui/Card.astro';
+import Chip from '@/core/ui/Chip.astro';
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Stat from '@/core/ui/Stat.astro';
 import { icons, type IconName } from '@/core/ui/icons';
 
 /** The component gallery is a demo tool: a live site does not build it. */
@@ -45,6 +49,19 @@ const names = Object.keys(icons) as IconName[];
           <div class="row">
             {names.map((n) => <Icon name={n} size={24} label={n} />)}
           </div>
+          <div class="stack-demo">
+            <Eyebrow>Section label</Eyebrow>
+            <h3>Card heading</h3>
+            <Card>
+              <h4>Card title</h4>
+              <p>Card body copy sits here.</p>
+              <Chip href="/">A chip</Chip>
+            </Card>
+            <div class="stat-row">
+              <Stat value="12" label="Services" note="Across every department" icon="badge-check" />
+              <Stat value="4.8" label="Average rating" icon="star" />
+            </div>
+          </div>
           <form class="form" novalidate>
             <ErrorSummary id={`err-${theme}`} />
             <Field name={`name-${theme}`} label="Full name" required autocomplete="name" />
@@ -65,5 +82,9 @@ const names = Object.keys(icons) as IconName[];
   .theme { margin-block: var(--space-6); padding: var(--space-5); background: var(--color-paper); color: var(--color-ink); border: 1px solid var(--color-line); }
   .row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-block: var(--space-4); }
   .row > :global(figure) { flex: 1 1 14rem; }
+  .stack-demo { display: grid; gap: var(--space-3); margin-block: var(--space-4); }
+  /* Stats get their own grid rather than the shared .row: .row is align-items: center, which
+     centre-aligns tiles of unequal height instead of stretching them to a common top edge. */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--space-3); }
   .form { display: grid; gap: var(--space-3); max-width: 24rem; }
 </style>

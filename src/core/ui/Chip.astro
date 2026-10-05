@@ -1,0 +1,44 @@
+---
+/** Pill link or button, for filters and quick links. */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'type'> {
+  href?: string;
+  pressed?: boolean;
+  type?: 'button' | 'submit';
+}
+
+const { href, pressed, type = 'button', class: className, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+/* aria-pressed accepts only a boolean or "true"/"false"/"mixed". Passing `pressed` straight
+   through would stringify an absent prop to the invalid value "undefined", so drop the
+   attribute entirely when it is not set. */
+const pressedAttr = href || pressed === undefined ? undefined : pressed;
+---
+
+<Tag href={href} type={href ? undefined : type} aria-pressed={pressedAttr} class:list={['chip', className]} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .chip {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--target);
+    padding: 0 var(--space-4);
+    background: var(--color-surface);
+    border: var(--hairline);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink);
+    font-size: var(--text-14);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .chip:hover { background: var(--color-line); }
+  }
+  .chip[aria-pressed='true'] { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-ink); }
+</style>
