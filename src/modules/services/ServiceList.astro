@@ -10,31 +10,34 @@ interface Props {
 const { services, variants } = Astro.props;
 ---
 
-<ul class="rows" data-reveal-group>
+<ul class="grid" data-reveal-group>
   {services.map((s) => (
-    <li class="row">
-      <div>
+    <li>
+      <div class="card">
         <h2><a href={`/services/${s.slug}/`}>{s.title}</a></h2>
         <p>{s.summary}</p>
+        <p class="meta">
+          <span>{s.duration}</span>
+          {variants.map((v) => {
+            const label = fromPriceLabel(s, v.market);
+            return label && <span data-market-only={v.id}>{label}</span>;
+          })}
+        </p>
       </div>
-      <p class="meta">
-        {s.duration}
-        {variants.map((v) => {
-          const label = fromPriceLabel(s, v.market);
-          return label && <span data-market-only={v.id}>{label}</span>;
-        })}
-      </p>
     </li>
   ))}
 </ul>
 
 <style>
-  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
-  .row { display: grid; gap: var(--space-2); padding: var(--space-5) 0; border-bottom: 1px solid var(--color-line); }
-  @media (min-width: 768px) { .row { grid-template-columns: 1fr auto; align-items: baseline; gap: var(--space-6); } }
-  h2 { font-size: var(--text-24); }
-  h2 a { display: inline-flex; align-items: center; min-height: var(--target); }
-  p { max-width: var(--measure); color: var(--color-ink-muted); }
-  .meta { display: grid; gap: var(--space-1); color: var(--color-ink); font-weight: 600; }
-  .meta span { font-weight: 400; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  li { display: grid; }
+  .card { display: grid; gap: var(--space-3); align-content: start; height: 100%; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  @media (hover: hover) and (pointer: fine) { .card:where(:has(a)) { border-color: var(--color-line); } .card:where(:has(a)):hover { box-shadow: var(--shadow-2); border-color: var(--color-primary); } }
+  h2 { font-size: var(--text-20); }
+  h2 a { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: none; }
+  p { color: var(--color-ink-muted); }
+  .meta { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; color: var(--color-ink); font-weight: 600; }
+  .meta span:not([data-market-only]) { font-weight: 400; color: var(--color-ink-muted); }
 </style>
