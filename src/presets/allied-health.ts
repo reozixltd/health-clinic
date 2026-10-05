@@ -36,6 +36,7 @@ export const alliedHealth: Preset = {
       'What to bring|Bring any referral letters, test results and your concession or funding card. Arrive a few minutes early.',
       'After the visit|We go through the plan with you and book your next visit if you need one.',
     ],
+    nouns: { service: 'Services', clinician: 'Clinicians' },
   },
   emergencyPage: false,
   extraPages: [],

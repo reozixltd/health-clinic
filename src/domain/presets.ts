@@ -18,7 +18,15 @@ export interface Preset {
   schemaType: string;
   leadKinds: LeadKind[];
   messages: MessageTemplate[];
-  copy: { heroLine: string; bookLabel: string; trust: string[]; treatsLead: string; firstVisit: string[] };
+  copy: {
+    heroLine: string;
+    bookLabel: string;
+    trust: string[];
+    treatsLead: string;
+    firstVisit: string[];
+    /** Plural nouns for the metric tiles and the team page. A vet clinic says "Vets and nurses". */
+    nouns: { service: string; clinician: string };
+  };
   emergencyPage: boolean;
   extraPages: { slug: string; policy: string }[];
 }

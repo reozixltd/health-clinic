@@ -35,6 +35,7 @@ export const vet: Preset = {
       'What to bring|Bring your pet\'s vaccination record and any previous notes. Arrive a few minutes early.',
       'After the visit|We go through the plan and the price with you and book the next visit if your pet needs one.',
     ],
+    nouns: { service: 'Treatments and services', clinician: 'Vets and nurses' },
   },
   emergencyPage: true,
   extraPages: [{ slug: 'pet-health-plans', policy: 'pet-health-plans' }],
