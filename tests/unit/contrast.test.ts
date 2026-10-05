@@ -43,6 +43,8 @@ const pairs: [string, string, number, string?][] = [
   // ink on surface is Chip's resting label (introduced in Task 4).
   ['ink', 'surface', 4.5], ['ink-muted', 'surface', 4.5],
   // primary/card is Card's hover border over a card surface; see the note beside primary/paper.
+  // Pinned at 4.5 rather than the 3:1 a boundary strictly needs, so it stays consistent with the
+  // primary rows below, which are text pairs. Stricter than required, and cheap.
   ['primary', 'card', 4.5], ['on-ink', 'primary', 4.5], ['on-ink', 'primary-text', 4.5],
   ['primary-text', 'card', 4.5], ['primary-text', 'surface', 4.5], ['primary-text', 'paper', 4.5],
   ['primary', 'surface', 4.5, 'harbour'],
@@ -99,13 +101,14 @@ const exceptions: Record<string, [string, string, number][]> = {
  * over card composites to about 1.17:1.
  *
  * There is deliberately no `line` on `surface` row. The pair is reachable, so that is not the
- * reason: Badge's neutral tone (a --color-line border over a --color-surface fill), Placeholder's
- * .ph and Photo's .initials span all draw it, and all three render in the dev gallery. It was
- * left out because none of those three is a control - each is identified by its own text label
- * far above 3:1, and none is interactive, so 1.4.11 never reaches the boundary and there is no
- * affordance for 3:1 to protect. Pinning it would assert a constraint the design does not make.
- * If an element drawing --color-line on --color-surface ever becomes a control, it belongs in
- * `pairs` at 3:1 rather than here.
+ * reason: Badge's neutral tone (a --color-line border over a --color-surface fill) and
+ * Placeholder's .ph both draw it and both render in the dev gallery, and Photo's .initials span
+ * draws it too, though not from the gallery - that tile renders from TeamRow, ProviderList and
+ * ProviderProfile. It was left out because none of those is a control: each is identified by its
+ * own text label far above 3:1, and none is interactive, so 1.4.11 never reaches the boundary and
+ * there is no affordance for 3:1 to protect. Pinning it would assert a constraint the design does
+ * not make. If an element drawing --color-line on --color-surface ever becomes a control, it
+ * belongs in `pairs` at 3:1 rather than here.
  */
 const belowAaBoundaries: Record<string, [string, string, number][]> = {
   fernway: [
