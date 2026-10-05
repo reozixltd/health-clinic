@@ -1,9 +1,11 @@
 ---
 /** Reviews section: every market's mode is rendered so ?market= switching works. */
+import Eyebrow from '@/core/ui/Eyebrow.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
 import type { Clinic } from '@/domain/types';
 import Reviews from '@/modules/reviews/Reviews.astro';
 import { hasReviewContent, reviewMode, type Review } from '@/modules/reviews/reviews';
+import { formatRating } from '@/modules/stats/metrics';
 
 interface Props {
   items: Review[];
@@ -11,18 +13,33 @@ interface Props {
 }
 const { items, variants } = Astro.props;
 const empty = variants.filter((v) => !hasReviewContent(reviewMode(v.market), items.length, v.clinic.reviewsUrl)).map((v) => v.id);
+const rated = formatRating(items.map((r) => r.rating));
 ---
 
 {empty.length < variants.length && (
   <section id="reviews" aria-labelledby="reviews-title" data-reveal data-empty={empty.join(' ')}>
+    <Eyebrow>Patient experience</Eyebrow>
     <h2 id="reviews-title">What patients say</h2>
     {variants.map((v) => (
       <div data-market-only={v.id}>
+        {/* The average rides inside the market block, so a market that shows no quote never shows the number behind it. */}
+        {v.market.reviews === 'display' && rated && (
+          <p class="float" data-float-rating>
+            <span class="float__value">{rated} out of 5</span>
+            <span class="float__note">From {items.length} published reviews</span>
+          </p>
+        )}
         <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl} locale={v.market.locale} />
       </div>
     ))}
   </section>
 )}
+
+<style>
+  .float { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); justify-self: start; margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  .float__value { font-size: var(--text-20); font-weight: 700; color: var(--color-primary-text); }
+  .float__note { color: var(--color-ink-muted); font-size: var(--text-14); }
+</style>
 
 <style is:global>
   /* No heading over an empty band: hide it in a market that has nothing to show. */
