@@ -52,11 +52,30 @@ const names = Object.keys(icons) as IconName[];
           <div class="stack-demo">
             <Eyebrow>Section label</Eyebrow>
             <h3>Card heading</h3>
-            <Card>
+            <Card interactive>
               <h4>Card title</h4>
               <p>Card body copy sits here.</p>
               <Chip href="/">A chip</Chip>
             </Card>
+            <Card>
+              <h4>Plain card</h4>
+              <p>Same card without <code>interactive</code>: hairline border, no hover lift.</p>
+            </Card>
+            <Card>
+              <h4>Composition</h4>
+              <p>A nested card and a space-between row both have to reach their container's edges.</p>
+              <Card>
+                <h5>Nested card</h5>
+                <p>This inner card fills its parent rather than shrinking to its text.</p>
+              </Card>
+              <div class="foot"><span>About this service</span><span>Right edge</span></div>
+            </Card>
+            <div class="row">
+              <Chip pressed={true}>Pressed</Chip>
+              <Chip pressed={false}>Unpressed</Chip>
+              <Chip>Unset</Chip>
+              <Chip href="/">A chip link</Chip>
+            </div>
             <div class="stat-row">
               <Stat value="12" label="Services" note="Across every department" icon="badge-check" />
               <Stat value="4.8" label="Average rating" icon="star" />
@@ -86,5 +105,11 @@ const names = Object.keys(icons) as IconName[];
   /* Stats get their own grid rather than the shared .row: .row is align-items: center, which
      centre-aligns tiles of unequal height instead of stretching them to a common top edge. */
   .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--space-3); }
+  /* Mirrors the ServicesBand foot rule, to prove a space-between row inside a Card still gets free
+     space to distribute - which it would not if Card carried justify-items: start. Deliberately a
+     <div>, not the <p> ServicesBand uses: global.css caps every p at max-width: var(--measure)
+     (68ch), so a p-foot can never reach the card's right edge whatever Card does. The real
+     ServicesBand foot will need `max-width: none` or a div of its own; that is its task's call. */
+  .stack-demo :global(.foot) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); padding-top: var(--space-2); border-top: var(--hairline); }
   .form { display: grid; gap: var(--space-3); max-width: 24rem; }
 </style>

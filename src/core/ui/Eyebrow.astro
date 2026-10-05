@@ -12,7 +12,12 @@ const { as: Tag = 'p', class: className } = Astro.props;
 <style>
   .eyebrow {
     margin: 0;
-    color: var(--color-primary-text);
+    /* Overridable via a custom property rather than by re-declaring the rule. A consumer that
+       needs the eyebrow on an ink panel (CtaBand) sets `--eyebrow-color` on an ancestor and wins
+       regardless of specificity or stylesheet emission order. Reaching for `.inner :global(.eyebrow)`
+       is (0,2,0), the same as this scoped rule, so it currently resolves by source order - which
+       is not a contract and breaks on an import reshuffle. */
+    color: var(--eyebrow-color, var(--color-primary-text));
     font-size: var(--text-14);
     font-weight: 700;
     line-height: 1.4;

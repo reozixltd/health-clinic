@@ -84,19 +84,24 @@ const exceptions: Record<string, [string, string, number][]> = {
  * were the only thing identifying a control. These are pinned rather than asserted, because they
  * are an accepted decorative convention, not an oversight.
  *
- * Every remaining row is reachable only through Chip's hover fill. That is deliberate: the chip's
+ * Every remaining row is reachable two ways, both decorative. Chip's hover fill is one: the chip's
  * label identifies the control at 13:1, so the fill underneath it is decoration and 1.4.11 does
- * not reach it. Card's interactive resting border used to be --color-line too and was pinned
- * here; it has moved to --color-field-border, which clears 3:1 and now lives in `pairs`, because
- * for a clickable card that border *is* the affordance rather than decoration.
+ * not reach it. Chip's own border is no longer a path - it moved to --color-field-border, which
+ * clears 3:1, because a chip that renders as a <button> is a control whose border is the
+ * affordance. Photo.astro is the other: it draws a 1px --color-line border over --color-card or
+ * --color-paper, and its boundary is carried by the ratio fill and label inside, not the rule.
+ *
+ * Card's interactive resting border used to be --color-line too and was pinned here; it has moved
+ * to --color-field-border, which clears 3:1 and now lives in `pairs`, because for a clickable card
+ * that border *is* the affordance rather than decoration.
  *
  * The plain hairline border is the same decorative idea and predates Task 4: rgba(18,38,58,.08)
  * over card composites to about 1.17:1.
  *
- * There is deliberately no `line` on `surface` row. It would need a Chip sitting on a
- * --color-surface panel; the only such panel is the Footer, which holds no chip, and the sole
- * Chip in the tree sits inside a Card. A pin nothing can reach is misleading, so it was removed
- * rather than left behind.
+ * There is deliberately no `line` on `surface` row. It would need a --color-line fill or rule
+ * sitting on a --color-surface background; the only such panel is the Footer, which carries its
+ * line as a border-top against the page rather than as a fill, and nothing places a border there.
+ * A pin nothing can reach is misleading, so it was removed rather than left behind.
  */
 const belowAaBoundaries: Record<string, [string, string, number][]> = {
   fernway: [

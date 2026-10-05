@@ -28,17 +28,37 @@ const pressedAttr = href || pressed === undefined ? undefined : pressed;
     gap: var(--space-2);
     min-height: var(--target);
     padding: 0 var(--space-4);
+    /* A grid or flex parent stretches its items, which turned a chip into a full-width bar. The
+       constraint belongs here rather than on the parent: Card carries no justify-items, because
+       that would shrink a nested Card and collapse a space-between row instead. */
+    justify-self: start;
     background: var(--color-surface);
-    border: var(--hairline);
+    /* A chip that renders as a <button> is a control, and for a control the border is the
+       affordance, so it takes the same load-bearing token Field and Button use rather than the
+       1.17:1 hairline. --color-field-border on --color-surface is 3.87-3.89:1. */
+    border: 1px solid var(--color-field-border);
     border-radius: var(--radius-pill);
     color: var(--color-ink);
     font-size: var(--text-14);
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
+    /* background-color, border-color and color are on the global reduced-motion allow-list, so
+       these fades survive reduced motion untouched. transform is neutralised there, which is
+       what we want for the press scale below. */
+    transition: background-color var(--dur-fill) linear,
+                border-color var(--dur-fill) linear,
+                color var(--dur-fill) linear,
+                transform var(--dur-fill) cubic-bezier(0.23, 1, 0.32, 1);
   }
+  /* Ungated, matching Button: a chip used as a filter is a button, and on touch there is no
+     hover to give feedback. global.css zeroes transform under reduced motion. */
+  .chip:active:not([disabled]) { transform: scale(0.97); }
   @media (hover: hover) and (pointer: fine) {
     .chip:hover { background: var(--color-line); }
   }
+  /* Cascade note: .chip:hover and this selector are both (0,2,0), and this one is later, so a
+     hovered pressed chip keeps the primary fill instead of dropping back to --color-line. That
+     is deliberate: the pressed state must stay readable while the pointer is on it. */
   .chip[aria-pressed='true'] { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-ink); }
 </style>

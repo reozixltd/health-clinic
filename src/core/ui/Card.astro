@@ -1,37 +1,67 @@
 ---
-/** White elevated surface. The one card in the system; components place their own content inside. */
+/**
+ * White elevated surface. The one card in the system; components place their own content inside.
+ *
+ * `interactive` is an explicit prop rather than inference from `:has(a), :has(button)`. Inference
+ * missed `<summary>`, `input`/`select` and `[role="button"]`, and worse, it matched links that are
+ * not on the page: this project hides market variants with CSS (`data-market-only`,
+ * global.css), so a card whose only link was `<a data-market-only="UK">` still satisfied `:has(a)`
+ * in fernway-au and got the "whole box is a target" border and lift with nothing clickable inside.
+ *
+ * Whole-card target pattern: put ONE link inside the card and let it cover the card with
+ * `position: absolute; inset: 0`, so the whole box is the hit area and the card is one tab stop.
+ * Do not link both the heading and a trailing "Read more" - that is two tab stops for one
+ * destination. The covering anchor must be a direct child so it stretches to the card's content
+ * box, and .card is position: relative so `inset: 0` resolves against the card and not some
+ * distant positioned ancestor.
+ *
+ * Deliberately no `justify-items` here: it applies to every grid item, so it would shrink a
+ * nested Card to fit its text and collapse a `justify-content: space-between` row to max-content,
+ * leaving no free space to distribute. Chip carries its own constraint instead.
+ */
 interface Props {
-  as?: string;
+  as?: 'div' | 'section' | 'article' | 'li';
+  interactive?: boolean;
   class?: string;
 }
-const { as: Tag = 'div', class: className } = Astro.props;
+const { as: Tag = 'div', interactive = false, class: className } = Astro.props;
 ---
 
-<Tag class:list={['card', className]}><slot /></Tag>
+<Tag class:list={['card', interactive && 'card--interactive', className]}><slot /></Tag>
 
 <style>
   .card {
+    position: relative;
     box-sizing: border-box;
     display: grid;
     gap: var(--space-3);
     align-content: start;
-    /* Children hug their content. Without this a grid stretches its items, which turned a Chip
-       into a full-width bar across the card. Cards hold headings, prose, chips, stats and
-       buttons, all of which should size to their own text. */
-    justify-items: start;
     padding: var(--space-5);
     background: var(--color-card);
     border: var(--hairline);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-1);
-    transition: box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms linear;
+    transition: border-color var(--dur-fill) linear;
   }
+  /* An interactive card's resting border is the affordance saying the whole box is a target, so
+     it must clear 3:1 against the surface behind it. --color-field-border is the palette's token
+     for a load-bearing boundary and measures 4.26-4.54:1. --color-line was 1.22-1.26:1, which is
+     fine for a decorative rule but not for this. This is the resting affordance, not a hover one,
+     so it sits outside the hover query and applies at every pointer type - on a touch device
+     there is no hover to reveal it. :where() keeps this at the base rule's specificity so a
+     consumer `class` can still win on source order. */
+  .card:where(.card--interactive) { border-color: var(--color-field-border); }
   @media (hover: hover) and (pointer: fine) {
-    /* An interactive card's resting border is the affordance saying the whole box is a target,
-       so it has to clear 3:1 against the surface behind it. --color-field-border is the
-       palette's token for a load-bearing boundary and measures 4.28-4.54:1. --color-line was
-       1.22-1.26:1, which is fine for a decorative rule but not for this. */
-    .card:where(:has(a), :has(button)) { border-color: var(--color-field-border); }
-    .card:where(:has(a), :has(button)):hover { box-shadow: var(--shadow-2); border-color: var(--color-primary); }
+    .card:where(.card--interactive):hover { box-shadow: var(--shadow-2); border-color: var(--color-primary); }
+  }
+  /* global.css pins transition-property to colour properties under prefers-reduced-motion, which
+     would snap the shadow from --shadow-1 to --shadow-2 with no animation. Gate the shadow
+     transition on motion being welcome; the border-color fade stays in the base rule because a
+     short colour fade is exactly what reduced motion is meant to keep. */
+  @media (prefers-reduced-motion: no-preference) {
+    .card {
+      transition: box-shadow var(--dur-fill) cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color var(--dur-fill) linear;
+    }
   }
 </style>
