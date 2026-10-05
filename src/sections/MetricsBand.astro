@@ -1,0 +1,35 @@
+---
+/** Counted figures, one set per market variant. Replaces the fabricated statistics in the Stitch design. */
+import Stat from '@/core/ui/Stat.astro';
+import type { MarketId, MarketPack } from '@/domain/markets';
+import { clinicMetrics, type Nouns, type Rated } from '@/modules/stats/metrics';
+
+interface Props {
+  services: number;
+  providers: number;
+  acceptingNew: number;
+  reviews: Rated[];
+  nouns: Nouns;
+  variants: { id: MarketId; market: MarketPack }[];
+}
+const { services, providers, acceptingNew, reviews, nouns, variants } = Astro.props;
+---
+
+{providers > 0 && (
+  <section id="metrics" aria-labelledby="metrics-title" data-reveal>
+    <h2 id="metrics-title" class="visually-hidden">What this clinic offers</h2>
+    {variants.map((v) => (
+      <ul class="tiles" data-market-only={v.id}>
+        {clinicMetrics({ services, providers, acceptingNew, reviews, market: v.market, nouns }).map((m) => (
+          <li><Stat {...m} /></li>
+        ))}
+      </ul>
+    ))}
+  </section>
+)}
+
+<style>
+  .tiles { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  @media (min-width: 640px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
+</style>

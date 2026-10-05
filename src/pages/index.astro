@@ -11,6 +11,7 @@ import FeesTeaser from '@/sections/FeesTeaser.astro';
 import FirstVisit from '@/sections/FirstVisit.astro';
 import Hero from '@/sections/Hero.astro';
 import Location from '@/sections/Location.astro';
+import MetricsBand from '@/sections/MetricsBand.astro';
 import ReviewsBand from '@/sections/ReviewsBand.astro';
 import ServicesBand from '@/sections/ServicesBand.astro';
 import TeamRow from '@/sections/TeamRow.astro';
@@ -22,6 +23,7 @@ const on = (id: Parameters<typeof isOn>[0]) => isOn(id, site);
 
 const services = on('services') ? (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order) : [];
 const providers = on('providers') ? (await getCollection('providers')).map((p) => p.data).sort((a, b) => a.name.localeCompare(b.name)) : [];
+const acceptingNew = providers.filter((p) => p.acceptingNew).length;
 const reviews = on('reviews') ? (await getCollection('reviews')).map((r) => r.data) : [];
 const faqs = (await getCollection('faqs')).map((f) => f.data).filter((f) => f.tags.includes('home')).slice(0, 5);
 const prices = on('price-list') && !on('fees') ? await getEntry('prices', 'prices') : undefined;
@@ -34,6 +36,7 @@ const photo = (role: Parameters<typeof rolePhoto>[1]) => rolePhoto(site.contentD
   <Hero name={clinic.name} treats={treats} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} photo={photo('hero')} />
   <TrustRow variants={variants} presetTrust={preset.copy.trust} pricesOn={on('price-list')} ownershipOn={on('ownership')} />
   <div class="stack">
+    {on('providers') && <MetricsBand services={services.length} providers={providers.length} acceptingNew={acceptingNew} reviews={reviews} nouns={preset.copy.nouns} variants={variants} />}
     {services.length > 0 && <ServicesBand services={services} variants={variants} />}
     {providers.length > 0 && <TeamRow providers={providers} variants={variants} />}
     <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} photo={photo('firstVisit')} />
