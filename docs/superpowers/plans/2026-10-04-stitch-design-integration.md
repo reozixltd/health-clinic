@@ -1453,7 +1453,7 @@ const { services, providerNames, variants } = Astro.props;
       const names = s.providers.map((slug) => providerNames[slug]).filter(Boolean);
       return (
         <li>
-          <Card>
+          <Card interactive>
             <h3><a href={`/services/${s.slug}/`}>{s.title}</a></h3>
             <p>{s.summary}</p>
             {names.length > 0 && <p class="who"><Icon name="stethoscope" size={18} /> {names.join(', ')}</p>}

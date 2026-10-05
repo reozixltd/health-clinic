@@ -2,18 +2,30 @@
 /**
  * White elevated surface. The one card in the system; components place their own content inside.
  *
- * `interactive` is an explicit prop rather than inference from `:has(a), :has(button)`. Inference
- * missed `<summary>`, `input`/`select` and `[role="button"]`, and worse, it matched links that are
- * not on the page: this project hides market variants with CSS (`data-market-only`,
- * global.css), so a card whose only link was `<a data-market-only="UK">` still satisfied `:has(a)`
- * in fernway-au and got the "whole box is a target" border and lift with nothing clickable inside.
+ * Set `interactive` when the card is ONE target in the reader's model - the whole box is
+ * clickable, whether via an overlay link or via a control that fills it. Leave it off when the
+ * card is only a container. Two cases in the plan: ServicesBand cards are interactive, because
+ * every link in one leads to the same service page so the box itself reads as the link;
+ * Facilities cards are not, because they hold an icon and prose and nothing to click. Deciding
+ * this per composition is the point of the prop existing.
  *
- * Whole-card target pattern: put ONE link inside the card and let it cover the card with
- * `position: absolute; inset: 0`, so the whole box is the hit area and the card is one tab stop.
- * Do not link both the heading and a trailing "Read more" - that is two tab stops for one
- * destination. The covering anchor must be a direct child so it stretches to the card's content
- * box, and .card is position: relative so `inset: 0` resolves against the card and not some
- * distant positioned ancestor.
+ * It is explicit rather than inference from `:has(a), :has(button)`. Inference missed `<summary>`,
+ * `input`/`select` and `[role="button"]`, and worse, it matched links that are not on the page:
+ * this project hides market variants with CSS (`data-market-only`, global.css), so a card whose
+ * only link was `<a data-market-only="UK">` still satisfied `:has(a)` in fernway-au and got the
+ * "whole box is a target" border and lift with nothing clickable inside.
+ *
+ * Preferred whole-card target: put ONE link inside the card and let it cover the card with
+ * `position: absolute; inset: 0`, so the whole box is the hit area and the card is a single tab
+ * stop. `inset: 0` resolves against the containing block's PADDING box, so the overlay covers the
+ * card's padding area as well as its content - which is the intended full-bleed hit area, not a
+ * bug. The anchor must be a direct child so it stretches to that box. Note ServicesBand instead
+ * links its heading and a trailing "About this service", which is two tab stops to one
+ * destination; that is a known imperfection of that composition, not the pattern to copy.
+ *
+ * `position: relative` is what makes `inset: 0` resolve against the card rather than some distant
+ * positioned ancestor. It does so for EVERY absolutely-positioned descendant, not only the
+ * overlay: anything inside a card that positions itself now resolves against the card.
  *
  * Deliberately no `justify-items` here: it applies to every grid item, so it would shrink a
  * nested Card to fit its text and collapse a `justify-content: space-between` row to max-content,
@@ -41,7 +53,13 @@ const { as: Tag = 'div', interactive = false, class: className } = Astro.props;
     border: var(--hairline);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-1);
-    transition: border-color var(--dur-fill) linear;
+    /* global.css already pins transition-property to the colour properties under
+       prefers-reduced-motion with !important, which drops box-shadow from this list and leaves
+       the border fade - exactly the reduced-motion behaviour wanted, so no extra media gate is
+       needed here. Verified: computed transitionProperty is identical with and without one, in
+       both motion states. */
+    transition: box-shadow var(--dur-fill) cubic-bezier(0.22, 1, 0.36, 1),
+                border-color var(--dur-fill) linear;
   }
   /* An interactive card's resting border is the affordance saying the whole box is a target, so
      it must clear 3:1 against the surface behind it. --color-field-border is the palette's token
@@ -53,15 +71,5 @@ const { as: Tag = 'div', interactive = false, class: className } = Astro.props;
   .card:where(.card--interactive) { border-color: var(--color-field-border); }
   @media (hover: hover) and (pointer: fine) {
     .card:where(.card--interactive):hover { box-shadow: var(--shadow-2); border-color: var(--color-primary); }
-  }
-  /* global.css pins transition-property to colour properties under prefers-reduced-motion, which
-     would snap the shadow from --shadow-1 to --shadow-2 with no animation. Gate the shadow
-     transition on motion being welcome; the border-color fade stays in the base rule because a
-     short colour fade is exactly what reduced motion is meant to keep. */
-  @media (prefers-reduced-motion: no-preference) {
-    .card {
-      transition: box-shadow var(--dur-fill) cubic-bezier(0.22, 1, 0.36, 1),
-                  border-color var(--dur-fill) linear;
-    }
   }
 </style>

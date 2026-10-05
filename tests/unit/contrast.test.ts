@@ -42,8 +42,7 @@ const pairs: [string, string, number, string?][] = [
   ['field-border', 'card', 3], ['field-border', 'paper', 3],
   // ink on surface is Chip's resting label (introduced in Task 4).
   ['ink', 'surface', 4.5], ['ink-muted', 'surface', 4.5],
-  // primary on card is Stat's icon (a non-text graphical object, so 3:1 governs, not 4.5:1).
-  // It clears 4.5:1 anyway and the 4.5 row is kept as the stricter pin.
+  // primary/card is Card's hover border over a card surface; see the note beside primary/paper.
   ['primary', 'card', 4.5], ['on-ink', 'primary', 4.5], ['on-ink', 'primary-text', 4.5],
   ['primary-text', 'card', 4.5], ['primary-text', 'surface', 4.5], ['primary-text', 'paper', 4.5],
   ['primary', 'surface', 4.5, 'harbour'],
@@ -84,12 +83,13 @@ const exceptions: Record<string, [string, string, number][]> = {
  * were the only thing identifying a control. These are pinned rather than asserted, because they
  * are an accepted decorative convention, not an oversight.
  *
- * Every remaining row is reachable two ways, both decorative. Chip's hover fill is one: the chip's
- * label identifies the control at 13:1, so the fill underneath it is decoration and 1.4.11 does
- * not reach it. Chip's own border is no longer a path - it moved to --color-field-border, which
- * clears 3:1, because a chip that renders as a <button> is a control whose border is the
- * affordance. Photo.astro is the other: it draws a 1px --color-line border over --color-card or
- * --color-paper, and its boundary is carried by the ratio fill and label inside, not the rule.
+ * Both remaining rows are reachable, and both are decoration rather than affordance. `line` on
+ * `card` and `paper` is drawn by Chip's hover fill and by the 1px --color-line border on Photo,
+ * Placeholder and Badge, none of which is a control: each is identified by its own text label far
+ * above 3:1, so 1.4.11 does not reach the rule. Chip's own border is no longer one of the paths -
+ * it moved to --color-field-border, which clears 3:1, because a chip that renders as a <button>
+ * is a control whose border is the affordance. The reason `line` on `surface` is absent, though
+ * its neighbours are kept, is below.
  *
  * Card's interactive resting border used to be --color-line too and was pinned here; it has moved
  * to --color-field-border, which clears 3:1 and now lives in `pairs`, because for a clickable card
@@ -98,10 +98,14 @@ const exceptions: Record<string, [string, string, number][]> = {
  * The plain hairline border is the same decorative idea and predates Task 4: rgba(18,38,58,.08)
  * over card composites to about 1.17:1.
  *
- * There is deliberately no `line` on `surface` row. It would need a --color-line fill or rule
- * sitting on a --color-surface background; the only such panel is the Footer, which carries its
- * line as a border-top against the page rather than as a fill, and nothing places a border there.
- * A pin nothing can reach is misleading, so it was removed rather than left behind.
+ * There is deliberately no `line` on `surface` row. The pair is reachable, so that is not the
+ * reason: Badge's neutral tone (a --color-line border over a --color-surface fill), Placeholder's
+ * .ph and Photo's .initials span all draw it, and all three render in the dev gallery. It was
+ * left out because none of those three is a control - each is identified by its own text label
+ * far above 3:1, and none is interactive, so 1.4.11 never reaches the boundary and there is no
+ * affordance for 3:1 to protect. Pinning it would assert a constraint the design does not make.
+ * If an element drawing --color-line on --color-surface ever becomes a control, it belongs in
+ * `pairs` at 3:1 rather than here.
  */
 const belowAaBoundaries: Record<string, [string, string, number][]> = {
   fernway: [

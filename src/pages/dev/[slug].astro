@@ -108,8 +108,12 @@ const names = Object.keys(icons) as IconName[];
   /* Mirrors the ServicesBand foot rule, to prove a space-between row inside a Card still gets free
      space to distribute - which it would not if Card carried justify-items: start. Deliberately a
      <div>, not the <p> ServicesBand uses: global.css caps every p at max-width: var(--measure)
-     (68ch), so a p-foot can never reach the card's right edge whatever Card does. The real
-     ServicesBand foot will need `max-width: none` or a div of its own; that is its task's call. */
+     (68ch, about 749px here). That cap only bites in a card far wider than any production card.
+     This gallery's main is 60rem, so the card is 872px of content; ServicesBand's grid is
+     repeat(3, 1fr) from 1024px, putting its p-foot near 337px at 1440 and 270px at 1024, where
+     68ch never binds. So the gap is a dev-gallery artefact of an unnaturally wide card, not a
+     production problem, and the <div> is the right way to isolate Card's own behaviour. Leave
+     global.css's measure cap alone. */
   .stack-demo :global(.foot) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); padding-top: var(--space-2); border-top: var(--hairline); }
   .form { display: grid; gap: var(--space-3); max-width: 24rem; }
 </style>
