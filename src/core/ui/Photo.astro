@@ -53,12 +53,13 @@ const widths = image ? [480, 800, 1200, 1600].filter((w) => w <= image.width) : 
   .photo :global(img) { transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1); }
   /*
    * A real photo is a full-bleed panel, so --radius-card is right for .photo and it stays. The
-   * initials tile is an avatar that renders at 72px and 96px, where a 16px corner is a fifth of the
-   * width and reads as an app icon rather than a neutral placeholder. TeamRow hides the label
-   * behind it, so nothing justifies the curve at that size.
+   * initials tile is an avatar, and no shipped composition renders it below 160px: the home team
+   * band and /team/ are card grids, so the tile is 320px or more and takes the card curve anyway.
+   * The sub-threshold branch below is kept because the component is shared, and a compact row is
+   * the obvious thing for a future section to add; the test that covers it constrains the tile in
+   * the browser rather than relying on a page that happens to be small.
    *
-   * So the tile keeps the control radius until it is big enough for the card curve to read as
-   * deliberate. That radius lives on the span, not the figure, and for two separate reasons:
+   * That radius lives on the span, not the figure, and for two separate reasons:
    *
    *   1. `.initials` is the inline-size container and an element cannot query its own container, so
    *      only a descendant can answer with the tile's own width.
@@ -70,7 +71,7 @@ const widths = image ? [480, 800, 1200, 1600].filter((w) => w <= image.width) : 
    * Hence border, fill AND radius all move onto the span, and the figure gives up all three. The
    * figure keeps `overflow` so nothing escapes the aspect-ratio box, and keeps role/aria-label, so
    * the tile is still announced as one image. tests/e2e/photos.e2e.mjs measures the rendered corner
-   * so a missing reset here fails rather than passing quietly.
+   * on each side of the threshold, so a missing reset here fails rather than passing quietly.
    */
   .photo.initials { border: 0; border-radius: 0; background: none; }
   .initials { display: grid; place-items: center; container-type: inline-size; color: var(--color-ink); }

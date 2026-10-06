@@ -149,36 +149,47 @@ function radiusFor(inset, depth = PROBE_DEPTH) {
   return Math.round(best * 10) / 10;
 }
 
-await step('the initials tile curves less than a large clinician portrait', async () => {
+await step('the initials tile curves by its own width, control radius small and card radius large', async () => {
   await withPage({ deviceScaleFactor: RADIUS_SCALE }, async (page) => {
-    // The home page tile is the small one; a provider profile portrait is the large one.
+    // Every initials tile in the shipped design is card sized, because the team band and /team/
+    // are card grids. So the two branches are read off one tile rather than off two pages that
+    // happened to differ in size: the tile is constrained in the browser and the same corner is
+    // measured on each side of the 160px container threshold. That probes the boundary itself,
+    // which comparing two incidental page sizes never did.
     await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-    const small = page.locator('.initials').first();
-    expect((await small.count()) === 1, 'no initials tile on the home page');
-    const smallW = Math.round((await small.boundingBox()).width);
-    const smallInset = await cornerInset(page, small);
-
-    await page.goto(`${BASE}/team/`, { waitUntil: 'networkidle' });
     const tile = page.locator('.initials').first();
-    expect((await tile.count()) === 1, 'no initials tile on /team/');
-    const href = await tile.locator('xpath=ancestor::li').locator('a').first().getAttribute('href');
+    expect((await tile.count()) === 1, 'no initials tile on the home page');
+    const naturalW = Math.round((await tile.boundingBox()).width);
 
-    await page.goto(`${BASE}${href}`, { waitUntil: 'networkidle' });
-    const large = page.locator('.initials').first();
-    expect((await large.count()) === 1, `no initials portrait on ${href}`);
-    const largeW = Math.round((await large.boundingBox()).width);
-    const largeInset = await cornerInset(page, large);
+    /** Constrain the tile and re-measure its rendered corner. */
+    const measureAt = async (width) => {
+      await page.evaluate((w) => {
+        const el = document.querySelector('.initials');
+        el.style.maxWidth = `${w}px`;
+        el.style.width = `${w}px`;
+      }, width);
+      // The container query resolves on the tile's own inline size, so let layout settle.
+      await page.waitForFunction((w) => Math.round(document.querySelector('.initials').getBoundingClientRect().width) === w, width);
+      return cornerInset(page, tile);
+    };
 
-    expect(largeW > smallW, `expected the profile portrait to be wider than the list tile: ${largeW} vs ${smallW}`);
+    // 120px is under the threshold and 240px is over it, so neither sits on the boundary itself.
+    const smallInset = await measureAt(120);
+    const largeInset = await measureAt(240);
+
     expect(smallInset !== null && largeInset !== null, `could not measure a corner: ${smallInset} and ${largeInset}`);
     // --radius-control is 8px and --radius-card is 16px; 5 sits between the two insets above.
     expect(
       smallInset < 5,
-      `the ${smallW}px initials tile draws a ~${radiusFor(smallInset)}px corner (inset ${smallInset}px), so it is not the 8px control radius. A border-radius left on .photo.initials masks the tile's own, because the ancestor clips it.`
+      `the 120px initials tile draws a ~${radiusFor(smallInset)}px corner (inset ${smallInset}px), so it is not the 8px control radius. A border-radius left on .photo.initials masks the tile's own, because the ancestor clips it.`
     );
     expect(
       largeInset >= 7,
-      `the ${largeW}px clinician portrait draws a ~${radiusFor(largeInset)}px corner (inset ${largeInset}px), so the container query is not reaching --radius-card`
+      `the 240px initials tile draws a ~${radiusFor(largeInset)}px corner (inset ${largeInset}px), so the container query is not reaching --radius-card`
+    );
+    expect(
+      naturalW >= 160,
+      `the home page tile is ${naturalW}px wide, so the shipped design has no small avatar and this step would no longer cover the sub-threshold branch on any real page.`
     );
   });
 });
