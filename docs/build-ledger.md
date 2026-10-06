@@ -156,3 +156,33 @@ Photos worth swapping when real ones exist: `vet-exterior`, `vet-reception`, `cl
 Final review (2026-10-04): no critical or important findings. Fixed in d29064a: the axe scan now runs with reduced motion, so home is scanned fully revealed (107 contrast nodes, up from 48); the photo brief says "empty room slot".
 
 Follow-ups after the review: `linkHtml` has a unit test (`tests/unit/inline.test.ts`). A service `photoSlot` with no `photoAlt` entry now fails the build. `npm audit fix` updated `http-cache-semantics`.
+
+## Stitch design integration (2026-10-04)
+
+Plan: `docs/superpowers/plans/2026-10-04-stitch-design-integration.md`. Spec: `docs/superpowers/specs/2026-10-04-stitch-design-integration-design.md`.
+
+Phases 1 to 6 of the spec, 16 tasks, complete at cb19088. The Google Stitch "Lumina Health Clinic" composition is ported into the existing layer architecture. The Stitch HTML was not copied: its palette, type scale, radii, elevation and section compositions were rebuilt on tokens and driven by content and config.
+
+**Tokens.** Both theme blocks replaced with the source palette. `--color-primary` is new and sits alongside `--color-primary-text`, because the source brand colour is a fill and border colour and measures 4.46:1 against `--color-surface`, just under AA for body text. Type scale, tracking, radii, the 44px target floor, the 48px field height, three elevation levels and the hairline all added. `tests/unit/tokens.test.ts` and `tests/unit/contrast.test.ts` pin the values; the pair list was extended rather than loosened, and the three new pairs are checked in both themes.
+
+**Primitives.** Four new components in `src/core/ui/`: `Card`, `Eyebrow`, `Stat`, `Chip`. They live in `core` because both `sections/` and `modules/` need them. Card interactivity is derived, not flagged: a card raises and takes a brand border on hover only when it holds a link or a button, and that border clears 3:1 rather than resting on a shadow alone. Chips cannot stretch to fill a grid cell.
+
+**Icons.** Sixteen Lucide paths added for the new compositions, all stroke-only on the 24x24 grid.
+
+**Logic, unit tested.** `src/modules/stats/metrics.ts` derives the home page tiles from real counts and takes its nouns from the preset, so a vet clinic never reads "Clinicians", and gates the rating on the market so no market shows a number it hides the reviews behind. `src/modules/providers/lookup.ts` resolves provider slugs so a service card can name its clinicians. `src/modules/providers/search.ts` does accent-insensitive free-text matching. `src/core/provider-filter.ts` is the client-side team filter, which reads a `?q=` on a statically generated page by toggling `hidden` and owns the count wording in `filterSummary()`.
+
+**Sections.** Five new bands on the home page: `MetricsBand`, `FeaturesBand`, `UrgentBand`, `CoverageBand`, plus a rewritten `Hero`. `ServicesBand`, `ReviewsBand`, `TeamRow`, `CtaBand`, `PageHeader`, `ProviderList` and `ServiceList` were restyled onto the card vocabulary. `UtilityBar` was added to `layouts/` because it reads `site.market`.
+
+**What is stubbed and why.** The source design shows an insurer list, a live waiting time, telehealth, on-site pathology, on-site dispensing, imaging, an app, a newsletter, a patient portal and accreditation badges. None has a data source here, so each renders a labelled stub naming the question to ask, and the hero's insurance field is text rather than a disabled select, because a greyed-out control reads as broken. The Stitch hero's floating average-rating card was not reproduced there: it would show a rating on AU, which deliberately shows no review quotes. It was rebuilt inside `ReviewsBand`, which already knows which market may display quotes.
+
+**Tests updated rather than weakened.** `tests/unit/contrast.test.ts` (pair list extended), `tests/unit/icons.test.ts` (required names extended), plus new suites for tokens, metrics, search and the filter summary. `tests/e2e/shell.e2e.mjs` had its mobile call-link selector scoped to the header bar because the utility bar adds a second call link. No assertion was deleted.
+
+**Rulings.**
+
+- Ruling S1: the Stitch hero rating card moves to `ReviewsBand` rather than the hero - cost if wrong: one card in the wrong section.
+- Ruling S2: `ProviderList` takes no `clinicianNoun` prop; the count line reads "N listed" from `filterSummary()` instead - cost if wrong: a vet team page reads "6 listed" rather than "6 vets and nurses", which is vaguer but not wrong.
+- Ruling S3: the team filter matches a whole phrase against one pre-lowercased `data-search` string, not the every-term rule in `matchesQuery()`, so the matching logic is not duplicated into the page bundle - cost if wrong: a two-word query in the box is treated as one phrase.
+- Ruling S4: the closing CTA eyebrow is full-strength white rather than the source design's 0.85 opacity - cost if wrong: slightly less visual hierarchy on the panel; the faded version is below AA at 14px.
+- Ruling S5: hover effects are gated on `(hover: hover) and (pointer: fine)`, which the source CSS did not do - cost if wrong: none on desktop; a touch device no longer sticks a hover state after a tap.
+- Ruling S6: `ServicesBand` uses `Card.astro` while `ServiceList.astro` keeps a local card rule, because the latter is in a module and the ruled-row and card treatments are meant to stay independent - cost if wrong: two card styles to keep in step.
+- Ruling S7: `--space-xl` and `--text-22` from the plan were dropped; the names read as aliases of existing steps and an unused token cannot be exercised - cost if wrong: a future component wants a name that is not there.

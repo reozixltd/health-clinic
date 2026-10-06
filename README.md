@@ -1,6 +1,6 @@
 # health-clinic
 
-A modular static website for allied-health and vet clinics, built with Astro 5 and plain CSS on tokens. One codebase serves the sales demo and each paying clinic. A clinic site is set up by editing config, content, tokens and photos. You do not edit components.
+A modular static website for allied-health and vet clinics, built with Astro 5 and plain CSS on tokens. One codebase serves the sales demo and each paying clinic. A clinic site is set up by editing config, content, tokens and photos. You do not edit components. The visual design is a port of the Google Stitch "Lumina Health Clinic" composition, driven entirely by real content and config; anything the source design showed that this project has no data for renders as a labelled stub rather than a plausible number.
 
 Demo sites:
 
@@ -51,7 +51,8 @@ Notes:
 | Header, footer, layouts, SEO | `src/layouts/` |
 | Page bands used by pages | `src/sections/` |
 | Shared UI, leads, storage, formats | `src/core/` |
-| Colours, type, spacing | `src/styles/tokens.css` |
+| Colours, type, spacing, elevation | `src/styles/tokens.css` |
+| Card, Eyebrow, Stat and Chip primitives | `src/core/ui/` |
 | Photo slots and photo files | `src/config/photo-slots.ts`, `src/assets/photos/` |
 | Unit tests | `tests/unit/` |
 | End-to-end tests | `tests/e2e/` (`run.mjs` builds and serves each site) |
@@ -66,7 +67,7 @@ Imports run one way: `pages` to `layouts` and `sections`, then `modules`, then `
 | `docs/spec.md` | The product spec and decisions |
 | `docs/customising.md` | Setting up a clinic, adding a market or module, going live |
 | `docs/modules.md` | One entry per module |
-| `docs/design-system.md` | Tokens, type, the appointment card, what not to do |
+| `docs/design-system.md` | Tokens, type, the four UI primitives, the layout vocabulary, what is real and what is a labelled stub |
 | `docs/photo-brief.md` | Photo slots and what each should show (generated) |
 | `docs/plans/` | The build plan |
 

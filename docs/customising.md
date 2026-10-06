@@ -29,6 +29,27 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 
 A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. The slot also needs a line in `photoAlt`. Without the alt text the build fails and names the service. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
 
+To add a slot from scratch:
+
+1. Drop the file at `src/assets/photos/<slot>.jpg`, named exactly after the slot.
+2. Add the slot to `photoSlots` for that content folder, so `npm run photos:status` lists it as still needed.
+3. Add the slot to `photoRoles` if it should appear in the home hero, beside the first-visit steps, or beside the address. Each of those places is claimed by one slot, so a slot used by one component must come out of the others.
+4. Add the slot to `photoAlt` with its alt text.
+
+Step 4 is enforced. `tests/unit/photos.test.ts` asserts that every slot with alt text has a file, so adding an entry before the file lands fails the test suite. A slot that is only ever used by name in markup, with no alt entry, is fine and shows the placeholder.
+
+Nine slots ship with the repo and nine alt entries match them. A new section that wants a picture reuses an existing slot; anything else renders `Placeholder.astro` directly with a literal label, rather than adding a slot for a photograph nobody has taken.
+
+## Re-skin the design
+
+Two theme blocks at the bottom of `src/styles/tokens.css` hold every colour: `:root, [data-theme='fernway']` and `[data-theme='harbour']`. Change those values and the whole site follows, because no component holds a raw colour.
+
+Two of the tokens need care.
+
+`--color-primary` and `--color-primary-text` are deliberately different steps of the same hue. Primary is for fills, borders and icons, where the boundary is what has to be visible. Primary-text is for primary-coloured text on a tinted panel, where legibility is what has to be visible. Setting them to the same value is the mistake to avoid: in the shipped fernway theme, primary measures 4.46:1 against `--color-surface`, just under AA for body text, and primary-text measures 6.48:1.
+
+Run `npm test` after any change. `tests/unit/contrast.test.ts` checks an explicit pair list in both themes, and `tests/unit/tokens.test.ts` pins the type scale, radii, spacing and elevation values. If either fails, change the design rather than the test.
+
 ## Set up a new clinic from a preset
 
 1. Copy the closest demo folder, for example `src/config/sites/fernway-au/`, to `src/config/sites/<your-id>/`. Keep the four files: `site.ts`, `clinic.ts`, `booking.ts`, `messages.ts`.
@@ -54,7 +75,8 @@ modules: { referrals: true, 'price-list': false }
 - Fees keep one file for every market. Each fee has `amount` keyed by market (`AU`, `CA`, `UK`), and `funding` keys (`fund`, `medicare`, `extended`, `direct`). A fee with no amount for a market is left out of that market's table.
 - Clinicians can carry `registration.byMarket.CA` when the same person shows a different register in Canada.
 - Never ask for symptoms, history, medications or a pet's condition anywhere on the site. Clinical intake happens in the practice system.
-- Write in sentence case, with short sentences. No eyebrow labels, no all-caps, no arrows on buttons.
+- Write in sentence case, with short sentences. An uppercase tracked label above a heading is fine, but only through `Eyebrow.astro`. No all-caps body copy, no arrows on buttons.
+- Do not fill a gap with a plausible number. Either the figure comes from content or config, or the section renders a labelled stub that says it is not published yet. The clinic's home page counts, prices and registration lines are all real; its insurer list, waiting time, accreditation and telehealth claims are all stubs, and stay that way until someone supplies the fact.
 
 ## Add a market pack
 
