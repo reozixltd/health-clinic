@@ -1,6 +1,8 @@
 ---
 /** Closing prompt: book, or call. */
 import Button from '@/core/ui/Button.astro';
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Icon from '@/core/ui/Icon.astro';
 import type { MarketId } from '@/domain/markets';
 import type { Clinic } from '@/domain/types';
 
@@ -13,17 +15,29 @@ const { variants, bookLabel, bookingOn } = Astro.props;
 ---
 
 <section class="cta" aria-labelledby="cta-title" data-reveal>
-  <h2 id="cta-title">Ready when you are</h2>
-  {variants.map((v) => (
-    <div class="actions" data-market-only={v.id}>
-      {bookingOn && <Button href="/book/">{bookLabel}</Button>}
-      <a class="phone" href={v.tel}>Call {v.clinic.phone}</a>
-    </div>
-  ))}
+  <div class="inner">
+    <Eyebrow>Ready when you are</Eyebrow>
+    <h2 id="cta-title">Book a visit, or call us</h2>
+    {variants.map((v) => (
+      <div class="actions" data-market-only={v.id}>
+        {bookingOn && <Button href="/book/" size="lg">{bookLabel}</Button>}
+        <a class="phone" href={v.tel}>
+          <Icon name="phone" size={20} />
+          Call {v.clinic.phone}
+        </a>
+      </div>
+    ))}
+  </div>
 </section>
 
 <style>
-  .cta { display: grid; gap: var(--space-3); padding: var(--space-6) 0; border-top: 1px solid var(--color-line); }
+  .cta { display: grid; }
+  .inner { display: grid; gap: var(--space-3); justify-items: start; padding: var(--space-7) var(--space-6); background: var(--color-primary); border-radius: var(--radius-panel); box-shadow: var(--shadow-2); }
+  @media (min-width: 768px) { .inner { padding: var(--space-8) var(--space-7); } }
+  /* Full-strength white, not a faded one: the eyebrow is small text and has to clear 4.5:1 on the primary fill. */
+  .inner :global(.eyebrow) { color: var(--color-on-ink); }
+  h2 { color: var(--color-on-ink); font-size: var(--text-36); }
   .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
-  .phone { display: inline-flex; align-items: center; min-height: var(--target); font-weight: 600; text-decoration: underline; }
+  .actions :global(.btn) { background: var(--color-card); border-color: var(--color-card); color: var(--color-primary-text); }
+  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); color: var(--color-on-ink); font-weight: 600; }
 </style>

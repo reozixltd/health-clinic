@@ -16,7 +16,7 @@ const variants = marketVariants(site, allSites());
 ---
 
 <BaseLayout title="Services" description={`Services at ${site.clinic.name}.`}>
-  <PageHeader title="Services" lede="What we offer, how long it takes and who will see you." />
+  <PageHeader eyebrow="What we treat" title="Services" lede="What we offer, how long it takes and who will see you." />
   <div class="wrap"><ServiceList services={services} variants={variants} /></div>
 </BaseLayout>
 
