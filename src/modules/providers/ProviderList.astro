@@ -1,33 +1,66 @@
 ---
-/** Team as ruled rows with a small photo, name, role and whether they are taking new patients. */
+/** Team as cards. Markup for every clinician is rendered; `?q=` filters client-side. */
+import Icon from '@/core/ui/Icon.astro';
 import Photo from '@/core/ui/Photo.astro';
+import { filterSummary } from '@/core/provider-filter';
+import { normalise } from './search';
 import { initials } from './registration';
 
 interface Props {
-  providers: { slug: string; name: string; role: string; languages: string[]; acceptingNew: boolean; photoSlot: string }[];
+  providers: { slug: string; name: string; role: string; languages: string[]; services: string[]; acceptingNew: boolean; photoSlot: string }[];
 }
 const { providers } = Astro.props;
+const terms = (p: Props['providers'][number]) => normalise([p.name, p.role, ...p.languages, ...p.services].join(' '));
 ---
 
-<ul class="rows" data-reveal-group>
+<label class="filter" for="provider-filter">
+  <span class="filter__label">Search the team</span>
+  <span class="filter__control">
+    <Icon name="search" size={20} />
+    <input id="provider-filter" type="search" data-provider-filter placeholder="Name, specialty or language" />
+  </span>
+</label>
+{/* filterSummary owns this wording, so the unfiltered and filtered states cannot drift apart. */}
+<p class="count" role="status" data-provider-count>{filterSummary(providers.length, providers.length)}</p>
+
+<ul class="grid" data-provider-list data-reveal-group>
   {providers.map((p) => (
-    <li class="row">
-      <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="96px" class="pic" />
-      <div>
-        <h2><a href={`/team/${p.slug}/`}>{p.name}</a></h2>
-        <p>{p.role}. Speaks {p.languages.join(', ')}.</p>
-        {!p.acceptingNew && <p class="note">Not accepting new patients</p>}
-      </div>
+    <li data-provider data-search={terms(p)}>
+      <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="(min-width: 1024px) 280px, 100vw" class="pic" />
+      <h2><a href={`/team/${p.slug}/`}>{p.name}</a></h2>
+      <p class="role">{p.role}</p>
+      <p class="lang">Speaks {p.languages.join(', ')}</p>
+      {p.acceptingNew ? (
+        <p class="open"><Icon name="badge-check" size={18} /> Taking new patients</p>
+      ) : (
+        <p class="shut">Not accepting new patients</p>
+      )}
     </li>
   ))}
 </ul>
 
+<script>
+  import { initProviderFilter } from '@/core/provider-filter';
+  initProviderFilter();
+</script>
+
 <style>
-  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
-  .row { display: grid; grid-template-columns: 96px 1fr; gap: var(--space-4); align-items: center; padding: var(--space-4) 0; border-bottom: 1px solid var(--color-line); }
-  h2 { font-size: var(--text-24); }
-  h2 a { display: inline-flex; align-items: center; min-height: var(--target); }
-  p { color: var(--color-ink-muted); }
-  .note { color: var(--color-warning); font-weight: 600; }
-  @media (hover: hover) { :global(html:not([data-motion='off'])) .row:hover :global(.photo img) { transform: scale(1.03); } }
+  .filter { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); }
+  .filter__label { font-weight: 600; }
+  .filter__control { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-control); box-shadow: var(--shadow-1); color: var(--color-ink-muted); }
+  .filter__control input { flex: 1; min-height: var(--target-field); background: transparent; border: 1px solid transparent; }
+  .count { margin: 0 0 var(--space-4); color: var(--color-ink-muted); }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  li { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  /* `hidden` is how the filter hides a card, so it has to beat this element's own display. */
+  :global(li[data-provider][hidden]) { display: none; }
+  h2 { font-size: var(--text-20); }
+  h2 a { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: none; }
+  .pic { border-radius: var(--radius-card); }
+  .role, .lang { margin: 0; color: var(--color-ink-muted); }
+  .open { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--color-success); font-weight: 600; font-size: var(--text-14); }
+  .shut { margin: 0; color: var(--color-warning); font-weight: 600; font-size: var(--text-14); }
+  @media (hover: hover) and (pointer: fine) { :global(html:not([data-motion='off'])) li:hover :global(.photo img) { transform: scale(1.03); } }
 </style>

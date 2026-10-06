@@ -1,12 +1,15 @@
 ---
+import Eyebrow from '@/core/ui/Eyebrow.astro';
 interface Props {
   title: string;
   lede?: string;
+  eyebrow?: string;
 }
-const { title, lede } = Astro.props;
+const { title, lede, eyebrow } = Astro.props;
 ---
 
 <section class="page-header">
+  {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
   <h1>{title}</h1>
   {lede && <p>{lede}</p>}
 </section>

@@ -14,31 +14,30 @@ const { providers, variants } = Astro.props;
 
 <section id="team" aria-labelledby="team-title">
   <h2 id="team-title">Our team</h2>
-  <ul class="rows" data-reveal-group>
+  <ul class="grid" data-reveal-group>
     {providers.map((p) => (
       <li>
-        <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="72px" class="pic" />
-        <div>
-          <h3><a href={`/team/${p.slug}/`}>{p.name}</a></h3>
-          <p>{p.role}</p>
-          {variants.map((v) => {
-            const r = registrationFor(p, v.id);
-            return <p class="reg" data-market-only={v.id}>{r.body} {r.number}</p>;
-          })}
-        </div>
+        <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="(min-width: 640px) 240px, 100vw" class="pic" />
+        <h3><a href={`/team/${p.slug}/`}>{p.name}</a></h3>
+        <p>{p.role}</p>
+        {variants.map((v) => {
+          const r = registrationFor(p, v.id);
+          return <p class="reg" data-market-only={v.id}>{r.body} {r.number}</p>;
+        })}
       </li>
     ))}
   </ul>
 </section>
 
 <style>
-  .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); display: grid; }
-  @media (min-width: 768px) { .rows { grid-template-columns: 1fr 1fr; column-gap: var(--space-6); } }
-  li { display: grid; grid-template-columns: 72px 1fr; gap: var(--space-4); align-items: center; padding: var(--space-3) 0; border-bottom: 1px solid var(--color-line); }
-  li :global(.ph__label) { display: none; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  li { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  .pic { border-radius: var(--radius-card); }
   h3 { font-size: var(--text-18); }
-  h3 a { display: inline-flex; align-items: center; min-height: var(--target); }
-  p { color: var(--color-ink-muted); }
-  .reg { font-size: var(--text-16); }
-  @media (hover: hover) { :global(html:not([data-motion='off'])) li:hover :global(.photo img) { transform: scale(1.03); } }
+  h3 a { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: none; }
+  p { margin: 0; color: var(--color-ink-muted); }
+  .reg { font-size: var(--text-14); }
+  @media (hover: hover) and (pointer: fine) { :global(html:not([data-motion='off'])) li:hover :global(.photo img) { transform: scale(1.03); } }
 </style>

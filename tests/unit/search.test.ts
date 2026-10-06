@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { filterSummary } from '@/core/provider-filter';
 import { normalise, matchesQuery } from '@/modules/providers/search';
 import { providerNamesFor, providersBySlug } from '@/modules/providers/lookup';
 
@@ -43,6 +44,16 @@ describe('matchesQuery', () => {
   it('never matches on an empty haystack', () => {
     expect(matchesQuery([], 'elena')).toBe(false);
     expect(matchesQuery([], '')).toBe(true);
+  });
+});
+
+describe('filterSummary', () => {
+  it.each([
+    [6, 6, '6 listed'],
+    [3, 6, 'Showing 3 of 6'],
+    [0, 6, 'Showing 0 of 6'],
+  ])('%i of %i reads %j', (shown, total, expected) => {
+    expect(filterSummary(shown as number, total as number)).toBe(expected);
   });
 });
 

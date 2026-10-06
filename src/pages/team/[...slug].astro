@@ -14,7 +14,7 @@ const providers = (await getCollection('providers')).map((p) => p.data).sort((a,
 ---
 
 <BaseLayout title="Our team" description={`The clinicians at ${site.clinic.name}.`}>
-  <PageHeader title="Our team" lede="Registered clinicians, with their registration numbers and languages." />
+  <PageHeader eyebrow="Clinical directory" title="Our team" lede="Registered clinicians, with their registration numbers and languages." />
   <div class="wrap"><ProviderList providers={providers} /></div>
 </BaseLayout>
 
