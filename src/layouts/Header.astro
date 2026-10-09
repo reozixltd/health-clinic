@@ -1,4 +1,9 @@
 ---
+/**
+ * Sticky header. The utility row scrolls away; the main row stays, clear over the band beneath it
+ * until the page scrolls, then solid with a blurred backdrop and a slightly shorter fill. Only
+ * opacity and transform change, so nothing below it moves.
+ */
 import { site, allSites } from '@/config';
 import Button from '@/core/ui/Button.astro';
 import Icon from '@/core/ui/Icon.astro';
@@ -10,53 +15,156 @@ const links = site.preset.nav.filter((n) => !n.footer);
 const booking = site.modules.includes('booking');
 /** Trailing slashes ignored, so `/team/` marks `/team` and `/` marks the wordmark. */
 const here = Astro.url.pathname.replace(/(.)\/$/, '$1');
+const current = (href: string) => {
+  const path = href.replace(/(.)\/$/, '$1');
+  return here === path || here.startsWith(`${path}/`) ? 'page' : undefined;
+};
 ---
 
-<header class="header">
+<header class="header" data-header>
   <UtilityBar />
-  <div class="bar">
-    <a class="wordmark" href="/">{site.clinic.name}</a>
-    <nav id="site-nav" class="nav" aria-label="Main">
-      <ul>
-        {links.map((n) => <li><a href={n.href} aria-current={n.href.replace(/(.)\/$/, '$1') === here ? 'page' : undefined}>{n.label}</a></li>)}
-      </ul>
-    </nav>
-    {variants.map((v) => (
-      <a class="call" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)} aria-label={`Call ${v.clinic.phone}`}>
-        <Icon name="phone" />
-        <span>{v.clinic.phone}</span>
+  <div class="shell">
+    <div class="bar wrap">
+      <a class="wordmark" href="/">
+        <span class="mark" aria-hidden="true">{site.clinic.name.charAt(0)}</span>
+        {site.clinic.name}
       </a>
-    ))}
-    {booking && <div class="cta"><Button href="/book/">{site.preset.copy.bookLabel}</Button></div>}
-    <button class="menu" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
-      <Icon name="menu" />
-    </button>
+      <nav id="site-nav" class="nav" aria-label="Main">
+        <button class="close" type="button" data-menu-close aria-label="Close menu"><Icon name="close" /></button>
+        <ul>
+          {links.map((n) => <li><a href={n.href} aria-current={current(n.href)}>{n.label}</a></li>)}
+        </ul>
+        <div class="extra">
+          {booking && <Button href="/book/" arrow>{site.preset.copy.bookLabel}</Button>}
+          {variants.map((v) => (
+            <a class="extra-call" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)}>
+              <Icon name="phone" size={18} /> {v.clinic.phone}
+            </a>
+          ))}
+        </div>
+      </nav>
+      <div class="scrim" data-menu-scrim></div>
+      {variants.map((v) => (
+        <a class="call" data-market-only={v.id} href={telHref(v.clinic.phone, v.id)} aria-label={`Call ${v.clinic.phone}`}>
+          <Icon name="phone" />
+          <span>{v.clinic.phone}</span>
+        </a>
+      ))}
+      {booking && <div class="cta"><Button href="/book/" arrow>{site.preset.copy.bookLabel}</Button></div>}
+      <button class="menu" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <Icon name="menu" />
+      </button>
+    </div>
   </div>
 </header>
 
 <script>
-  import { initMenu } from './site';
+  import { initHeader, initMenu, initOpenStatus } from './site';
   initMenu();
+  initHeader();
+  initOpenStatus();
 </script>
 
 <style>
-  .header { background: var(--color-card); border-bottom: var(--hairline); position: relative; z-index: 20; view-transition-name: site-header; }
-  .bar { display: flex; align-items: center; gap: var(--space-4); max-width: 72rem; margin: 0 auto; padding: var(--space-3) var(--space-4); }
-  .wordmark { display: inline-flex; align-items: center; min-height: var(--target); margin-right: auto; font-size: var(--text-20); font-weight: 700; letter-spacing: var(--track-heading); text-decoration: none; }
+  .header { position: sticky; top: calc(-1 * var(--utility-h)); z-index: 40; }
+  .shell { position: relative; }
+  /* The solid fill is its own layer, so it can fade and shorten without the row changing size. */
+  .shell::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: color-mix(in srgb, var(--color-paper) 84%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: var(--shadow-1);
+    opacity: 0; transform-origin: top;
+    transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+  }
+  .header[data-scrolled] .shell::before { opacity: 1; transform: scaleY(0.875); }
+  /* Named on the row, not the shell: a named element is a backdrop root, which would leave the fill nothing to blur. */
+  .bar { view-transition-name: site-header; display: flex; align-items: center; gap: var(--space-4); height: var(--header-h); }
+  /* The row's contents rise to stay centred in the shorter fill. Never the slide-in panel: it has its own transform. */
+  .bar > :not(.nav, .scrim) { transition: transform var(--dur-2) var(--ease-out); }
+  .header[data-scrolled] .bar > :not(.nav, .scrim) { transform: translateY(calc(var(--header-h) * -0.0625)); }
+  @media (min-width: 1200px) {
+    .nav { transition: transform var(--dur-2) var(--ease-out); }
+    .header[data-scrolled] .nav { transform: translateY(calc(var(--header-h) * -0.0625)); }
+  }
+
+  .wordmark {
+    display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--target); margin-right: auto;
+    font-family: var(--font-display); font-size: var(--text-20); font-weight: 600; letter-spacing: var(--track-heading);
+    text-decoration: none; white-space: nowrap;
+  }
+  .mark {
+    display: grid; place-items: center; width: 2.125rem; height: 2.125rem;
+    background: var(--color-primary); color: var(--color-on-ink);
+    border-radius: 42% 58% 55% 45% / 52% 44% 56% 48%; font-size: var(--text-18);
+  }
+
   .nav ul { display: flex; gap: var(--space-1); list-style: none; margin: 0; padding: 0; }
-  .nav a { display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--space-3); border-radius: var(--radius-control); font-weight: 600; text-decoration: none; }
-  .nav a[aria-current='page'] { background: var(--color-surface); }
+  .nav li a {
+    position: relative; display: inline-flex; align-items: center; min-height: var(--target); padding: 0 var(--space-3);
+    border-radius: var(--radius-pill); font-size: var(--text-16); font-weight: 600; text-decoration: none; white-space: nowrap;
+  }
+  .nav li a::after {
+    content: ''; position: absolute; left: var(--space-3); right: var(--space-3); bottom: 0.5rem; height: 2px;
+    background: var(--color-primary); border-radius: 1px;
+    transform: scaleX(0); transform-origin: left; transition: transform var(--dur-2) var(--ease-out);
+  }
+  .nav li a[aria-current='page'] { color: var(--color-primary-text); }
+  .nav li a[aria-current='page']::after { transform: scaleX(1); }
+  .close, .extra, .scrim { display: none; }
+
+  .call {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    min-width: var(--target); min-height: var(--target);
+    color: var(--color-primary-text); font-weight: 600; text-decoration: none; white-space: nowrap;
+  }
+  .call span { display: none; }
   .cta { flex: none; }
   .cta :global(.btn) { white-space: nowrap; }
-  .nav a, .wordmark, .call { white-space: nowrap; }
-  .call { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); color: var(--color-primary-text); font-weight: 600; text-decoration: none; }
-  .menu { display: none; min-width: var(--target); min-height: var(--target); align-items: center; justify-content: center; background: transparent; border: 1px solid var(--color-field-border); border-radius: var(--radius-control); }
-  @media (hover: hover) and (pointer: fine) { .nav a:hover { background: var(--color-surface); } }
-  @media (max-width: 1023px) {
-    .menu { display: inline-flex; }
-    .call span, .cta { display: none; }
-    .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--color-card); border-bottom: var(--hairline); padding: var(--space-2) var(--space-4); z-index: 20; }
-    .nav[data-open] { display: block; }
-    .nav ul { flex-direction: column; }
+  .menu, .close {
+    min-width: var(--target); min-height: var(--target); align-items: center; justify-content: center;
+    background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-pill);
   }
+  .menu { display: none; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav li a:hover::after { transform: scaleX(1); }
+    .call:hover { color: var(--color-ink); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav li a[aria-current='page'] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.4em; }
+  }
+  @media (min-width: 1440px) { .call span { display: inline; } }
+
+  /* Below the desktop row: the nav becomes a panel that slides in from the right. */
+  @media (max-width: 1199px) {
+    .menu { display: inline-flex; }
+    .nav {
+      position: fixed; inset: 0 0 0 auto; z-index: 2; width: min(22rem, 88vw);
+      display: flex; flex-direction: column; gap: var(--space-4);
+      padding: var(--space-4) var(--space-5) var(--space-6); overflow-y: auto;
+      background: var(--color-card); box-shadow: var(--shadow-3);
+      visibility: hidden; transform: translateX(100%);
+      transition: transform var(--dur-2) var(--ease-out), visibility 0s linear var(--dur-2);
+    }
+    .nav[data-open] { visibility: visible; transform: none; transition-delay: 0s; }
+    .nav ul { flex-direction: column; gap: 0; }
+    .nav li a { display: flex; min-height: 3.25rem; padding: 0; border-radius: 0; border-bottom: 1px solid var(--color-line); font-size: var(--text-18); }
+    .nav li a::after { content: none; }
+    .close { display: inline-flex; align-self: flex-end; }
+    .extra { display: grid; gap: var(--space-3); margin-top: auto; }
+    .extra-call { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--target); color: var(--color-primary-text); font-weight: 600; }
+    .scrim {
+      display: block; position: fixed; inset: 0; z-index: 1;
+      background: color-mix(in srgb, var(--color-ink) 45%, transparent);
+      opacity: 0; pointer-events: none; transition: opacity var(--dur-2) var(--ease-out);
+    }
+    .nav[data-open] + .scrim { opacity: 1; pointer-events: auto; }
+  }
+  @media (max-width: 1023px) { .cta { display: none; } }
+</style>
+
+<style is:global>
+  /* The page behind an open menu does not scroll. */
+  @media (max-width: 1199px) { html:has(#site-nav[data-open]) { overflow: hidden; } }
 </style>

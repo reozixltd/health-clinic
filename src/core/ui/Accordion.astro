@@ -1,0 +1,55 @@
+---
+/**
+ * One question and answer on the native details element, so it works with no script and is
+ * searchable in the page. The height eases open where the browser can size `auto`; elsewhere it
+ * opens at once. Give a group the same `name` to keep one open at a time.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  summary: string;
+  open?: boolean;
+  name?: string;
+  class?: string;
+}
+const { summary, open = false, name, class: className } = Astro.props;
+---
+
+<details class:list={['acc', className]} open={open} name={name}>
+  <summary>
+    <span>{summary}</span>
+    <span class="chev"><Icon name="chevron-down" size={18} /></span>
+  </summary>
+  <div class="body"><slot /></div>
+</details>
+
+<style>
+  .acc { border-bottom: 1px solid var(--color-line); interpolate-size: allow-keywords; }
+  summary {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+    min-height: 3.5rem; padding: var(--space-3) 0;
+    font-family: var(--font-display); font-size: var(--text-title); font-weight: 520; line-height: 1.25;
+    cursor: pointer; list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  .chev {
+    flex: none; display: grid; place-items: center; width: 2.25rem; height: 2.25rem;
+    background: var(--color-surface); border-radius: 50%; color: var(--color-primary-text);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .acc[open] .chev { transform: rotate(180deg); }
+  .body { padding: 0 var(--space-7) var(--space-5) 0; color: var(--color-ink-muted); }
+  .body :global(p + p) { margin-top: var(--space-3); }
+  .acc::details-content {
+    block-size: 0; overflow: hidden; opacity: 0;
+    transition: block-size var(--dur-2) var(--ease-out), opacity var(--dur-2) var(--ease-out), content-visibility var(--dur-2) allow-discrete;
+  }
+  .acc[open]::details-content { block-size: auto; opacity: 1; }
+  @media (hover: hover) and (pointer: fine) { summary:hover { color: var(--color-primary-text); } }
+  @media (prefers-reduced-motion: reduce) {
+    .acc::details-content { transition: none; }
+    /* The global rule flattens transforms, so the open state shows as a filled disc instead of a turned chevron. */
+    .acc[open] .chev { background: var(--color-accent); }
+  }
+  @media print { .acc::details-content { block-size: auto; opacity: 1; content-visibility: visible; } }
+</style>

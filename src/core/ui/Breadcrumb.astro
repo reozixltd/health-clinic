@@ -1,0 +1,27 @@
+---
+/** Where this page sits. The last item is the page itself and is not a link. */
+import Icon from './Icon.astro';
+
+interface Props {
+  items: { label: string; href?: string }[];
+}
+const { items } = Astro.props;
+---
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ul>
+    {items.map((item, i) => (
+      <li>
+        {i > 0 && <Icon name="chevron-right" size={14} />}
+        {item.href && i < items.length - 1 ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  ul { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2); list-style: none; margin: 0; padding: 0; font-size: var(--text-14); }
+  li { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-ink-muted); }
+  a { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-primary-text); font-weight: 600; }
+  span { display: inline-flex; align-items: center; min-height: var(--target); }
+</style>

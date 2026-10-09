@@ -1,0 +1,30 @@
+---
+/**
+ * Open now, or closed and when it opens. The server writes `fallback` (a plain hours line); the
+ * header script swaps in the live status for the clinic's own time zone (initOpenStatus).
+ * Set `--open-dot` on an ancestor to recolour the open dot for a dark band.
+ */
+import type { HoursRow } from '../hours';
+
+interface Props {
+  hours: HoursRow[];
+  timeZone: string;
+  fallback: string;
+  class?: string;
+}
+const { hours, timeZone, fallback, class: className } = Astro.props;
+---
+
+<p class:list={['status', className]} data-open-status data-hours={JSON.stringify(hours)} data-tz={timeZone}>
+  <span class="dot" aria-hidden="true"></span>
+  <span data-open-label>{fallback}</span>
+</p>
+
+<style>
+  .status { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0; font-weight: 600; }
+  .dot { flex: none; width: 0.5rem; height: 0.5rem; border: 1.5px solid currentColor; border-radius: 50%; }
+  .status[data-open='true'] .dot {
+    background: var(--open-dot, var(--color-success)); border-color: var(--open-dot, var(--color-success));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--open-dot, var(--color-success)) 28%, transparent);
+  }
+</style>

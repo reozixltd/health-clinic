@@ -1,7 +1,7 @@
 ---
-/** Hairline status tag. */
+/** Small pill tag. */
 interface Props {
-  tone?: 'neutral' | 'success' | 'warning' | 'danger';
+  tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'accent';
   class?: string;
 }
 const { tone = 'neutral', class: className } = Astro.props;
@@ -14,14 +14,15 @@ const { tone = 'neutral', class: className } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    padding: 2px var(--space-2);
+    padding: 3px var(--space-3);
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-pill);
     font-size: var(--text-14);
     font-weight: 600;
     line-height: 1.4;
   }
   .badge--neutral { background: var(--color-surface); color: var(--color-ink-muted); }
+  .badge--accent { background: var(--color-accent); color: var(--color-primary-text); border-color: transparent; }
   .badge--success { background: var(--color-success-soft); color: var(--color-success); border-color: var(--color-success); }
   .badge--warning { background: var(--color-warning-soft); color: var(--color-warning); border-color: var(--color-warning); }
   .badge--danger { background: var(--color-danger-soft); color: var(--color-danger); border-color: var(--color-danger); }

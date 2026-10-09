@@ -55,22 +55,22 @@ a { color: inherit; text-underline-offset: 0.2em; }
 .grid-12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-5); }
 
 /* A text link whose underline draws in from the left. Only transform moves. */
-.link {
+.text-link {
   position: relative;
   display: inline-flex; align-items: center; gap: var(--space-2);
   min-height: var(--target);
   color: var(--color-primary-text); font-weight: 600; text-decoration: none;
 }
-.link::after {
+.text-link::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0.55em;
   height: 2px; background: currentColor;
   transform: scaleX(0); transform-origin: left;
   transition: transform var(--dur-2) var(--ease-out);
 }
-.link:hover::after, .link:focus-visible::after { transform: scaleX(1); }
+.text-link:hover::after, .text-link:focus-visible::after { transform: scaleX(1); }
 @media (prefers-reduced-motion: reduce) {
-  .link { text-decoration: underline; }
-  .link::after { content: none; }
+  .text-link { text-decoration: underline; }
+  .text-link::after { content: none; }
 }
 
 .visually-hidden {
@@ -116,6 +116,9 @@ a { color: inherit; text-underline-offset: 0.2em; }
 html[data-market]:not([data-market='AU']) [data-market-only='AU'],
 html[data-market]:not([data-market='CA']) [data-market-only='CA'],
 html[data-market]:not([data-market='UK']) [data-market-only='UK'] { display: none; }
+
+/* The header's main row is shorter on small screens; the bands that slide under it follow. */
+@media (max-width: 1023px) { :root { --header-h: 64px; } }
 
 /* Room for the fixed mobile bar so it never covers the last footer links. */
 @media (max-width: 1023px) {

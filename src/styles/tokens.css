@@ -59,6 +59,9 @@
   --space-10: 128px;
 
   --wrap: 75rem;
+  /* The sticky header's two rows. Hero and page-header bands slide under the main row by this much. */
+  --header-h: 72px;
+  --utility-h: 44px;
   --gutter: clamp(var(--space-4), 4vw, var(--space-7));
 
   --radius-control: 8px;

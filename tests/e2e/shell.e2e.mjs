@@ -8,7 +8,7 @@ await step('one h1, tap-to-call and legal id in footer', async () => {
     await page.goto(`${BASE}/`);
     expect((await page.locator('h1').count()) === 1, 'expected exactly one h1');
     const footer = await visibleText(page, 'footer');
-    // The header holds two tel links: the utility bar line and the nav bar call button. The labelled one is the call button.
+    // The header holds several tel links: the utility row's, the menu panel's and the call button. The labelled one is the call button.
     // One exists per market variant, so only the current market's is visible.
     const call = page.locator('header a[aria-label^="Call"]:visible');
     if (SITE_ID === 'fernway-au') {
@@ -75,16 +75,9 @@ if (fernway) {
   });
 } else skip('theme switching (Fernway only)');
 
-// Routes built so far. Fixed pages not yet built are allowed temporarily; each is removed when its task lands.
-const FIXED = ['/', '/contact/', '/new-patients/', '/faq/', '/privacy/', '/accessibility/', '/terms/'];
-const MODULE_ROUTES = {
-  'fernway-au': ['/services/', '/team/', '/fees/', '/book/', '/referrers/'],
-  'fernway-ca': ['/services/', '/team/', '/fees/', '/book/', '/referrers/'],
-  hollybank: ['/services/', '/team/', '/prices/', '/estimates/', '/ownership/', '/book/', '/out-of-hours/', '/pet-health-plans/'],
-};
-// Temporary: pages other tasks build (services/team: Task 9; fees, new-patients, contact, faq, referrers, prices,
-// estimates, ownership, out-of-hours, pet-health-plans, policies: Tasks 11-15; book: Task 10).
-const ALLOWED = new Set([...FIXED, ...MODULE_ROUTES[SITE_ID]]);
+// The sitemap lists every route this build generates; the header and footer may link to nothing else.
+const sitemap = await (await fetch(`${BASE}/sitemap-0.xml`)).text();
+const ALLOWED = new Set([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname));
 
 await step('nav only links generated routes', async () => {
   await withPage({}, async (page) => {
@@ -99,21 +92,24 @@ await step('nav only links generated routes', async () => {
   });
 });
 
-await step('mobile layout at 375px: compact header, full-width book button, footer not covered', async () => {
+await step('mobile layout at 375px: compact header, call and book bar, footer not covered', async () => {
   await withPage({ viewport: { width: 375, height: 800 } }, async (page) => {
     await page.goto(`${BASE}/`);
-    // The header holds two book links: the nav bar cta, hidden on mobile, and the utility bar's, which is the mobile one.
+    // The header's book button is hidden on mobile; the bar fixed to the bottom carries booking and a call button.
     expect(!(await page.locator('header .cta a[href="/book/"]').isVisible()), 'header book button should be hidden');
-    const utilityBook = page.locator('header .bar a[href="/book/"]').first();
-    if (SITE_ID === 'fixture-no-booking') expect(!(await utilityBook.isVisible()), 'no-booking fixture should have no book link');
-    else expect(await utilityBook.isVisible(), 'utility bar book link should carry the booking on mobile');
+    const barBook = page.locator('.mobile-bar a[href="/book/"]');
+    if (SITE_ID === 'fixture-no-booking') expect((await barBook.count()) === 0, 'no-booking fixture should have no book link');
+    else expect(await barBook.isVisible(), 'the bottom bar should carry the booking on mobile');
+    expect(await page.locator('.mobile-bar a[href^="tel:"]:visible').count() === 1, 'the bottom bar should carry one call button');
     expect(await page.locator('header [data-menu-toggle]').isVisible(), 'menu toggle missing');
     const call = page.locator('header a[aria-label^="Call"]:visible');
     expect((await call.count()) === 1, 'header call link should be visible and labelled');
     expect(!(await call.locator('span').isVisible()), 'number text should be hidden on mobile');
-    const bar = await page.locator('.mobile-bar').boundingBox();
-    const book = await page.locator('.mobile-bar a[href="/book/"]').boundingBox();
-    expect(book.width > bar.width * 0.6, `book button ${book.width}px in bar ${bar.width}px`);
+    if (SITE_ID !== 'fixture-no-booking') {
+      const callBox = await page.locator('.mobile-bar a[href^="tel:"]:visible').boundingBox();
+      const book = await barBook.boundingBox();
+      expect(book.width > callBox.width, `book button ${book.width}px should lead the call button ${callBox.width}px`);
+    }
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     const last = page.locator('footer a:visible').last();
     const box = await last.boundingBox();

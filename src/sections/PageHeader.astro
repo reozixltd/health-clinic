@@ -1,20 +1,66 @@
 ---
+/**
+ * The band at the top of an inner page: breadcrumb, heading, lede and an optional photo. It slides
+ * under the header's clear main row, so the two read as one surface until the page scrolls.
+ * The default slot takes actions (a Book button, a badge row).
+ */
+import Breadcrumb from '@/core/ui/Breadcrumb.astro';
 import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Photo from '@/core/ui/Photo.astro';
+
 interface Props {
   title: string;
   lede?: string;
   eyebrow?: string;
+  /** Trail after Home. Defaults to this page alone. */
+  crumbs?: { label: string; href?: string }[];
+  photo?: { slot: string; alt: string };
+  /** Pairs the photo with the card it came from across a page change. */
+  transitionName?: string;
 }
-const { title, lede, eyebrow } = Astro.props;
+const { title, lede, eyebrow, crumbs = [{ label: title }], photo, transitionName } = Astro.props;
 ---
 
 <section class="page-header">
-  {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-  <h1>{title}</h1>
-  {lede && <p>{lede}</p>}
+  <div class:list={['wrap', 'inner', { split: photo }]}>
+    <div class="copy">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, ...crumbs]} />
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      <h1>{title}</h1>
+      {lede && <p class="lede">{lede}</p>}
+      <slot />
+    </div>
+    {photo && (
+      <div class="media" style={transitionName ? `view-transition-name: ${transitionName}` : undefined}>
+        <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 34rem, 100vw" priority />
+      </div>
+    )}
+  </div>
 </section>
 
 <style>
-  .page-header { max-width: 72rem; margin: 0 auto; padding: var(--space-7) var(--space-4) var(--space-5); display: grid; gap: var(--space-3); }
-  p { font-size: var(--text-18); color: var(--color-ink-muted); }
+  .page-header {
+    position: relative; overflow: hidden;
+    margin-top: calc(-1 * var(--header-h));
+    padding: calc(var(--header-h) + var(--space-6)) 0 var(--space-8);
+    background: linear-gradient(180deg, var(--color-surface), var(--color-paper));
+  }
+  /* Two soft blobs. Decoration only, placed with inset so reduced motion's transform reset leaves them be. */
+  .page-header::before, .page-header::after { content: ''; position: absolute; pointer-events: none; }
+  .page-header::before {
+    inset: -30% -8% auto auto; width: min(34rem, 70vw); aspect-ratio: 1;
+    background: color-mix(in srgb, var(--color-accent) 65%, transparent);
+    border-radius: 46% 54% 60% 40% / 48% 42% 58% 52%;
+  }
+  .page-header::after {
+    inset: auto auto -45% -10%; width: min(26rem, 55vw); aspect-ratio: 1;
+    background: color-mix(in srgb, var(--color-sand) 70%, transparent);
+    border-radius: 58% 42% 44% 56% / 46% 56% 44% 54%;
+  }
+  .inner { position: relative; z-index: 1; display: grid; gap: var(--space-6); align-items: center; }
+  .copy { display: grid; gap: var(--space-3); justify-items: start; max-width: 46rem; }
+  h1 { font-size: var(--text-display); line-height: 1.1; }
+  .lede { color: var(--color-ink-muted); font-size: var(--text-lead); }
+  .media :global(.photo), .media :global(.ph) { border: 0; border-radius: var(--radius-panel) var(--radius-panel) var(--radius-panel) 5rem; box-shadow: var(--shadow-3); }
+  @media (min-width: 1024px) { .split { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: var(--space-8); } }
 </style>

@@ -1,0 +1,22 @@
+---
+/** A star rating out of five, read out as one image. */
+import Icon from './Icon.astro';
+
+interface Props {
+  rating: number;
+  size?: number;
+  class?: string;
+}
+const { rating, size = 18, class: className } = Astro.props;
+const full = Math.round(rating);
+---
+
+<span class:list={['stars', className]} role="img" aria-label={`${rating} out of 5 stars`}>
+  {[1, 2, 3, 4, 5].map((n) => <Icon name="star" size={size} class={n <= full ? 'on' : 'off'} />)}
+</span>
+
+<style>
+  .stars { display: inline-flex; gap: 2px; color: var(--color-star); }
+  .stars :global(.on) { fill: currentColor; }
+  .stars :global(.off) { opacity: 0.45; }
+</style>

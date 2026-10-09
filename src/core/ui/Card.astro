@@ -53,13 +53,15 @@ const { as: Tag = 'div', interactive = false, class: className } = Astro.props;
     border: var(--hairline);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-1);
-    /* global.css already pins transition-property to the colour properties under
-       prefers-reduced-motion with !important, which drops box-shadow from this list and leaves
-       the border fade - exactly the reduced-motion behaviour wanted, so no extra media gate is
-       needed here. Verified: computed transitionProperty is identical with and without one, in
-       both motion states. */
-    transition: box-shadow var(--dur-fill) cubic-bezier(0.22, 1, 0.36, 1),
-                border-color var(--dur-fill) linear;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  /* The deeper hover shadow is its own layer that fades in, so only opacity and transform move.
+     An outer shadow paints outside the box, so the layer never covers the card's content. Under
+     reduced motion the global rule drops the lift and keeps the fade. */
+  .card:where(.card--interactive)::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: var(--shadow-3); opacity: 0;
+    transition: opacity var(--dur-2) var(--ease-out);
   }
   /* An interactive card's resting border is the affordance saying the whole box is a target, so
      it must clear 3:1 against the surface behind it. --color-field-border is the palette's token
@@ -70,6 +72,7 @@ const { as: Tag = 'div', interactive = false, class: className } = Astro.props;
      consumer `class` can still win on source order. */
   .card:where(.card--interactive) { border-color: var(--color-field-border); }
   @media (hover: hover) and (pointer: fine) {
-    .card:where(.card--interactive):hover { box-shadow: var(--shadow-2); border-color: var(--color-primary); }
+    .card:where(.card--interactive):hover { transform: translateY(-4px); border-color: var(--color-primary); }
+    .card:where(.card--interactive):hover::after { opacity: 1; }
   }
 </style>

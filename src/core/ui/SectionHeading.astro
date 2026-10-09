@@ -1,0 +1,31 @@
+---
+/** Eyebrow, heading and lede for a section. The default slot sits beside the heading on wide screens, for a "see all" link. */
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lede?: string;
+  align?: 'start' | 'center';
+  id?: string;
+  class?: string;
+}
+const { title, eyebrow, lede, align = 'start', id, class: className } = Astro.props;
+---
+
+<div class:list={['heading', `heading--${align}`, className]}>
+  <div class="text">
+    {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+    <h2 id={id}>{title}</h2>
+    {lede && <p class="lede">{lede}</p>}
+  </div>
+  <slot />
+</div>
+
+<style>
+  .heading { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4) var(--space-6); margin-bottom: var(--space-7); }
+  .text { display: grid; gap: var(--space-3); max-width: 44rem; }
+  .lede { color: var(--color-ink-muted); font-size: var(--text-lead); }
+  .heading--center { justify-content: center; text-align: center; }
+  .heading--center .text { justify-items: center; }
+</style>

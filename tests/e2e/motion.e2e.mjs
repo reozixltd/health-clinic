@@ -129,7 +129,8 @@ await step('mobile menu opens above the hero and takes the clicks', async () => 
     await page.goto(`${BASE}/`);
     await page.waitForTimeout(1000);
     await page.locator('[data-menu-toggle]').click();
-    const hits = await page.locator('#site-nav a').evaluateAll((links) => links.map((a) => {
+    await page.waitForTimeout(500); // the panel slides in
+    const hits = await page.locator('#site-nav a:visible').evaluateAll((links) => links.map((a) => {
       const r = a.getBoundingClientRect();
       const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
       return !!hit?.closest('#site-nav');

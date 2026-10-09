@@ -1,20 +1,27 @@
 ---
-/** Button or link styled as a button. `primary` is the ink fill; `secondary` is outlined; `quiet` is text-only. */
+/**
+ * Button or link styled as a button. `primary` is the warm call-to-action fill; `secondary` is
+ * outlined; `quiet` is text-only; `inverse` is the light fill for deep bands, where the
+ * call-to-action colour does not clear 3:1. `arrow` adds a trailing arrow that slides on hover.
+ */
 import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
 
 interface Props extends Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'type'> {
   href?: string;
-  variant?: 'primary' | 'secondary' | 'quiet';
+  variant?: 'primary' | 'secondary' | 'quiet' | 'inverse';
   size?: 'md' | 'lg';
   type?: 'button' | 'submit';
+  arrow?: boolean;
 }
 
-const { href, variant = 'primary', size = 'md', type = 'button', class: className, ...rest } = Astro.props;
+const { href, variant = 'primary', size = 'md', type = 'button', arrow = false, class: className, ...rest } = Astro.props;
 const Tag = href ? 'a' : 'button';
 ---
 
 <Tag href={href} type={href ? undefined : type} class:list={['btn', `btn--${variant}`, `btn--${size}`, className]} {...rest}>
   <slot />
+  {arrow && <Icon name="arrow-right" size={18} class="btn__arrow" />}
 </Tag>
 
 <style>
@@ -26,22 +33,27 @@ const Tag = href ? 'a' : 'button';
     min-height: var(--target);
     padding: 0 var(--space-5);
     border: 1px solid transparent;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-pill);
     font-size: var(--text-16);
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
-    transition: transform var(--dur-fill) cubic-bezier(0.23, 1, 0.32, 1);
+    transition: transform var(--dur-1) var(--ease-out);
   }
   .btn--lg { min-height: 3.25rem; padding: 0 var(--space-6); font-size: var(--text-18); }
+  .btn :global(.btn__arrow) { transition: transform var(--dur-2) var(--ease-out); }
   .btn:active:not([disabled]) { transform: scale(0.97); }
-  .btn--primary { background: var(--color-ink); color: var(--color-on-ink); border-color: var(--color-ink); }
+  .btn--primary { background: var(--color-cta); color: var(--color-on-ink); border-color: var(--color-cta); box-shadow: var(--shadow-1); }
   .btn--secondary { background: var(--color-card); color: var(--color-ink); border-color: var(--color-field-border); }
   .btn--quiet { background: transparent; color: var(--color-ink); }
+  .btn--inverse { background: var(--color-card); color: var(--color-primary-text); border-color: var(--color-card); }
   @media (hover: hover) and (pointer: fine) {
-    .btn--primary:hover:not([disabled]) { background: var(--color-ink-muted); color: var(--color-on-ink); }
+    .btn:hover:not([disabled], :active) { transform: translateY(-1px); }
+    .btn:hover :global(.btn__arrow) { transform: translateX(3px); }
+    .btn--primary:hover:not([disabled]) { background: var(--color-cta-strong); border-color: var(--color-cta-strong); color: var(--color-on-ink); }
     .btn--secondary:hover:not([disabled]) { border-color: var(--color-ink); background: var(--color-surface); }
     .btn--quiet:hover:not([disabled]) { background: var(--color-surface); }
+    .btn--inverse:hover:not([disabled]) { background: var(--color-accent); border-color: var(--color-accent); }
   }
   .btn[disabled] { opacity: 0.55; cursor: not-allowed; }
 </style>

@@ -21,6 +21,11 @@
  *   ours (1)          `heart-pulse` — a closed heart with the trace centred on it, where Lucide
  *                     leaves the heart open and runs the trace off-centre. Not covered by ISC.
  *
+ * The redesign added fourteen more, below the blank line in the map. Unchanged from Lucide:
+ * `chevron-left`, `chevron-down`, `activity`, `arrow-up-right`. Re-serialised into one path:
+ * `quote`, `leaf`, `users`, `maximize`, `credit-card`, `message-circle`. Adapted: `play` (a
+ * sharp triangle), `pause` (narrower bars), `dumbbell` (straight bars). Ours: `tooth`.
+ *
  * Nothing below sets `stroke`, `fill` or `stroke-width`. Icon.astro owns those on the wrapping svg,
  * so every icon inherits one contract and `currentColor` themes the whole set at once.
  */
@@ -58,6 +63,21 @@ export const icons = {
   navigation: '<path d="m3 11 19-9-9 19-2-8-8-2Z"/>',
   video: '<path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
   sparkle: '<path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>',
+
+  'chevron-left': '<path d="m15 18-6-6 6-6"/>',
+  'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+  'arrow-up-right': '<path d="M7 7h10v10M7 17 17 7"/>',
+  play: '<path d="M6 3 20 12 6 21Z"/>',
+  pause: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+  quote: '<path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2zM5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/>',
+  tooth: '<path d="M12 6c-1.2-.9-2.6-2-4.5-2A4.5 4.5 0 0 0 3 8.5c0 2.2 1 3.6 1.5 5.5.5 2 .5 4 1 5.5.3 1 .9 1.5 1.7 1.5 1 0 1.5-.8 1.7-2l.5-3c.3-1.3 1.2-2 2.6-2 1.4 0 2.3.7 2.6 2l.5 3c.2 1.2.7 2 1.7 2 .8 0 1.4-.5 1.7-1.5.5-1.5.5-3.5 1-5.5.5-1.9 1.5-3.3 1.5-5.5A4.5 4.5 0 0 0 16.5 4c-1.9 0-3.3 1.1-4.5 2Z"/>',
+  dumbbell: '<path d="M6.5 6.5v11M3.5 9v6M17.5 6.5v11M20.5 9v6M6.5 12h11"/>',
+  activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+  leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10ZM2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3.13a4 4 0 0 1 0 7.74M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/>',
+  'message-circle': '<path d="M4 16.1A9 9 0 0 1 12 3a9 9 0 0 1 9 9 9 9 0 0 1-13.1 8L2 22Z"/>',
+  'credit-card': '<path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2ZM2 10h20"/>',
+  maximize: '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
 } as const;
 
 export type IconName = keyof typeof icons;

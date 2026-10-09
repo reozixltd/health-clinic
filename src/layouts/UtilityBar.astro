@@ -1,17 +1,18 @@
 ---
-/** Thin bar above the header: the after-hours line, the address and the phone number. */
+/** Thin row above the header: open now or closed, the after-hours line, the address and the phone number. */
 import { site, allSites } from '@/config';
 import Icon from '@/core/ui/Icon.astro';
-import { marketVariants, telHref } from './site';
+import OpenStatus from '@/core/ui/OpenStatus.astro';
+import { hoursText, marketVariants, telHref } from './site';
 
 const variants = marketVariants(site, allSites());
-const booking = site.modules.includes('booking');
 ---
 
-<div class="bar">
+<div class="utility" data-utility>
   {variants.map((v) => (
-    <div class="inner" data-market-only={v.id}>
-      <p class="hours"><Icon name="clock" size={16} /> {v.clinic.emergency.text}</p>
+    <div class="inner wrap" data-market-only={v.id}>
+      <OpenStatus class="open" hours={v.clinic.hours} timeZone={v.clinic.timeZone} fallback={v.clinic.hours[0] ? hoursText(v.clinic.hours[0]) : ''} />
+      <p class="urgent">{v.clinic.emergency.text}</p>
       <p class="where">
         <Icon name="map-pin" size={16} />
         {v.clinic.address.street}, {v.clinic.address.locality} {v.clinic.address.region} {v.clinic.address.postcode}
@@ -22,18 +23,20 @@ const booking = site.modules.includes('booking');
       </a>
     </div>
   ))}
-  {booking && <p class="book"><a href="/book/">{site.preset.copy.bookLabel}</a></p>}
 </div>
 
 <style>
-  .bar { background: var(--color-surface); color: var(--color-ink); font-size: var(--text-14); }
-  .inner, .book { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
-  .inner { display: none; align-items: center; gap: var(--space-5); min-height: var(--target); }
-  .book { display: flex; align-items: center; min-height: var(--target); }
-  .book a { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); font-weight: 600; }
-  p { margin: 0; }
-  .hours, .where { display: inline-flex; align-items: center; gap: var(--space-2); }
-  .hours { color: var(--color-primary-text); font-weight: 600; }
-  .call { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); margin-left: auto; font-weight: 600; }
-  @media (min-width: 768px) { .inner { display: flex; } .book { display: none; } }
+  .utility { background: var(--color-deep); color: var(--color-on-deep-muted); font-size: var(--text-14); --color-focus: var(--color-on-deep); --open-dot: var(--color-accent); }
+  .inner { display: flex; align-items: center; gap: var(--space-5); height: var(--utility-h); }
+  p { margin: 0; white-space: nowrap; }
+  .inner :global(.open) { flex: none; color: var(--color-on-deep); white-space: nowrap; }
+  .where { align-items: center; gap: var(--space-2); }
+  .urgent, .where { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .where { margin-left: auto; }
+  .call { flex: none; display: inline-flex; white-space: nowrap; align-items: center; gap: var(--space-2); min-height: var(--target); margin-left: auto; color: var(--color-on-deep); font-weight: 600; text-decoration: none; }
+  /* On the narrowest screens the status keeps the row; the header and the bottom bar both carry a call button. */
+  @media (max-width: 479px) { .call { display: none; } }
+  @media (min-width: 768px) { .urgent { display: block; } }
+  @media (min-width: 1200px) { .where { display: inline-flex; } .call { margin-left: 0; } }
+  @media (hover: hover) and (pointer: fine) { .call:hover { text-decoration: underline; } }
 </style>

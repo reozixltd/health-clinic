@@ -72,11 +72,11 @@ Starts after Task 0, because it needs the schemas.
 - `MODULE_IDS` gains `'about'` and `'blog'`; `MODULES.about.routes = ['/about/']`, `MODULES.blog.routes = ['/blog/']`.
 - Preset nav gains `{ label: 'About', href: '/about/', module: 'about' }` and `{ label: 'Health tips', href: '/blog/', module: 'blog' }`.
 
-- [ ] Add the schemas. `services.faqs` goes from `.length(3)` to `.min(3)`. Every new field on `providers`, `services` and `reviews` is `.optional()`.
-- [ ] Add the two modules, off in the preset list, on in both Fernway site files.
-- [ ] Update module tests for the two new ids.
-- [ ] `npm run build && npm test && npm run check`. Expected: all pass, no new routes yet.
-- [ ] Commit `feat: content model and modules for the redesign`.
+- [x] Add the schemas. `services.faqs` goes from `.length(3)` to `.min(3)`. Every new field on `providers`, `services` and `reviews` is `.optional()`.
+- [x] Add the two modules, off in the preset list, on in both Fernway site files.
+- [x] Update module tests for the two new ids.
+- [x] `npm run build && npm test && npm run check`. Expected: all pass, no new routes yet.
+- [x] Commit `feat: content model and modules for the redesign`.
 
 ### Task 1: Tokens and typography
 
@@ -84,13 +84,13 @@ Starts after Task 0, because it needs the schemas.
 - Modify: `src/styles/tokens.css`, `src/styles/global.css`, `package.json`
 - Test: `tests/unit/tokens.test.ts`, `tests/unit/contrast.test.ts`
 
-- [ ] `npm install @fontsource-variable/fraunces`.
-- [ ] Update `contrast.test.ts` first: add pairs `on-ink/cta`, `on-ink/cta-strong`, `ink-subtle/paper|card|surface`, `ink/sand`, `ink-muted/sand`, `primary-text/sand`, `on-deep/deep`, `star/card` and `star/paper` at 3, `primary/surface` for both themes; add `fernway-dark` to the theme loops; re-pin the exception values. Run it: expected FAIL on missing tokens.
-- [ ] Write the `fernway` block from the spec table, `harbour` with the new names (`cta` = its ink), and `fernway-dark`.
-- [ ] Add to the plain `:root` block: `--font-display`, `--text-display`, `--text-title`, `--text-lead`, new `--text-hero`, `--dur-1: 150ms`, `--dur-2: 300ms`, `--dur-3: 600ms`, `--ease-out: cubic-bezier(0.22, 1, 0.36, 1)`, `--space-9: 96px`, `--space-10: 128px`, `--wrap: 75rem`, layered shadows.
-- [ ] Update the pins in `tokens.test.ts` for hero clamp and shadows; add pins for the motion tokens.
-- [ ] `global.css`: headings in `--font-display`, fluid sizes, `.wrap`, `.grid-12`, `.section` rhythm, animated link underline, selection colour.
-- [ ] Build, test, check. Commit `feat: warm token system and display type`.
+- [x] `npm install @fontsource-variable/fraunces`.
+- [x] Update `contrast.test.ts` first: add pairs `on-ink/cta`, `on-ink/cta-strong`, `ink-subtle/paper|card|surface`, `ink/sand`, `ink-muted/sand`, `primary-text/sand`, `on-deep/deep`, `star/card` and `star/paper` at 3, `primary/surface` for both themes; add `fernway-dark` to the theme loops; re-pin the exception values. Run it: expected FAIL on missing tokens.
+- [x] Write the `fernway` block from the spec table, `harbour` with the new names (`cta` = its ink), and `fernway-dark`.
+- [x] Add to the plain `:root` block: `--font-display`, `--text-display`, `--text-title`, `--text-lead`, new `--text-hero`, `--dur-1: 150ms`, `--dur-2: 300ms`, `--dur-3: 600ms`, `--ease-out: cubic-bezier(0.22, 1, 0.36, 1)`, `--space-9: 96px`, `--space-10: 128px`, `--wrap: 75rem`, layered shadows.
+- [x] Update the pins in `tokens.test.ts` for hero clamp and shadows; add pins for the motion tokens.
+- [x] `global.css`: headings in `--font-display`, fluid sizes, `.wrap`, `.grid-12`, `.section` rhythm, animated link underline, selection colour.
+- [x] Build, test, check. Commit `feat: warm token system and display type`.
 
 ### Task 2: Layout shell and primitives
 
@@ -107,16 +107,16 @@ Starts after Task 0, because it needs the schemas.
 - `Stars` props `rating: number`, renders five icons and a visually hidden "Rated N out of 5".
 - `PageHeader` props add `crumbs?`, `photo?: SlotPhoto`, `transitionName?`.
 
-- [ ] Write `tests/unit/hours.test.ts`: open mid-morning Tuesday; closed at 19:00 opens next day 8 am; Saturday 13:30 closed, opens Monday; Sunday; and a `now` that is Tuesday morning in Melbourne but Monday evening in UTC. Run: FAIL.
-- [ ] Implement `hours.ts` with `Intl.DateTimeFormat(…, { timeZone, weekday, hour, minute, hourCycle: 'h23' })`. Run: PASS.
-- [ ] Header: sticky with `top: calc(-1 * var(--utility-h))`; background layer fades and scales on `[data-scrolled]`, set from an `IntersectionObserver` sentinel; slide-in mobile menu (`transform: translateX`), focus kept inside while open, Escape closes; open-now text per market variant.
-- [ ] Footer: brand and mission, Services, Clinic, Patients, Visit columns, legal row per market.
-- [ ] MobileBar: labelled Call and Book.
-- [ ] Button: primary uses `--color-cta`; press scale kept; optional trailing arrow that slides 2px on hover.
-- [ ] Placeholder: branded gradient tile with an icon, same `role="img"` label.
-- [ ] Add the icons the new sections need (tooth, brain, activity, dumbbell, quote, leaf, pause, play, chevron-left, chevron-down, arrow-up-right, instagram is not used). Each passes the five icon tests.
-- [ ] `shell.e2e`: check nav and footer links against the sitemap; mobile bar has visible "Call" and "Book" text.
-- [ ] Build, test, check. Commit `feat: sticky header, rich footer and shared primitives`.
+- [x] Write `tests/unit/hours.test.ts`: open mid-morning Tuesday; closed at 19:00 opens next day 8 am; Saturday 13:30 closed, opens Monday; Sunday; and a `now` that is Tuesday morning in Melbourne but Monday evening in UTC. Run: FAIL.
+- [x] Implement `hours.ts` with `Intl.DateTimeFormat(…, { timeZone, weekday, hour, minute, hourCycle: 'h23' })`. Run: PASS.
+- [x] Header: sticky with `top: calc(-1 * var(--utility-h))`; background layer fades and scales on `[data-scrolled]`, set from an `IntersectionObserver` sentinel; slide-in mobile menu (`transform: translateX`), focus kept inside while open, Escape closes; open-now text per market variant.
+- [x] Footer: brand and mission, Services, Clinic, Patients, Visit columns, legal row per market.
+- [x] MobileBar: labelled Call and Book.
+- [x] Button: primary uses `--color-cta`; press scale kept; optional trailing arrow that slides 2px on hover.
+- [x] Placeholder: branded gradient tile with an icon, same `role="img"` label.
+- [x] Add the icons the new sections need (tooth, brain, activity, dumbbell, quote, leaf, pause, play, chevron-left, chevron-down, arrow-up-right, instagram is not used). Each passes the five icon tests.
+- [x] `shell.e2e`: check nav and footer links against the sitemap; mobile bar has visible "Call" and "Book" text.
+- [x] Build, test, check. Commit `feat: sticky header, rich footer and shared primitives`.
 
 ### Task 3: Homepage
 

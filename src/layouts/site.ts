@@ -2,6 +2,7 @@
 import { getMarket, type MarketId, type MarketPack } from '@/domain/markets';
 import type { Site } from '@/domain/presets';
 import type { Clinic } from '@/domain/types';
+import { clock, openStatus } from '@/core/hours';
 
 export interface Variant {
   id: MarketId;
@@ -28,12 +29,6 @@ export function telHref(phone: string, id: MarketId): string {
   return `tel:+${dial}${national}`;
 }
 
-function clock(t: string): string {
-  const [h, m] = t.split(':').map(Number);
-  const hour = h % 12 || 12;
-  return `${hour}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'am' : 'pm'}`;
-}
-
 export function hoursText(h: Clinic['hours'][number]): string {
   const days = h.days.length > 1 ? `${h.days[0]} to ${h.days[h.days.length - 1]}` : h.days[0];
   return `${days} ${clock(h.opens)} to ${clock(h.closes)}`;
@@ -44,22 +39,53 @@ export function pageLabel(path: string): string {
   return PAGE_LABELS[path] ?? path.replace(/\//g, '').replace(/-/g, ' ');
 }
 
-/** Client: wire the menu button to the nav. */
+/** Client: wire the menu button to the slide-in nav. Escape, the scrim, the close button and focus leaving all close it. */
 export function initMenu(doc: Document = document): void {
   const button = doc.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const nav = doc.getElementById('site-nav');
   if (!button || !nav) return;
+  const isOpen = () => button.getAttribute('aria-expanded') === 'true';
   const set = (open: boolean) => {
     button.setAttribute('aria-expanded', String(open));
     nav.toggleAttribute('data-open', open);
   };
-  button.addEventListener('click', () => set(button.getAttribute('aria-expanded') !== 'true'));
-  doc.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
-      set(false);
-      button.focus();
-    }
+  const close = () => {
+    if (!isOpen()) return;
+    set(false);
+    button.focus();
+  };
+  button.addEventListener('click', () => {
+    set(!isOpen());
+    if (isOpen()) nav.querySelector<HTMLElement>('[data-menu-close]')?.focus();
   });
+  for (const el of doc.querySelectorAll('[data-menu-close], [data-menu-scrim]')) el.addEventListener('click', close);
+  nav.addEventListener('focusout', (e) => {
+    const next = e.relatedTarget as Node | null;
+    if (isOpen() && next && !nav.contains(next) && next !== button) set(false);
+  });
+  doc.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+}
+
+/** Client: the header turns solid once the utility row has scrolled away. One observer, no scroll listener. */
+export function initHeader(doc: Document = document): void {
+  const header = doc.querySelector<HTMLElement>('[data-header]');
+  const utility = header?.querySelector('[data-utility]');
+  if (!header || !utility || !('IntersectionObserver' in window)) return;
+  // The stuck utility row sits exactly above the viewport edge, which still counts as intersecting; one pixel of margin settles it.
+  new IntersectionObserver(([e]) => header.toggleAttribute('data-scrolled', !e.isIntersecting), { rootMargin: '-1px 0px 0px 0px' }).observe(utility);
+}
+
+/** Client: fill every open-now indicator from the hours and time zone it carries. */
+export function initOpenStatus(doc: Document = document, now = new Date()): void {
+  for (const el of doc.querySelectorAll<HTMLElement>('[data-open-status]')) {
+    // ponytail: worked out once per page load; add a minute timer if a tab left open across closing time matters
+    const status = openStatus(JSON.parse(el.dataset.hours ?? '[]'), now, el.dataset.tz ?? 'UTC');
+    el.dataset.open = String(status.open);
+    const label = el.querySelector('[data-open-label]');
+    if (label) label.textContent = status.label;
+  }
 }
 
 /** The market this build is configured for (pages use this instead of reading site.market). */
