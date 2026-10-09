@@ -86,8 +86,16 @@ describe('Stitch type scale', () => {
     }
   });
 
-  it('pins the hero clamp literal', () => {
-    expect(token('text-hero')).toBe('clamp(2.25rem, 4.5vw, 3.5rem)');
+  it('pins the fluid display clamps', () => {
+    expect(token('text-hero')).toBe('clamp(2.375rem, 5.4vw, 4rem)');
+    expect(token('text-display')).toBe('clamp(1.875rem, 3.4vw, 2.75rem)');
+    expect(token('text-title')).toBe('clamp(1.25rem, 1.9vw, 1.5rem)');
+    expect(token('text-lead')).toBe('clamp(1.0625rem, 1.5vw, 1.25rem)');
+  });
+
+  it('names a display face and keeps the body face', () => {
+    expect(token('font-display')).toMatch(/^'Fraunces Variable'/);
+    expect(token('font-body')).toMatch(/^'Atkinson Hyperlegible Next Variable'/);
   });
 
   it('resolves the hero clamp bounds against the project root size', () => {
@@ -109,13 +117,13 @@ describe('Stitch type scale', () => {
     ).toBeLessThan(parseFloat(max!) * rem);
     expect(min!).toMatch(/rem$/);
     expect(max!).toMatch(/rem$/);
-    expect(parseFloat(min!) * rem, 'hero floor at the project root size').toBe(38.25);
-    expect(parseFloat(max!) * rem, 'hero ceiling at the project root size').toBe(59.5);
+    expect(parseFloat(min!) * rem, 'hero floor at the project root size').toBe(40.375);
+    expect(parseFloat(max!) * rem, 'hero ceiling at the project root size').toBe(68);
   });
 
-  it('uses Stitch letter spacing for the hero, headings and labels', () => {
-    expect(token('track-hero')).toBe('-0.03em');
-    expect(token('track-heading')).toBe('-0.02em');
+  it('tightens the serif display a little and opens up labels', () => {
+    expect(token('track-hero')).toBe('-0.025em');
+    expect(token('track-heading')).toBe('-0.015em');
     expect(token('track-label')).toBe('0.04em');
   });
 });
@@ -137,17 +145,24 @@ describe('Stitch shapes and depth', () => {
     expect(token('dur-fill')).toBe('160ms');
   });
 
-  it('defines the three Stitch elevation levels and the hairline', () => {
-    expect(token('shadow-1')).toBe('0 4px 20px -2px rgba(18,38,58,.04)');
-    expect(token('shadow-2')).toBe('0 12px 32px -4px rgba(18,38,58,.08)');
-    expect(token('shadow-3')).toBe('0 24px 48px -8px rgba(18,38,58,.14)');
-    expect(token('hairline')).toBe('1px solid rgba(18,38,58,.08)');
+  it('defines three two-layer elevation levels and the hairline', () => {
+    expect(token('shadow-1')).toBe('0 1px 2px rgba(27,42,34,.05), 0 4px 16px -4px rgba(27,42,34,.07)');
+    expect(token('shadow-2')).toBe('0 2px 6px -1px rgba(27,42,34,.06), 0 14px 32px -8px rgba(27,42,34,.12)');
+    expect(token('shadow-3')).toBe('0 4px 10px -2px rgba(27,42,34,.07), 0 28px 56px -12px rgba(27,42,34,.2)');
+    expect(token('hairline')).toBe('1px solid rgba(27,42,34,.09)');
+  });
+
+  it('has three motion durations and one easing', () => {
+    expect(token('dur-1')).toBe('150ms');
+    expect(token('dur-2')).toBe('300ms');
+    expect(token('dur-3')).toBe('600ms');
+    expect(token('ease-out')).toBe('cubic-bezier(0.22, 1, 0.36, 1)');
   });
 });
 
 describe('spacing', () => {
   it('keeps the existing numbered scale', () => {
-    for (const [name, value] of [['space-1', '4px'], ['space-2', '8px'], ['space-3', '12px'], ['space-4', '16px'], ['space-5', '24px'], ['space-6', '32px'], ['space-7', '48px'], ['space-8', '64px']] as const) {
+    for (const [name, value] of [['space-1', '4px'], ['space-2', '8px'], ['space-3', '12px'], ['space-4', '16px'], ['space-5', '24px'], ['space-6', '32px'], ['space-7', '48px'], ['space-8', '64px'], ['space-9', '96px'], ['space-10', '128px']] as const) {
       expect(token(name), name).toBe(value);
     }
   });

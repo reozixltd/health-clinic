@@ -1,23 +1,31 @@
 /*
  * Design tokens: the only place raw colour values live. Components use var(--...) only.
- * Two themes: fernway, applied by default on :root, and harbour, selected with data-theme.
- * Fernway is built from cool near-white neutrals with a bright cyan accent fill; harbour is
- * built from cool blue-grey neutrals with a pale blue accent fill. In both, accent is a light
- * fill used only under ink text, never as a text colour itself.
  *
- * This file also holds the elevation and hairline rgba() values. Those are not theme colours:
- * they are ink-derived shadows lifted from the source design at these exact alphas, hardcoded on
- * purpose. They stay the same in both themes because a shadow is a darker version of the ink
- * beneath it, not a per-theme surface colour.
+ * Three themes. fernway is the default on :root: warm sand neutrals, a fern green primary and one
+ * terracotta call-to-action colour. harbour is the cool blue-grey theme, selected with data-theme.
+ * fernway-dark declares the same names for a dark surface; no site lists it yet, so it is ready
+ * but not switched on.
  *
- * tests/unit/contrast.test.ts checks an explicit list of pairs against AA, and separately pins
- * the below-AA combinations so they cannot drift unnoticed. It does not cover whether a theme's
- * neutrals, accent and semantic colours are hue-coherent with each other; that remains a human
- * review concern.
+ * Roles, the same in every theme:
+ *   paper, card, surface, sand   page, raised card, quiet panel, deeper band
+ *   ink, ink-muted, ink-subtle   text, secondary text, captions
+ *   primary, primary-text        brand fills and borders, and brand-coloured text
+ *   deep, on-deep, on-deep-muted the dark brand band (footer, closing band) and text on it
+ *   cta, cta-strong, on-ink      the one call-to-action fill, its hover, and text on any dark fill
+ *   accent                       a light fill that sits under ink text, never a text colour
+ *   star                         rating stars
+ *
+ * The shadow and hairline rgba() values are ink-derived and shared by every theme on purpose: a
+ * shadow is a darker version of what is beneath it, not a per-theme surface colour.
+ *
+ * tests/unit/contrast.test.ts checks an explicit list of pairs against AA in all three themes and
+ * pins the below-AA combinations so they cannot drift unnoticed. Whether a theme's colours sit
+ * well together is still a human review concern.
  */
 
 :root {
   --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', 'Fraunces Fallback', Georgia, 'Times New Roman', serif;
 
   --text-14: 0.875rem;
   --text-16: 1rem;
@@ -26,14 +34,17 @@
   --text-24: 1.5rem;
   --text-28: 1.75rem;
   --text-36: 2.25rem;
-  --text-hero: clamp(2.25rem, 4.5vw, 3.5rem);
+  /* Fluid display steps. Each clamp is three plain lengths so tokens.test.ts can resolve it. */
+  --text-hero: clamp(2.375rem, 5.4vw, 4rem);
+  --text-display: clamp(1.875rem, 3.4vw, 2.75rem);
+  --text-title: clamp(1.25rem, 1.9vw, 1.5rem);
+  --text-lead: clamp(1.0625rem, 1.5vw, 1.25rem);
   --body-size: 106.25%; /* 17px at the browser default of 16px, and it follows a larger default */
-  --leading-body: 1.55; /* The source design's body leading, ported as given. Not a nudge: 1.6 here
-                            was the old value and loosening it is what regressed the measure. */
+  --leading-body: 1.55;
   --measure: 68ch;
 
-  --track-hero: -0.03em;
-  --track-heading: -0.02em;
+  --track-hero: -0.025em;
+  --track-heading: -0.015em;
   --track-label: 0.04em;
 
   --space-1: 4px;
@@ -44,6 +55,11 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  --wrap: 75rem;
+  --gutter: clamp(var(--space-4), 4vw, var(--space-7));
 
   --radius-control: 8px;
   --radius-card: 16px;
@@ -51,57 +67,75 @@
   --radius-pill: 9999px;
   --target: 44px;
   --target-field: 48px;
-  --dur-fill: 160ms;
 
-  --shadow-1: 0 4px 20px -2px rgba(18,38,58,.04);
-  --shadow-2: 0 12px 32px -4px rgba(18,38,58,.08);
-  --shadow-3: 0 24px 48px -8px rgba(18,38,58,.14);
-  --hairline: 1px solid rgba(18,38,58,.08); /* A full border shorthand, not a width: border-width:
+  /* Motion: three durations and one easing. --dur-fill is the older card fill fade and stays. */
+  --dur-1: 150ms;
+  --dur-2: 300ms;
+  --dur-3: 600ms;
+  --dur-fill: 160ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --shadow-1: 0 1px 2px rgba(27,42,34,.05), 0 4px 16px -4px rgba(27,42,34,.07);
+  --shadow-2: 0 2px 6px -1px rgba(27,42,34,.06), 0 14px 32px -8px rgba(27,42,34,.12);
+  --shadow-3: 0 4px 10px -2px rgba(27,42,34,.07), 0 28px 56px -12px rgba(27,42,34,.2);
+  --hairline: 1px solid rgba(27,42,34,.09); /* A full border shorthand, not a width: border-width:
                                                var(--hairline) is dropped at computed-value time. */
 }
 
 :root,
 [data-theme='fernway'] {
-  --color-paper: #f7f9ff;
-  --color-ink: #121d26;
-  --color-ink-muted: #3e4947;
+  --color-paper: #f8f5ee;
   --color-card: #ffffff;
-  --color-accent: #99f2e9;
-  /* Use --color-primary for fills, borders and large display text on white only. It measures
-     4.46:1 against --color-surface, just under the 4.5:1 AA threshold for normal text, so use
-     --color-primary-text (6.48:1) as the only primary-coloured text allowed on a tinted panel. */
-  --color-primary: #0d7a73;
-  --color-primary-text: #005f5a;
-  --color-line: #d8e4f1;
-  --color-field-border: #6e7977;
-  --color-surface: #e4effc;
+  --color-surface: #efeadf;
+  --color-sand: #e8e0d0;
+  --color-ink: #1b2a22;
+  --color-ink-muted: #4a574f;
+  --color-ink-subtle: #5f6b63;
+  /* --color-primary clears 4.5:1 on card, paper and surface, so it may carry text there.
+     On --color-sand and --color-accent use --color-primary-text. */
+  --color-primary: #3d6b4f;
+  --color-primary-text: #2a4f39;
+  --color-deep: #1f3b2b;
+  --color-on-deep: #ffffff;
+  --color-on-deep-muted: #cfdccf;
+  --color-accent: #d7e8d6;
+  --color-cta: #b4502f;
+  --color-cta-strong: #963f23;
   --color-on-ink: #ffffff;
-  --color-success: #345c49;
-  --color-success-soft: #e6f3ea;
+  --color-star: #8a6100;
+  --color-line: #e2dccd;
+  --color-field-border: #737b70;
+  --color-success: #2c6a45;
+  --color-success-soft: #e2f0e5;
   --color-warning: #8a5300;
-  --color-warning-soft: #fdf1d9;
-  --color-danger: #ba1a1a;
-  --color-danger-soft: #fbe9e8;
+  --color-warning-soft: #fbefd6;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbe9e7;
   /* Focus tracks primary and must be changed together with it. */
-  --color-focus: #0d7a73;
+  --color-focus: #3d6b4f;
 }
 
 [data-theme='harbour'] {
   --color-paper: #f5f8fb;
+  --color-card: #ffffff;
+  --color-surface: #e9eef4;
+  --color-sand: #dde5ee;
   --color-ink: #17263a;
   --color-ink-muted: #475a70;
-  --color-card: #ffffff;
-  --color-accent: #c7ddf5;
-  /* Use --color-primary for fills, borders and large display text on white only, and
-     --color-primary-text as the only primary-coloured text allowed on a tinted panel. In this
-     theme they measure 7.06:1 and 9.34:1 against --color-surface, but the rule is kept identical
-     across themes because fernway's primary is 4.46:1 there, under the 4.5:1 AA threshold. */
+  --color-ink-subtle: #56677b;
   --color-primary: #1d4f8c;
   --color-primary-text: #163d6e;
+  --color-deep: #10294a;
+  --color-on-deep: #ffffff;
+  --color-on-deep-muted: #c9d6e6;
+  --color-accent: #c7ddf5;
+  /* This theme's call to action is its ink, so its buttons stay an ink fill. */
+  --color-cta: #17263a;
+  --color-cta-strong: #0e1a2a;
+  --color-on-ink: #ffffff;
+  --color-star: #7a5a00;
   --color-line: #d6dfe9;
   --color-field-border: #66788c;
-  --color-surface: #e9eef4;
-  --color-on-ink: #ffffff;
   --color-success: #1f6b3a;
   --color-success-soft: #e6f3ea;
   --color-warning: #8a5300;
@@ -110,4 +144,35 @@
   --color-danger-soft: #fbe9e8;
   /* Focus tracks primary and must be changed together with it. */
   --color-focus: #1d4f8c;
+}
+
+/* Ready, not switched on: add 'fernway-dark' to a site's themes to use it. */
+[data-theme='fernway-dark'] {
+  --color-paper: #121a16;
+  --color-card: #1a2520;
+  --color-surface: #222f29;
+  --color-sand: #2a3831;
+  --color-ink: #eef2ec;
+  --color-ink-muted: #b9c4bb;
+  --color-ink-subtle: #a3b0a6;
+  --color-primary: #8fc4a0;
+  --color-primary-text: #a9d6b7;
+  --color-deep: #0c120f;
+  --color-on-deep: #eef2ec;
+  --color-on-deep-muted: #b9c4bb;
+  --color-accent: #2e4a3a;
+  --color-cta: #f0a585;
+  --color-cta-strong: #f6bba1;
+  --color-on-ink: #0f1713;
+  --color-star: #e3bc62;
+  --color-line: #2f3d36;
+  --color-field-border: #7d8c82;
+  --color-success: #8fd0a6;
+  --color-success-soft: #1d3327;
+  --color-warning: #f0c069;
+  --color-warning-soft: #3a2c10;
+  --color-danger: #ffb4a9;
+  --color-danger-soft: #44201c;
+  /* Focus tracks primary and must be changed together with it. */
+  --color-focus: #8fc4a0;
 }

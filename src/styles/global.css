@@ -1,10 +1,25 @@
 /* Reset, base typography and layout primitives. Component styles live in their components. */
 @import '@fontsource-variable/atkinson-hyperlegible-next';
+@import '@fontsource-variable/fraunces';
 @import './tokens.css';
+
+/* Georgia stands in for the display face until it loads, on the display face's own line metrics. */
+@font-face {
+  font-family: 'Fraunces Fallback';
+  src: local('Georgia');
+  ascent-override: 97.8%;
+  descent-override: 25.5%;
+  line-gap-override: 0%;
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; font-size: var(--body-size); }
+html {
+  -webkit-text-size-adjust: 100%;
+  font-size: var(--body-size);
+  /* In-page links land clear of the sticky header. */
+  scroll-padding-top: calc(var(--target) + var(--space-7));
+}
 
 body {
   margin: 0;
@@ -13,6 +28,7 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-16);
   line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
 }
 
 img, svg, video { display: block; max-width: 100%; height: auto; }
@@ -20,14 +36,42 @@ input, button, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 p, h1, h2, h3, h4, figure, blockquote, dl, dd { margin: 0; }
 
-h1, h2, h3, h4 { line-height: 1.2; text-wrap: balance; letter-spacing: var(--track-heading); }
-h1 { font-size: var(--text-hero); letter-spacing: var(--track-hero); }
-h2 { font-size: var(--text-28); }
-h3 { font-size: var(--text-24); }
+h1, h2, h3, h4 { line-height: 1.15; text-wrap: balance; letter-spacing: var(--track-heading); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 520; }
+h1 { font-size: var(--text-hero); line-height: 1.05; letter-spacing: var(--track-hero); }
+h2 { font-size: var(--text-display); }
+h3 { font-size: var(--text-title); line-height: 1.25; }
 p { max-width: var(--measure); text-wrap: pretty; }
 a { color: inherit; text-underline-offset: 0.2em; }
 
+::selection { background: var(--color-accent); color: var(--color-ink); }
+
 :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+/* Layout primitives: one page width, one section rhythm, one 12-column grid. */
+.wrap { width: min(100% - var(--gutter) * 2, var(--wrap)); margin-inline: auto; }
+.section { padding-block: clamp(var(--space-8), 8vw, var(--space-9)); }
+.section--loose { padding-block: clamp(var(--space-8), 10vw, var(--space-10)); }
+.grid-12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-5); }
+
+/* A text link whose underline draws in from the left. Only transform moves. */
+.link {
+  position: relative;
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: var(--target);
+  color: var(--color-primary-text); font-weight: 600; text-decoration: none;
+}
+.link::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0.55em;
+  height: 2px; background: currentColor;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.link:hover::after, .link:focus-visible::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .link { text-decoration: underline; }
+  .link::after { content: none; }
+}
 
 .visually-hidden {
   position: absolute !important;

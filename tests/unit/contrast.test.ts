@@ -30,8 +30,8 @@ function contrast(a: string, b: string): number {
  * field-border is checked against surface rather than paper because surface is the darker of the
  * two surfaces a field can sit on, so it is the stricter case and clearing it clears paper too.
  *
- * primary on surface is scoped to harbour, where it measures 7.06:1 and may carry text. Fernway's
- * primary is too dark on that panel at 4.46:1, so it is pinned as an exception below instead.
+ * The redesign rows at the end cover the tokens it added: the call-to-action fill, the deep band,
+ * the sand band, caption text, rating stars and the semantic colours on their own soft fills.
  */
 const pairs: [string, string, number, string?][] = [
   ['ink', 'paper', 4.5], ['ink-muted', 'paper', 4.5], ['ink', 'card', 4.5], ['ink', 'accent', 4.5],
@@ -47,7 +47,7 @@ const pairs: [string, string, number, string?][] = [
   // primary rows below, which are text pairs. Stricter than required, and cheap.
   ['primary', 'card', 4.5], ['on-ink', 'primary', 4.5], ['on-ink', 'primary-text', 4.5],
   ['primary-text', 'card', 4.5], ['primary-text', 'surface', 4.5], ['primary-text', 'paper', 4.5],
-  ['primary', 'surface', 4.5, 'harbour'],
+  ['primary', 'surface', 4.5],
   // Stat's note sits on a card tile, not on the page (introduced in Task 4).
   ['ink-muted', 'card', 4.5],
   // Chip's hover fill is --color-line, and its label is --color-ink. Introduced in Task 4 and
@@ -57,7 +57,24 @@ const pairs: [string, string, number, string?][] = [
   // background, and a card may sit on --color-paper or --color-card. The card case is the
   // existing primary/card row; this is the paper case (introduced in Task 4).
   ['primary', 'paper', 3],
+  // Button's primary fill and its hover, with the label on top.
+  ['on-ink', 'cta', 4.5], ['on-ink', 'cta-strong', 4.5],
+  // Footer and closing band.
+  ['on-deep', 'deep', 4.5], ['on-deep-muted', 'deep', 4.5],
+  // Sand bands carry body text, fern-coloured text and field borders.
+  ['ink', 'sand', 4.5], ['ink-muted', 'sand', 4.5], ['primary-text', 'sand', 4.5], ['field-border', 'sand', 3],
+  // Captions and meta text, on every light surface they sit on.
+  ['ink-subtle', 'paper', 4.5], ['ink-subtle', 'card', 4.5], ['ink-subtle', 'surface', 4.5],
+  // Stars are graphics, so 3:1, on the surfaces a rating appears on.
+  ['star', 'card', 3], ['star', 'paper', 3], ['star', 'surface', 3],
+  // Badge text on the accent fill.
+  ['primary-text', 'accent', 4.5],
+  // Semantic text on its own soft fill and on the page.
+  ['success', 'success-soft', 4.5], ['warning', 'warning-soft', 4.5], ['danger', 'danger-soft', 4.5],
+  ['success', 'card', 4.5], ['success', 'paper', 4.5], ['warning', 'paper', 4.5], ['danger', 'paper', 4.5], ['danger', 'card', 4.5],
 ];
+
+const themes = ['fernway', 'harbour', 'fernway-dark'];
 
 /**
  * Combinations that must not carry normal-sized text, with their measured ratio pinned.
@@ -70,13 +87,16 @@ const pairs: [string, string, number, string?][] = [
  */
 const exceptions: Record<string, [string, string, number][]> = {
   fernway: [
-    ['primary', 'surface', 4.4587],
-    ['ink', 'primary', 3.2929],
-    ['ink-muted', 'primary', 1.8003],
+    ['ink', 'primary', 2.4373],
+    ['ink-muted', 'primary', 1.2338],
   ],
   harbour: [
     ['ink', 'primary', 1.8544],
     ['ink-muted', 'primary', 1.1628],
+  ],
+  'fernway-dark': [
+    ['ink', 'primary', 1.7545],
+    ['ink-muted', 'primary', 1.1045],
   ],
 };
 
@@ -97,8 +117,8 @@ const exceptions: Record<string, [string, string, number][]> = {
  * to --color-field-border, which clears 3:1 and now lives in `pairs`, because for a clickable card
  * that border *is* the affordance rather than decoration.
  *
- * The plain hairline border is the same decorative idea and predates Task 4: rgba(18,38,58,.08)
- * over card composites to about 1.17:1.
+ * The plain hairline border is the same decorative idea and predates Task 4: rgba(27,42,34,.09)
+ * over card composites to about 1.2:1.
  *
  * There is deliberately no `line` on `surface` row. The pair is reachable, so that is not the
  * reason: Badge's neutral tone (a --color-line border over a --color-surface fill) and
@@ -112,17 +132,21 @@ const exceptions: Record<string, [string, string, number][]> = {
  */
 const belowAaBoundaries: Record<string, [string, string, number][]> = {
   fernway: [
-    ['line', 'card', 1.2893],
-    ['line', 'paper', 1.2248],
+    ['line', 'card', 1.3678],
+    ['line', 'paper', 1.2563],
   ],
   harbour: [
     ['line', 'card', 1.3469],
     ['line', 'paper', 1.2637],
   ],
+  'fernway-dark': [
+    ['line', 'card', 1.3853],
+    ['line', 'paper', 1.554],
+  ],
 };
 
-describe('tokens meet AA in both themes', () => {
-  for (const name of ['fernway', 'harbour']) {
+describe('tokens meet AA in every theme', () => {
+  for (const name of themes) {
     const t = theme(name);
     for (const [fg, bg, min, only] of pairs) {
       if (only && only !== name) continue;
@@ -137,7 +161,7 @@ describe('tokens meet AA in both themes', () => {
 });
 
 describe('pinned below-AA combinations that must not drift', () => {
-  for (const name of ['fernway', 'harbour']) {
+  for (const name of themes) {
     const t = theme(name);
     for (const [fg, bg, pinned] of exceptions[name]) {
       it(`${name}: ${fg} on ${bg} must not carry normal text (pinned ${pinned.toFixed(2)}:1)`, () => {
@@ -154,7 +178,7 @@ describe('pinned below-AA combinations that must not drift', () => {
 });
 
 describe('below-AA non-text boundaries are pinned, not silently drifting', () => {
-  for (const name of ['fernway', 'harbour']) {
+  for (const name of themes) {
     const t = theme(name);
     for (const [fg, bg, pinned] of belowAaBoundaries[name]) {
       it(`${name}: ${fg} on ${bg} is a decorative boundary, not the sole affordance (pinned ${pinned.toFixed(2)}:1)`, () => {
@@ -171,8 +195,8 @@ describe('below-AA non-text boundaries are pinned, not silently drifting', () =>
   }
 });
 
-describe('focus tracks primary in both themes', () => {
-  for (const name of ['fernway', 'harbour']) {
+describe('focus tracks primary in every theme', () => {
+  for (const name of themes) {
     it(`${name}: --color-focus equals --color-primary`, () => {
       const t = theme(name);
       expect(
@@ -183,19 +207,21 @@ describe('focus tracks primary in both themes', () => {
   }
 });
 
-describe('both themes declare the same colour tokens', () => {
-  it('fernway and harbour declare an identical set of --color-* names', () => {
-    const fernway = [...declaredColors('fernway')].sort();
-    const harbour = [...declaredColors('harbour')].sort();
-    expect(
-      harbour,
-      `harbour does not declare every colour token fernway does. A token declared in one theme only is invalid-at-computed-value-time in the other, so its components silently lose their colour. Missing from harbour: ${fernway.filter((n) => !harbour.includes(n)).join(', ') || '(none)'}. Not in fernway: ${harbour.filter((n) => !fernway.includes(n)).join(', ') || '(none)'}`
-    ).toEqual(fernway);
-  });
+describe('every theme declares the same colour tokens', () => {
+  const fernway = [...declaredColors('fernway')].sort();
+  for (const name of themes.slice(1)) {
+    it(`fernway and ${name} declare an identical set of --color-* names`, () => {
+      const other = [...declaredColors(name)].sort();
+      expect(
+        other,
+        `${name} does not declare every colour token fernway does. A token declared in one theme only is invalid-at-computed-value-time in the other, so its components silently lose their colour. Missing from ${name}: ${fernway.filter((n) => !other.includes(n)).join(', ') || '(none)'}. Not in fernway: ${other.filter((n) => !fernway.includes(n)).join(', ') || '(none)'}`
+      ).toEqual(fernway);
+    });
+  }
 });
 
-describe('every colour token is readable and unique in both themes', () => {
-  for (const name of ['fernway', 'harbour']) {
+describe('every colour token is readable and unique in every theme', () => {
+  for (const name of themes) {
     it(`${name}: declared colour tokens match the parsed set exactly`, () => {
       const decl = declaredColors(name);
       const parsed = Object.keys(theme(name)).filter((n) => n.startsWith('color-'));
