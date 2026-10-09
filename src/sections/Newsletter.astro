@@ -1,0 +1,75 @@
+---
+/** Newsletter sign-up beside a careers teaser. The form is front-end only: nothing is sent or stored. */
+import Button from '@/core/ui/Button.astro';
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Field from '@/core/ui/Field.astro';
+import Icon from '@/core/ui/Icon.astro';
+
+interface Props {
+  heading: string;
+  text: string;
+  careers?: { heading: string; text: string; roles: unknown[]; href: string };
+}
+const { heading, text, careers } = Astro.props;
+---
+
+<section id="newsletter" class="section" aria-labelledby="newsletter-title">
+  <div class:list={['wrap', 'cols', careers && 'has-careers']}>
+    <div class="card card--news" data-reveal>
+      <Eyebrow>Newsletter</Eyebrow>
+      <h2 id="newsletter-title">{heading}</h2>
+      <p>{text}</p>
+      <form data-newsletter>
+        <div class="row">
+          <Field name="newsletter-email" label="Email address" type="email" required autocomplete="email" />
+          <Button type="submit">Sign up</Button>
+        </div>
+        <p class="done" role="status"></p>
+      </form>
+      <p class="small">We use your address for this newsletter only. Read our <a href="/privacy/">privacy policy</a>.</p>
+    </div>
+    {careers && (
+      <div class="card card--careers" data-reveal>
+        <span class="disc"><Icon name="users" size={24} /></span>
+        <Eyebrow>Careers</Eyebrow>
+        <h3>{careers.heading}</h3>
+        <p>{careers.text}</p>
+        <a class="text-link more" href={careers.href}>See {careers.roles.length} open roles <Icon name="arrow-right" size={18} /></a>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  // Front-end only: the browser checks the address, then the form gives way to a thank-you line.
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-newsletter]')) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const done = form.querySelector<HTMLElement>('[role=status]')!;
+      form.querySelector<HTMLElement>('.row')!.hidden = true;
+      done.textContent = 'Thanks, you are on the list. This is a sample site, so nothing was sent.';
+    });
+  }
+</script>
+
+<style>
+  .cols { display: grid; gap: var(--space-5); }
+  @media (min-width: 900px) { .has-careers { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); } }
+  .card { display: grid; gap: var(--space-3); align-content: start; justify-items: start; padding: var(--space-6) var(--space-5); border-radius: var(--radius-panel); }
+  @media (min-width: 640px) { .card { padding: var(--space-7); } }
+  .card--news { background: var(--color-sand); }
+  .card--careers { background: var(--color-card); border: var(--hairline); box-shadow: var(--shadow-1); }
+  h2 { font-size: var(--text-36); }
+  h3 { font-size: var(--text-28); }
+  .card > p { color: var(--color-ink-muted); }
+  form { width: 100%; max-width: 34rem; margin-top: var(--space-2); }
+  .row { display: grid; gap: var(--space-3); align-items: end; }
+  .row[hidden] { display: none; }
+  @media (min-width: 560px) { .row { grid-template-columns: 1fr auto; } .row :global(.btn) { min-height: var(--target-field); } }
+  .done { color: var(--color-primary-text); font-weight: 700; }
+  .done:empty { display: none; }
+  .small { font-size: var(--text-14); }
+  .small a { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
+  .disc { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); }
+  .more { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); font-weight: 600; }
+</style>

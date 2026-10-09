@@ -1,40 +1,85 @@
 ---
-/** Address, hours, directions link and building accessibility notes, per market. */
-import type { MarketId, MarketPack } from '@/domain/markets';
-import type { Clinic } from '@/domain/types';
+/**
+ * Find us: address, live open status, the week's hours with today marked, a map and the way in.
+ * Every market's block is rendered; the map is a lazy frame, so only the one on screen loads.
+ */
+import { weekHours } from '@/core/hours';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import OpenStatus from '@/core/ui/OpenStatus.astro';
 import Photo from '@/core/ui/Photo.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+import type { MarketId } from '@/domain/markets';
+import type { Clinic } from '@/domain/types';
 
 interface Props {
-  variants: { id: MarketId; market: MarketPack; clinic: Clinic; tel: string; hours: string[] }[];
+  variants: { id: MarketId; clinic: Clinic; tel: string; hours: string[] }[];
   photo?: { slot: string; alt: string };
 }
 const { variants, photo } = Astro.props;
+const embed = ({ lat, lng }: Clinic['map']) =>
+  `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.004},${lat - 0.0025},${lng + 0.004},${lat + 0.0025}&layer=mapnik&marker=${lat},${lng}`;
 ---
 
-<section id="location" aria-labelledby="location-title" data-reveal>
-  <h2 id="location-title">Find us</h2>
-  <div class:list={['cols', photo && 'has-photo']}>
-    <div>
+<section id="location" class="section" aria-labelledby="location-title">
+  <div class="wrap">
+    <SectionHeading id="location-title" title="Find us" eyebrow="Visit the clinic" />
+    <div class:list={['cols', photo && 'has-photo']}>
       {variants.map(({ id, clinic: c, tel, hours }) => (
         <div class="where" data-market-only={id}>
-          <address>{c.address.street}, {c.address.locality} {c.address.region} {c.address.postcode}</address>
-          <a class="link" href={`https://www.openstreetmap.org/?mlat=${c.map.lat}&mlon=${c.map.lng}#map=17/${c.map.lat}/${c.map.lng}`}>Open the map and directions</a>
-          <ul>{hours.map((h) => <li>{h}</li>)}</ul>
-          <p><a class="link" href={tel}>{c.phone}</a></p>
-          <p>{c.accessibility && `${c.accessibility} `}<a class="link" href="/accessibility/">Accessibility details</a></p>
+          <div class="info" data-reveal>
+            <address>
+              <Icon name="map-pin" size={20} />
+              <span>{c.address.street}<br />{c.address.locality} {c.address.region} {c.address.postcode}</span>
+            </address>
+            <OpenStatus hours={c.hours} timeZone={c.timeZone} fallback={hours[0] ?? ''} />
+            <ul class="week" data-week data-tz={c.timeZone}>
+              {weekHours(c.hours).map((d) => <li data-day={d.day}><span>{d.day}</span><span>{d.text}</span></li>)}
+            </ul>
+            <p class="access">{c.accessibility && `${c.accessibility} `}<a href="/accessibility/">Accessibility details</a></p>
+            <div class="actions">
+              <Button href={`https://www.openstreetmap.org/?mlat=${c.map.lat}&mlon=${c.map.lng}#map=17/${c.map.lat}/${c.map.lng}`} variant="secondary" arrow rel="noopener">Map and directions</Button>
+              <a class="phone" href={tel}><Icon name="phone" size={18} /> {c.phone}</a>
+            </div>
+          </div>
+          <div class="map" data-reveal>
+            <iframe loading="lazy" title={`Map showing ${c.name}, ${c.address.street}, ${c.address.locality}`} src={embed(c.map)}></iframe>
+          </div>
         </div>
       ))}
+      {photo && <div class="art" data-reveal><Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 900px) 18rem, 100vw" /></div>}
     </div>
-    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 768px) 480px, 100vw" />}
   </div>
 </section>
 
 <style>
   .cols { display: grid; gap: var(--space-5); }
-  @media (min-width: 768px) { .has-photo { grid-template-columns: 1fr 1fr; align-items: start; column-gap: var(--space-7); } }
-  .where { display: grid; gap: var(--space-2); justify-items: start; }
-  address { font-style: normal; }
-  ul { margin: 0; padding-left: var(--space-5); }
-  p { margin: 0; }
-  .link { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: underline; }
+  /* The market wrapper adds no box, so its two halves sit straight in the grid. */
+  .where { display: contents; }
+  .info {
+    display: grid; gap: var(--space-4); align-content: start; justify-items: start;
+    padding: var(--space-6) var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1);
+  }
+  address { display: flex; gap: var(--space-3); font-size: var(--text-18); font-style: normal; font-weight: 600; }
+  address :global(svg) { flex: none; margin-top: 3px; color: var(--color-primary); }
+  .week { width: 100%; margin: 0; padding: 0; list-style: none; }
+  .week li { display: flex; justify-content: space-between; gap: var(--space-4); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); color: var(--color-ink-muted); }
+  .week li[aria-current] { background: var(--color-accent); color: var(--color-primary-text); font-weight: 700; }
+  .access { color: var(--color-ink-muted); font-size: var(--text-14); }
+  .access a { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
+  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); font-weight: 600; }
+
+  .map { min-height: 20rem; overflow: hidden; background: var(--color-surface); border: var(--hairline); border-radius: var(--radius-panel); }
+  iframe { display: block; width: 100%; height: 100%; min-height: 20rem; border: 0; }
+  .art :global(.photo), .art :global(.ph) { border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow-2); }
+
+  @media (min-width: 900px) {
+    .cols { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-6); align-items: stretch; }
+    .info { grid-column: 1; grid-row: 1; padding: var(--space-7); }
+    .map { grid-column: 2; grid-row: 1; }
+    /* The way in, set into the corner of the map. */
+    .art { grid-column: 2; grid-row: 1; align-self: end; justify-self: start; z-index: 1; width: 18rem; margin: var(--space-4); padding: var(--space-1); background: var(--color-card); border-radius: calc(var(--radius-card) + var(--space-1)); box-shadow: var(--shadow-3); }
+    .art :global(.photo), .art :global(.ph) { box-shadow: none; }
+  }
 </style>

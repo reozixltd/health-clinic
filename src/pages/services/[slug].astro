@@ -7,6 +7,7 @@ import { isOn } from '@/domain/modules';
 import Photo from '@/core/ui/Photo.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, marketVariants } from '@/layouts/site';
+import { fromPriceFor } from '@/modules/services/from-price';
 import ServiceBody from '@/modules/services/ServiceBody.astro';
 import PageHeader from '@/sections/PageHeader.astro';
 
@@ -27,7 +28,7 @@ const schema = serviceSchema({
   name: service.title,
   description: service.summary,
   provider: site.clinic.name,
-  priceFrom: market.priceDisplay === 'from-allowed' ? service.fromPrice : undefined,
+  priceFrom: fromPriceFor(service, market),
   currency: market.currency,
 });
 ---

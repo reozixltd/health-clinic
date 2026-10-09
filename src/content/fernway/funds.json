@@ -1,0 +1,14 @@
+[
+  { "name": "Wattlebird Health", "market": "AU", "mark": 1 },
+  { "name": "Saltbush Cover", "market": "AU", "mark": 2 },
+  { "name": "Larkspur Health", "market": "AU", "mark": 3 },
+  { "name": "Kestrel Mutual", "market": "AU", "mark": 4 },
+  { "name": "Myrtle Care", "market": "AU", "mark": 5 },
+  { "name": "Coolibah Health", "market": "AU", "mark": 6 },
+  { "name": "Fiddlehead Benefits", "market": "CA", "mark": 1 },
+  { "name": "Cedarline Health", "market": "CA", "mark": 2 },
+  { "name": "Larchwood Benefits", "market": "CA", "mark": 3 },
+  { "name": "Northgrove Plans", "market": "CA", "mark": 4 },
+  { "name": "Juniper Ridge", "market": "CA", "mark": 5 },
+  { "name": "Pinewhistle Benefits", "market": "CA", "mark": 6 }
+]

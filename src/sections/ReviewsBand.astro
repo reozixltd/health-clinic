@@ -1,44 +1,43 @@
 ---
 /** Reviews section: every market's mode is rendered so ?market= switching works. */
-import Eyebrow from '@/core/ui/Eyebrow.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
 import type { Clinic } from '@/domain/types';
 import Reviews from '@/modules/reviews/Reviews.astro';
-import { hasReviewContent, reviewMode, type Review } from '@/modules/reviews/reviews';
+import { hasReviewContent, reviewMode, showsRatings, type Review } from '@/modules/reviews/reviews';
 import { formatRating } from '@/modules/stats/metrics';
 
 interface Props {
-  items: Review[];
-  variants: { id: MarketId; market: MarketPack; clinic: Clinic }[];
+  /** `items` are already worded for the market: suburb picked, service as its title. */
+  variants: { id: MarketId; market: MarketPack; clinic: Clinic; items: Review[] }[];
+  /** The clinic's published aggregate. Without one the average of the reviews on the page is shown. */
+  rating?: { value: number; count: number };
 }
-const { items, variants } = Astro.props;
-const empty = variants.filter((v) => !hasReviewContent(reviewMode(v.market), items.length, v.clinic.reviewsUrl)).map((v) => v.id);
-const rated = formatRating(items.map((r) => r.rating));
+const { variants, rating } = Astro.props;
+const empty = variants.filter((v) => !hasReviewContent(reviewMode(v.market), v.items.length, v.clinic.reviewsUrl)).map((v) => v.id);
+const shown = (items: Review[]) => {
+  if (rating) return { value: rating.value.toFixed(1), note: `Based on ${rating.count.toLocaleString('en')} Google reviews` };
+  const mean = formatRating(items.map((r) => r.rating));
+  return mean ? { value: mean, note: `From ${items.length} published reviews` } : undefined;
+};
 ---
 
 {empty.length < variants.length && (
-  <section id="reviews" aria-labelledby="reviews-title" data-reveal data-empty={empty.join(' ')}>
-    <Eyebrow>Patient experience</Eyebrow>
-    <h2 id="reviews-title">What patients say</h2>
-    {variants.map((v) => (
-      <div data-market-only={v.id}>
-        {/* The average rides inside the market block, so a market that shows no quote never shows the number behind it. */}
-        {v.market.reviews === 'display' && rated && (
-          <p class="float" data-float-rating>
-            <span class="float__value">{rated} out of 5</span>
-            <span class="float__note">From {items.length} published reviews</span>
-          </p>
-        )}
-        <Reviews items={items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl} locale={v.market.locale} />
-      </div>
-    ))}
+  <section id="reviews" class="section reviews" aria-labelledby="reviews-title" data-empty={empty.join(' ')}>
+    <div class="wrap">
+      <SectionHeading id="reviews-title" title="What patients say" eyebrow="Patient experience" />
+      {variants.map((v) => (
+        <div data-market-only={v.id} data-reveal>
+          {/* The average rides inside the market block, so a market that shows no quote never shows the number behind it. */}
+          <Reviews items={v.items} mode={reviewMode(v.market)} googleUrl={v.clinic.reviewsUrl} locale={v.market.locale} rating={showsRatings(v.market) ? shown(v.items) : undefined} />
+        </div>
+      ))}
+    </div>
   </section>
 )}
 
 <style>
-  .float { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); justify-self: start; margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
-  .float__value { font-size: var(--text-20); font-weight: 700; color: var(--color-primary-text); }
-  .float__note { color: var(--color-ink-muted); font-size: var(--text-14); }
+  .reviews { background: var(--color-surface); }
 </style>
 
 <style is:global>

@@ -1,0 +1,18 @@
+---
+/** Photos of the clinic. Each tile opens the full-size view. */
+import Lightbox from '@/core/ui/Lightbox.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+
+interface Props {
+  items: { slot: string; alt: string; caption: string }[];
+  lede?: string;
+}
+const { items, lede } = Astro.props;
+---
+
+<section id="gallery" class="section" aria-labelledby="gallery-title">
+  <div class="wrap">
+    <SectionHeading id="gallery-title" title="Take a look around" eyebrow="Inside the clinic" lede={lede} />
+    <Lightbox items={items} label="Clinic photos" />
+  </div>
+</section>

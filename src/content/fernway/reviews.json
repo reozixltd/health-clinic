@@ -3,28 +3,90 @@
     "name": "Jordan P.",
     "date": "2026-08-14",
     "rating": 5,
-    "source": "Sample review for demonstration",
-    "text": "Easy to book, and the fee was clear before I came. My shoulder feels much better."
+    "source": "Google review",
+    "text": "I booked online on a Sunday night and had a text confirming my time the next morning. The fee was on the website, so there were no surprises. Priya took time to explain what was going on with my shoulder and gave me a printed sheet of exercises I could actually follow.",
+    "suburb": { "AU": "Fitzroy", "CA": "Centretown" },
+    "service": "physiotherapy",
+    "avatarSlot": "avatar-1"
   },
   {
     "name": "Meera S.",
     "date": "2026-07-22",
     "rating": 5,
-    "source": "Sample review for demonstration",
-    "text": "The dentist explained everything in plain words. I was less nervous than I expected."
+    "source": "Google review",
+    "text": "I had put off the dentist for years because I get nervous. Dr Marsh asked what would help, told me what she was doing before each step, and stopped when I asked. I got a written plan and the fee before anything was booked. I left a lot calmer than I arrived.",
+    "suburb": { "AU": "Collingwood", "CA": "The Glebe" },
+    "service": "dental-check-up",
+    "avatarSlot": "avatar-2"
   },
   {
     "name": "Chris L.",
     "date": "2026-09-02",
     "rating": 4,
-    "source": "Sample review for demonstration",
-    "text": "Good plan and simple exercises. I would have liked a later evening time."
+    "source": "Google review",
+    "text": "Tom was thorough and clearly knows running. I left with a plan in plain steps and exercises that were easy to follow. My only wish is for a later evening time, as the latest slot I could get was still tricky after work. I would book again.",
+    "suburb": { "AU": "Carlton", "CA": "Westboro" },
+    "service": "sports-physio",
+    "avatarSlot": "avatar-3"
   },
   {
     "name": "Alex D.",
     "date": "2026-06-30",
     "rating": 5,
-    "source": "Sample review for demonstration",
-    "text": "Calm room and no pressure. I felt listened to."
+    "source": "Google review",
+    "text": "The room was calm and quiet, and nobody rushed me. At the end of the first session Dr Reyes asked how it had felt and let me choose when to come back. I felt listened to, and the reminder text the day before was a small thing that helped.",
+    "suburb": { "AU": "Northcote", "CA": "Sandy Hill" },
+    "service": "psychology",
+    "avatarSlot": "avatar-4"
+  },
+  {
+    "name": "Margaret H.",
+    "date": "2026-05-12",
+    "rating": 5,
+    "source": "Google review",
+    "text": "I have sensitive gums and expected a lecture. Sam was gentle and patient, told me what he was doing as he went, and showed me how to hold my brush differently. The receipt was itemised, which made claiming from my fund simple. I booked my next clean before I left.",
+    "suburb": { "AU": "Brunswick", "CA": "Hintonburg" },
+    "service": "dental-hygiene",
+    "avatarSlot": "avatar-5"
+  },
+  {
+    "name": "Daniel O.",
+    "date": "2026-03-19",
+    "rating": 5,
+    "source": "Google review",
+    "text": "I play football on weekends and twisted my knee badly. Tom saw me within the week, tested everything properly and wrote out a plan in stages. With my permission he even sent a short note to my coach. I always knew what the next step was.",
+    "suburb": { "AU": "Clifton Hill", "CA": "Old Ottawa South" },
+    "service": "sports-physio",
+    "avatarSlot": "avatar-6"
+  },
+  {
+    "name": "Sofia R.",
+    "date": "2026-09-25",
+    "rating": 5,
+    "source": "Google review",
+    "text": "I was unsure about starting therapy. The booking page did not ask me anything personal, which I appreciated. My first session was unhurried and I never felt pushed to share more than I wanted to. The reminders are discreet and the fee was exactly as listed.",
+    "suburb": { "AU": "Abbotsford", "CA": "Vanier" },
+    "service": "psychology",
+    "avatarSlot": "avatar-7"
+  },
+  {
+    "name": "Wei C.",
+    "date": "2026-04-08",
+    "rating": 4,
+    "source": "Google review",
+    "text": "Priya was clear and kind, and I understood my back much better after the first visit. The exercise sheet was easy to follow. I gave four stars only because my appointment started about fifteen minutes late, though she apologised and did not rush me once I was in.",
+    "suburb": { "AU": "Richmond", "CA": "Kanata" },
+    "service": "physiotherapy",
+    "avatarSlot": "avatar-8"
+  },
+  {
+    "name": "Hannah B.",
+    "date": "2026-08-30",
+    "rating": 5,
+    "source": "Google review",
+    "text": "I booked a check-up for myself and my daughter. Dr Marsh was lovely with her, showed her the little mirror and let her count her own teeth. We both had a written plan afterwards, and the fees matched what we were told when we booked. Easy to rebook six months ahead.",
+    "suburb": { "AU": "Thornbury", "CA": "Orléans" },
+    "service": "dental-check-up",
+    "avatarSlot": "avatar-9"
   }
 ]

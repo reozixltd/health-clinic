@@ -1,0 +1,56 @@
+---
+/**
+ * A row of cards that scrolls sideways and snaps. Pass `li` elements. It scrolls natively by
+ * touch, wheel or keyboard; the buttons step one card. With `auto` it also advances on its own,
+ * and gets a pause button (core/carousel.ts). Set `--carousel-item` to size the cards.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Names the region, for example "Patient reviews". */
+  label: string;
+  auto?: boolean;
+  class?: string;
+}
+const { label, auto = false, class: className } = Astro.props;
+---
+
+<div class:list={['carousel', className]} data-carousel role="region" aria-roledescription="carousel" aria-label={label}>
+  <ul class="track" data-carousel-track tabindex="0"><slot /></ul>
+  <div class="controls">
+    {auto && (
+      <button type="button" class="ctl ctl--pause" data-carousel-pause aria-pressed="false" aria-label="Pause the automatic scrolling">
+        <Icon name="pause" size={18} />
+      </button>
+    )}
+    <button type="button" class="ctl" data-carousel-prev aria-label="Previous"><Icon name="chevron-left" size={20} /></button>
+    <button type="button" class="ctl" data-carousel-next aria-label="Next"><Icon name="chevron-right" size={20} /></button>
+  </div>
+</div>
+
+<style>
+  .carousel { display: grid; gap: var(--space-4); }
+  .track {
+    display: flex; gap: var(--space-4); margin: 0; padding: var(--space-2) 0 var(--space-4); list-style: none;
+    overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
+    border-radius: var(--radius-card);
+  }
+  .track::-webkit-scrollbar { display: none; }
+  .track > :global(li) { flex: 0 0 var(--carousel-item, min(100%, 24rem)); scroll-snap-align: start; }
+  .controls { display: flex; justify-content: flex-end; gap: var(--space-2); }
+  .ctl {
+    display: grid; place-items: center; width: var(--target); height: var(--target);
+    background: var(--color-card); border: var(--hairline); border-radius: 50%; box-shadow: var(--shadow-1);
+    color: var(--color-ink); cursor: pointer;
+    transition: background-color var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+  }
+  .ctl--pause { margin-right: auto; }
+  .ctl[aria-pressed='true'] { background: var(--color-accent); }
+  .ctl:active { transform: scale(0.94); }
+  @media (hover: hover) and (pointer: fine) { .ctl:hover { background: var(--color-surface); } }
+</style>
+
+<script>
+  import { initCarousels } from '../carousel';
+  initCarousels();
+</script>

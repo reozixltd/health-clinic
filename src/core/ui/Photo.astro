@@ -15,12 +15,14 @@ interface Props {
   priority?: boolean;
   /** Shown instead of the placeholder when the slot has no file (clinician portraits). */
   initials?: string;
+  /** Candidate widths, for a slot that only ever renders small (avatars). */
+  widths?: number[];
   class?: string;
 }
 
-const { slot, alt, ratio = '4 / 3', sizes = '(min-width: 1024px) 33vw, 100vw', priority = false, initials, class: className } = Astro.props;
+const { slot, alt, ratio = '4 / 3', sizes = '(min-width: 1024px) 33vw, 100vw', priority = false, initials, widths: candidates = [480, 800, 1200, 1600], class: className } = Astro.props;
 const image = getPhoto(slot);
-const widths = image ? [480, 800, 1200, 1600].filter((w) => w <= image.width) : [];
+const widths = image ? candidates.filter((w) => w <= image.width) : [];
 ---
 
 {

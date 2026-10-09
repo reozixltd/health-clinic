@@ -42,3 +42,11 @@ export function openStatus(hours: HoursRow[], now: Date, timeZone: string): { op
   }
   return { open: false, label: 'Closed' };
 }
+
+/** One row per day, Monday first: '8 am to 6 pm', or 'Closed' for a day with no hours. */
+export function weekHours(hours: HoursRow[]): { day: string; text: string }[] {
+  return [...DAYS.slice(1), DAYS[0]!].map((day) => {
+    const rows = hours.filter((h) => h.days.includes(day)).sort((a, b) => minutes(a.opens) - minutes(b.opens));
+    return { day, text: rows.map((h) => `${clock(h.opens)} to ${clock(h.closes)}`).join(', ') || 'Closed' };
+  });
+}

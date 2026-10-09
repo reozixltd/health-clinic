@@ -1,14 +1,23 @@
 ---
-/** "How your first visit works": the one numbered list on the home page. */
+/**
+ * "How your first visit works": the one numbered list on the home page, as a timeline. The line
+ * joining the steps draws in as the list scrolls through the viewport, where the browser can tie
+ * an animation to scroll; elsewhere, and under reduced motion, it is simply there.
+ */
+import Icon from '@/core/ui/Icon.astro';
 import Photo from '@/core/ui/Photo.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+
 interface Props {
   bookingOn: boolean;
   confirmPromise: string;
   /** Preset steps as "Title|text"; {booking} and {confirm} are filled from the site. */
   items: string[];
   photo?: { slot: string; alt: string };
+  /** The full new-patient guide, when the site has one worth pointing at from here. */
+  guideHref?: string;
 }
-const { bookingOn, confirmPromise, items, photo } = Astro.props;
+const { bookingOn, confirmPromise, items, photo, guideHref } = Astro.props;
 const steps = items.map((item) => {
   const [title, text] = item.split('|');
   return {
@@ -18,19 +27,48 @@ const steps = items.map((item) => {
 });
 ---
 
-<section id="first-visit" aria-labelledby="first-visit-title">
-  <h2 id="first-visit-title">How your first visit works</h2>
-  <div class:list={['cols', photo && 'has-photo']}>
-    <ol data-reveal-group>
-      {steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}
-    </ol>
-    {photo && <div data-reveal><Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 480px, 100vw" /></div>}
+<section id="first-visit" class="section" aria-labelledby="first-visit-title">
+  <div class="wrap">
+    <SectionHeading id="first-visit-title" title="How your first visit works" eyebrow="New here" />
+    <div class:list={['cols', photo && 'has-photo']}>
+      <div class="list">
+        <ol class="steps" data-reveal-group>
+          {steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}
+        </ol>
+        {guideHref && <a class="text-link guide" href={guideHref}>Read the new patient guide <Icon name="arrow-right" size={18} /></a>}
+      </div>
+      {photo && <div class="art" data-reveal><Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 34rem, 100vw" /></div>}
+    </div>
   </div>
 </section>
 
 <style>
-  .cols { display: grid; gap: var(--space-5); }
-  @media (min-width: 1024px) { .has-photo { grid-template-columns: 1fr 1fr; align-items: start; column-gap: var(--space-7); } }
-  ol { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-3); max-width: var(--measure); }
-  li::marker { font-weight: 700; }
+  .cols { display: grid; gap: var(--space-7); }
+  @media (min-width: 1024px) { .has-photo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: var(--space-9); } }
+  .list { display: grid; gap: var(--space-5); justify-items: start; }
+
+  .steps { --disc: 2.75rem; position: relative; display: grid; gap: var(--space-6); max-width: var(--measure); margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps > li { position: relative; min-height: var(--disc); padding-left: calc(var(--disc) + var(--space-4)); color: var(--color-ink-muted); counter-increment: step; }
+  .steps > li strong { display: block; color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-24); font-weight: 560; line-height: 1.25; }
+  .steps > li::before {
+    content: counter(step); position: absolute; left: 0; top: 0; z-index: 1;
+    display: grid; place-items: center; width: var(--disc); height: var(--disc);
+    background: var(--color-card); border: 2px solid var(--color-primary); border-radius: 50%; color: var(--color-primary);
+    font-family: var(--font-display); font-size: var(--text-20); font-weight: 600;
+  }
+  /* The connecting line: a faint track, and over it the drawn line. Both stop at the last disc. */
+  .steps::before, .steps::after {
+    content: ''; position: absolute; left: calc(var(--disc) / 2 - 1px); top: calc(var(--disc) / 2); bottom: var(--disc); width: 2px;
+    background: var(--color-line);
+  }
+  .steps::after { background: var(--color-primary); transform-origin: top; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      @keyframes line-draw { from { transform: scaleY(0); } }
+      :global(html:not([data-motion='off'])) .steps::after { animation: line-draw linear both; animation-timeline: view(); animation-range: entry 25% cover 60%; }
+    }
+  }
+
+  .guide { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); font-weight: 600; }
+  .art :global(.photo), .art :global(.ph) { border: 0; border-radius: var(--radius-panel); box-shadow: var(--shadow-2); }
 </style>

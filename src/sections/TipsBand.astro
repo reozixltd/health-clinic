@@ -1,0 +1,70 @@
+---
+/** The latest health tips: three article cards and a link to the rest. */
+import { formatDate } from '@/core/format';
+import Badge from '@/core/ui/Badge.astro';
+import Icon from '@/core/ui/Icon.astro';
+import Photo from '@/core/ui/Photo.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+import type { MarketId, MarketPack } from '@/domain/markets';
+
+interface Props {
+  /** `date` as YYYY-MM-DD. */
+  posts: { id: string; title: string; summary: string; date: string; minutes: number; category: string; photo?: { slot: string; alt: string } }[];
+  variants: { id: MarketId; market: MarketPack }[];
+}
+const { posts, variants } = Astro.props;
+---
+
+<section id="tips" class="section" aria-labelledby="tips-title">
+  <div class="wrap">
+    <SectionHeading id="tips-title" title="Latest health tips" eyebrow="From our clinicians" lede="Short, practical reading, written by the people who work here.">
+      <a class="text-link all" href="/blog/">All health tips <Icon name="arrow-right" size={18} /></a>
+    </SectionHeading>
+    <ul class="grid" data-reveal-group>
+      {posts.map((p) => (
+        <li>
+          <article class="card">
+            {p.photo && <div class="media"><Photo slot={p.photo.slot} alt={p.photo.alt} ratio="3 / 2" sizes="(min-width: 900px) 24rem, 100vw" /></div>}
+            <div class="body">
+              <Badge>{p.category}</Badge>
+              <h3><a href={`/blog/${p.id}/`}>{p.title}</a></h3>
+              <p>{p.summary}</p>
+              <p class="meta">
+                {variants.map((v) => <time datetime={p.date} data-market-only={v.id}>{formatDate(p.date, v.market.locale)}</time>)}
+                <span><Icon name="clock" size={16} /> {p.minutes} min read</span>
+              </p>
+            </div>
+          </article>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .all { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); font-weight: 600; }
+  .grid { display: grid; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
+  .grid > li { display: grid; }
+  @media (min-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  /* The lift sits on the card, not on the list item, which is the reveal target. */
+  .card {
+    position: relative; display: grid; grid-template-rows: auto 1fr;
+    background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-card); box-shadow: var(--shadow-1);
+    transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+  .card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: var(--shadow-3); opacity: 0; transition: opacity var(--dur-2) var(--ease-out); }
+  .media :global(.photo), .media :global(.ph) { border: 0; border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0; }
+  .body { display: grid; gap: var(--space-3); align-content: start; justify-items: start; grid-template-rows: auto auto 1fr auto; padding: var(--space-5); }
+  h3 { font-size: var(--text-24); }
+  h3 a { text-decoration: none; }
+  h3 a::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+  .body p { color: var(--color-ink-muted); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); font-size: var(--text-14); }
+  .meta span { display: inline-flex; align-items: center; gap: var(--space-1); }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover { transform: translateY(-4px); border-color: var(--color-primary); }
+    .card:hover::after { opacity: 1; }
+    :global(html:not([data-motion='off'])) .card:hover :global(.photo img) { transform: scale(1.05); }
+  }
+  .card:focus-within { border-color: var(--color-primary); }
+</style>

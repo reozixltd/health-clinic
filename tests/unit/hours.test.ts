@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clock, openStatus } from '@/core/hours';
+import { clock, openStatus, weekHours } from '@/core/hours';
 
 const hours = [
   { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '08:00', closes: '18:00' },
@@ -49,5 +49,26 @@ describe('openStatus', () => {
 
   it('copes with no hours at all', () => {
     expect(openStatus([], new Date('2026-10-12T01:00:00Z'), MELBOURNE)).toEqual({ open: false, label: 'Closed' });
+  });
+});
+
+describe('weekHours', () => {
+  it('lists seven days from Monday and marks a day with no hours closed', () => {
+    const week = weekHours([
+      { days: ['Monday', 'Tuesday'], opens: '08:00', closes: '18:00' },
+      { days: ['Saturday'], opens: '09:00', closes: '13:00' },
+    ]);
+    expect(week.map((d) => d.day)).toEqual(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+    expect(week[0]).toEqual({ day: 'Monday', text: '8 am to 6 pm' });
+    expect(week[5]!.text).toBe('9 am to 1 pm');
+    expect(week[6]!.text).toBe('Closed');
+  });
+
+  it('joins a split day in opening order', () => {
+    const week = weekHours([
+      { days: ['Monday'], opens: '14:00', closes: '18:00' },
+      { days: ['Monday'], opens: '08:00', closes: '12:00' },
+    ]);
+    expect(week[0]!.text).toBe('8 am to 12 pm, 2 pm to 6 pm');
   });
 });

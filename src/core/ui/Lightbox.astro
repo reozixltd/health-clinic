@@ -1,0 +1,97 @@
+---
+/**
+ * A photo grid whose tiles open a full-size view in a native dialog (core/lightbox.ts). The big
+ * photos are lazy, so nothing extra loads until a tile is opened. The first tile is large and the
+ * sixth is wide; the grid is tuned for eight photos and still tiles cleanly with other counts.
+ */
+import Icon from './Icon.astro';
+import Photo from './Photo.astro';
+
+interface Props {
+  items: { slot: string; alt: string; caption: string }[];
+  /** Names the dialog, for example "Clinic photos". */
+  label: string;
+}
+const { items, label } = Astro.props;
+---
+
+<div class="lightbox" data-lightbox>
+  <ul class="grid" data-reveal-group>
+    {items.map((item, i) => (
+      <li class="tile">
+        <Photo slot={item.slot} alt={item.alt} ratio="1 / 1" sizes={i === 0 ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 768px) 25vw, 50vw'} />
+        <button type="button" class="open" data-lightbox-open={i} aria-label={`View larger: ${item.caption}`}>
+          <span class="zoom"><Icon name="maximize" size={18} /></span>
+        </button>
+      </li>
+    ))}
+  </ul>
+
+  <dialog aria-label={label}>
+    <div class="stage">
+      {items.map((item, i) => (
+        <figure class="slide" data-lightbox-slide hidden={i !== 0}>
+          <Photo slot={item.slot} alt={item.alt} ratio="3 / 2" sizes="(min-width: 1024px) 70rem, 96vw" />
+          <figcaption>{item.caption}</figcaption>
+        </figure>
+      ))}
+    </div>
+    <div class="bar">
+      <button type="button" class="ctl" data-lightbox-prev aria-label="Previous photo"><Icon name="chevron-left" size={20} /></button>
+      <p class="count" data-lightbox-count aria-live="polite">1 of {items.length}</p>
+      <button type="button" class="ctl" data-lightbox-next aria-label="Next photo"><Icon name="chevron-right" size={20} /></button>
+      <form method="dialog"><button class="ctl" aria-label="Close"><Icon name="close" size={20} /></button></form>
+    </div>
+  </dialog>
+</div>
+
+<style>
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 768px) { .grid { grid-template-columns: repeat(4, 1fr); gap: var(--space-4); } }
+  .tile { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  .tile:first-child { grid-area: span 2 / span 2; }
+  .tile:nth-child(6) { grid-column: span 2; aspect-ratio: 2 / 1; }
+  /* The tile sets the shape; the photo fills it. Placed with inset so it holds under reduced motion. */
+  .tile :global(.photo), .tile :global(.ph) { position: absolute; inset: 0; border: 0; border-radius: 0; aspect-ratio: auto !important; }
+  .open { position: absolute; inset: 0; display: grid; place-items: end; padding: var(--space-3); background: none; border: 0; border-radius: inherit; cursor: zoom-in; }
+  .open:focus-visible { outline-offset: -4px; }
+  .zoom {
+    display: grid; place-items: center; width: 2.25rem; height: 2.25rem;
+    background: var(--color-card); border-radius: 50%; box-shadow: var(--shadow-2); color: var(--color-ink);
+    opacity: 0; transition: opacity var(--dur-2) var(--ease-out);
+  }
+  .open:focus-visible .zoom { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) {
+    .tile:hover .zoom { opacity: 1; }
+    :global(html:not([data-motion='off'])) .tile:hover :global(.photo img) { transform: scale(1.05); }
+  }
+  @media (hover: none) { .zoom { opacity: 1; } }
+
+  dialog {
+    width: min(100vw - var(--space-5), 70rem); max-width: none; max-height: none; margin: auto; padding: 0;
+    background: none; border: 0; color: var(--color-on-deep); overflow: visible;
+  }
+  dialog::backdrop { background: color-mix(in srgb, var(--color-deep) 92%, transparent); }
+  dialog[open] { display: grid; gap: var(--space-3); }
+  .slide { display: grid; gap: var(--space-3); margin: 0; }
+  .slide[hidden] { display: none; }
+  .slide :global(.photo) { max-height: 74vh; margin-inline: auto; background: none; border: 0; border-radius: var(--radius-card); }
+  .slide :global(.photo img) { object-fit: contain; }
+  figcaption { text-align: center; font-size: var(--text-18); }
+  .bar { display: flex; align-items: center; justify-content: center; gap: var(--space-3); }
+  .bar form { margin-left: var(--space-4); }
+  .count { min-width: 5ch; margin: 0; text-align: center; font-variant-numeric: tabular-nums; }
+  .ctl {
+    display: grid; place-items: center; width: var(--target); height: var(--target);
+    background: var(--color-card); border: 0; border-radius: 50%; color: var(--color-ink); cursor: pointer;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    dialog[open] { animation: lightbox-in var(--dur-2) var(--ease-out); }
+    @keyframes lightbox-in { from { opacity: 0; transform: scale(0.98); } }
+  }
+</style>
+
+<script>
+  import { initLightboxes } from '../lightbox';
+  initLightboxes();
+</script>

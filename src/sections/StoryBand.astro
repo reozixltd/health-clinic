@@ -1,0 +1,73 @@
+---
+/** The founder's story: portrait, the first paragraphs, the mission as a pull quote, and a signature. */
+import Eyebrow from '@/core/ui/Eyebrow.astro';
+import Icon from '@/core/ui/Icon.astro';
+import Photo from '@/core/ui/Photo.astro';
+
+interface Props {
+  heading: string;
+  paragraphs: string[];
+  mission: string;
+  founded: number;
+  founder: { name: string; role: string };
+  photo?: { slot: string; alt: string };
+  /** The full story page, when the site has one. */
+  href?: string;
+}
+const { heading, paragraphs, mission, founded, founder, photo, href } = Astro.props;
+---
+
+<section id="story" class="section story" aria-labelledby="story-title">
+  <div class:list={['wrap', 'cols', photo && 'has-photo']}>
+    {photo && (
+      <div class="art" data-reveal>
+        <span class="blob" aria-hidden="true"></span>
+        <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 5" sizes="(min-width: 900px) 28rem, 100vw" />
+        <p class="est"><strong>Est. {founded}</strong><span>Independent and clinician owned</span></p>
+      </div>
+    )}
+    <div class="copy" data-reveal>
+      <Eyebrow>Our story</Eyebrow>
+      <h2 id="story-title">{heading}</h2>
+      {paragraphs.map((p) => <p>{p}</p>)}
+      <blockquote>
+        <Icon name="quote" size={24} />
+        <p>{mission}</p>
+      </blockquote>
+      <p class="sign">
+        <span class="name">{founder.name}</span>
+        <span class="role">{founder.role}</span>
+      </p>
+      {href && <a class="text-link more" href={href}>Read our story <Icon name="arrow-right" size={18} /></a>}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Clipped sideways: the blob behind the photo reaches past the gutter on a phone. */
+  .story { background: var(--color-sand); overflow-x: clip; }
+  .cols { display: grid; gap: var(--space-8); align-items: center; }
+  @media (min-width: 900px) { .has-photo { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: var(--space-9); } }
+
+  .art { position: relative; max-width: 28rem; }
+  .art :global(.photo), .art :global(.ph) { position: relative; z-index: 1; border: 0; border-radius: var(--radius-panel) 8rem var(--radius-panel) 8rem; box-shadow: var(--shadow-3); }
+  .blob { position: absolute; inset: auto -8% -7% auto; width: 62%; aspect-ratio: 1; background: var(--color-accent); border-radius: 58% 42% 44% 56% / 46% 56% 44% 54%; }
+  .est {
+    position: absolute; z-index: 2; left: calc(-1 * var(--space-3)); bottom: var(--space-6); display: grid; max-width: 13rem;
+    padding: var(--space-3) var(--space-4); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-2);
+    font-size: var(--text-14); line-height: 1.35;
+  }
+  .est strong { font-family: var(--font-display); font-size: var(--text-24); }
+  .est span { color: var(--color-ink-muted); }
+  @media (max-width: 899px) { .est { left: var(--space-3); } }
+
+  .copy { display: grid; gap: var(--space-4); justify-items: start; }
+  .copy > p { color: var(--color-ink-muted); }
+  blockquote { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); padding: var(--space-4) 0 var(--space-4) var(--space-5); border-left: 3px solid var(--color-primary); color: var(--color-primary-text); }
+  blockquote p { color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-24); line-height: 1.3; }
+  .sign { display: grid; }
+  /* ponytail: the signature is set in the system's script face, not a drawn one; swap in an SVG of a real signature when there is one. */
+  .name { color: var(--color-ink); font-family: 'Snell Roundhand', 'Segoe Script', 'Bradley Hand', cursive; font-size: var(--text-36); line-height: 1.2; }
+  .copy > .sign .role { color: var(--color-ink-muted); font-size: var(--text-14); }
+  .more { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); font-weight: 600; }
+</style>

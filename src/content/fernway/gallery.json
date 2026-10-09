@@ -1,0 +1,10 @@
+[
+  { "photoSlot": "waiting-area", "caption": "The waiting area, with room to sit apart if you prefer" },
+  { "photoSlot": "reception", "caption": "Reception, just inside the step-free entrance" },
+  { "photoSlot": "treatment-room-physio", "caption": "One of three physiotherapy rooms" },
+  { "photoSlot": "rehab-gym", "caption": "The rehab gym and its reformer beds, opened in 2021" },
+  { "photoSlot": "consulting-room-psychology", "caption": "A psychology consulting room at the quiet end of the building" },
+  { "photoSlot": "clinic-detail", "caption": "Fresh linen is set out before every appointment" },
+  { "photoSlot": "treatment-room-dental", "caption": "The dental surgery, set up for a check-up" },
+  { "photoSlot": "clinic-exterior", "caption": "The front entrance, level with the street" }
+]

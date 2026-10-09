@@ -14,7 +14,7 @@ await step('home order and primary actions', async () => {
     const ids = await page.locator('main > section[id], main > div > section[id]').evaluateAll((els) => els.map((e) => e.id));
     const order = ['services', 'team', 'first-visit', 'reviews', 'location', 'faq'].filter((id) => ids.includes(id));
     expect(order.join() === ids.filter((id) => order.includes(id)).join(), `section order: ${ids}`);
-    expect((await page.locator('#faq dt').count()) >= 5, 'five FAQs');
+    expect((await page.locator('#faq details').count()) >= 5, 'five FAQs');
   });
 });
 
@@ -30,6 +30,20 @@ if (!vet) {
       const reviews = page.locator('[data-review]:visible');
       expect((await reviews.count()) >= 2, 'CA reviews should display');
       expect((await page.locator('[data-review]:visible time[datetime]').count()) === (await reviews.count()), 'each review dated');
+      expect((await page.locator('[data-carousel-pause]:visible').count()) === 1, 'the reviews carousel needs a pause button');
+    });
+  });
+
+  await step('a rating shows only in a market that displays ratings', async () => {
+    await withPage({}, async (page) => {
+      const rated = () => page.locator('[data-rating]:visible').count();
+      await page.goto(`${BASE}/`);
+      if (SITE_ID === 'fernway-au') expect((await rated()) === 0, 'AU shows a rating at load');
+      await page.goto(`${BASE}/?market=CA`);
+      expect((await rated()) >= 1, 'CA should show the rating');
+      // The choice is remembered, so going back has to hide every rating again.
+      await page.goto(`${BASE}/?market=AU`);
+      expect((await rated()) === 0, 'AU shows a rating after switching back from CA');
     });
   });
 }

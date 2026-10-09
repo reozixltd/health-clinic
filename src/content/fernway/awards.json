@@ -1,0 +1,8 @@
+[
+  { "name": "Accredited Allied Health Practice", "issuer": "Clinic Quality Register", "year": 2021, "icon": "shield", "kind": "accreditation" },
+  { "name": "Accredited Dental Practice Mark", "issuer": "Oral Care Review Board", "year": 2023, "icon": "badge-check", "kind": "accreditation" },
+  { "name": "Accessible Practice Recognition", "issuer": "Open Doors Access Trust", "year": 2024, "icon": "heart-pulse", "kind": "accreditation" },
+  { "name": "Kind Care Award, small clinics", "issuer": "Neighbourhood Care Circle", "year": 2024, "icon": "star", "kind": "award" },
+  { "name": "Neighbourhood Clinic of the Year", "issuer": "Local Care Guild", "year": 2023, "icon": "award", "kind": "award" },
+  { "name": "Clear Fees Charter Mark", "issuer": "Open Pricing Circle", "year": 2025, "icon": "sparkle", "kind": "award" }
+]

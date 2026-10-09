@@ -13,9 +13,9 @@ describe('photo roles', () => {
     }
   });
 
-  it('every room slot has alt text and no provider slot does', () => {
+  it('every slot has alt text unless it is a portrait named from content', () => {
     for (const slot of Object.values(photoSlots).flat()) {
-      if (slot.startsWith('provider-')) expect(photoAlt[slot]).toBeUndefined();
+      if (/^(provider|avatar)-/.test(slot)) expect(photoAlt[slot]).toBeUndefined();
       else expect(photoAlt[slot], slot).toBeTruthy();
     }
   });
@@ -30,7 +30,7 @@ describe('photo roles', () => {
   });
 
   it('rolePhoto returns the slot and alt, or nothing for a folder with no roles', () => {
-    expect(rolePhoto('fernway', 'hero')).toEqual({ slot: 'reception', alt: photoAlt.reception });
+    expect(rolePhoto('fernway', 'hero')).toMatchObject({ slot: 'hero-consult', alt: photoAlt['hero-consult'] });
     expect(rolePhoto('fixture-minimal', 'hero')).toBeUndefined();
     expect(rolePhoto('', 'exterior')).toBeUndefined();
   });

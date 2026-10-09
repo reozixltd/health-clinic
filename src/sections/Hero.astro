@@ -1,131 +1,181 @@
 ---
-/** Clinic name, what it treats, a real search box, and the after-hours note. */
+/**
+ * The opening band: headline, lead, the two primary actions and the after-hours note, beside one
+ * large photo with small cards floating over its edge. It slides under the header's clear main
+ * row, like PageHeader. The copy rises in on load and the cards drift a little as the page scrolls.
+ */
 import Button from '@/core/ui/Button.astro';
 import Chip from '@/core/ui/Chip.astro';
+import Eyebrow from '@/core/ui/Eyebrow.astro';
 import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
 import Photo from '@/core/ui/Photo.astro';
 import type { MarketId } from '@/domain/markets';
 import type { Preset } from '@/domain/presets';
 import type { Clinic } from '@/domain/types';
 import EmergencyNote from '@/modules/emergency/EmergencyNote.astro';
 
+interface Float {
+  icon: IconName;
+  title: string;
+  text?: string;
+  /** A review rating. The page only ever builds one for a market that displays ratings. */
+  rating?: boolean;
+}
 interface Props {
-  name: string;
-  treats: string;
+  eyebrow?: string;
+  headline: string;
+  lead: string;
   preset: Preset;
-  variants: { id: MarketId; clinic: Clinic; tel: string }[];
+  /** `floats`: at most two cards over the photo, chosen per market by the page. */
+  variants: { id: MarketId; clinic: Clinic; tel: string; floats: Float[] }[];
   bookingOn: boolean;
   emergencyOn: boolean;
-  photo?: { slot: string; alt: string };
-  /** Popular searches, already limited by the page. */
+  photo?: { slot: string; alt: string; focus?: string };
+  /** Service shortcuts, already limited by the page. */
   quickLinks: { label: string; href: string }[];
-  acceptingNew: number;
 }
-const { name, treats, preset, variants, bookingOn, emergencyOn, photo, quickLinks, acceptingNew } = Astro.props;
+const { eyebrow, headline, lead, preset, variants, bookingOn, emergencyOn, photo, quickLinks } = Astro.props;
 ---
 
 <section class:list={['hero', photo && 'has-photo']} aria-labelledby="hero-title">
-  <div class="copy">
-    {acceptingNew > 0 && (
-      <p class="pill">
-        <span class="pill__dot" aria-hidden="true"></span>
-        Taking new patients
-      </p>
-    )}
-    <h1 id="hero-title">{name}</h1>
-    <p class="line">{preset.copy.heroLine}. {treats}</p>
+  <div class="wrap inner">
+    <div class="copy">
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      <h1 id="hero-title">{headline}</h1>
+      <p class="lead">{lead}</p>
 
-    <form class="search" action="/team/" method="get" role="search">
-      <div class="search__field">
-        <label for="hero-q">Search a clinician or a service</label>
-        <span class="search__icon"><Icon name="search" size={20} /></span>
-        <input id="hero-q" name="q" type="search" placeholder="For example physiotherapy or Elena Marsh" />
-      </div>
-      <div class="search__field search__field--stub">
-        <span class="search__icon"><Icon name="shield" size={20} /></span>
-        <label for="hero-insurer">Health fund or insurer</label>
-        <p class="stub" id="hero-insurer-note">Not yet listed. Call us and we will check your cover.</p>
-      </div>
-      <Button type="submit" size="lg">
-        <Icon name="search" size={20} />
-        Find and book
-      </Button>
-    </form>
+      {variants.map((v) => (
+        <div class="actions" data-market-only={v.id}>
+          {bookingOn && <Button href="/book/" size="lg" arrow>{preset.copy.bookLabel}</Button>}
+          <a class="phone" href={v.tel}>
+            <span class="phone__icon"><Icon name="phone" size={18} /></span>
+            Call {v.clinic.phone}
+          </a>
+          {emergencyOn && <EmergencyNote clinic={v.clinic} preset={preset} compact />}
+        </div>
+      ))}
 
-    {quickLinks.length > 0 && (
-      <nav class="quick" aria-label="Popular searches">
-        <h2 class="quick__title">Popular searches</h2>
-        <ul>
-          {quickLinks.map((q) => (
-            <li><Chip href={q.href}>{q.label}</Chip></li>
-          ))}
-        </ul>
-      </nav>
-    )}
-
-    {variants.map((v) => (
-      <div class="actions" data-market-only={v.id}>
-        {bookingOn && <Button href="/book/" size="lg">{preset.copy.bookLabel}</Button>}
-        <a class="phone" href={v.tel}>
-          <Icon name="phone" size={20} />
-          Call {v.clinic.phone}
-        </a>
-        {emergencyOn && <EmergencyNote clinic={v.clinic} preset={preset} compact />}
-      </div>
-    ))}
-  </div>
-
-  {photo && (
-    <div class="art">
-      <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 5" sizes="(min-width: 1024px) 560px, 100vw" priority />
-      {acceptingNew > 0 && (
-        <p class="badge">
-          <Icon name="user" size={20} />
-          <span>{acceptingNew} taking new patients</span>
-        </p>
+      {quickLinks.length > 0 && (
+        <nav class="quick" aria-label="Popular services">
+          <ul>
+            {quickLinks.map((q) => (
+              <li><Chip href={q.href}>{q.label}</Chip></li>
+            ))}
+          </ul>
+        </nav>
       )}
     </div>
-  )}
+
+    {photo && (
+      <div class="art" style={photo.focus ? `--focus: ${photo.focus}` : undefined}>
+        <span class="blob" aria-hidden="true"></span>
+        <Photo slot={photo.slot} alt={photo.alt} ratio="1 / 1" sizes="(min-width: 1024px) 36rem, 100vw" priority />
+        {variants.map((v) =>
+          v.floats.slice(0, 2).map((f, i) => (
+            <p class:list={['float', i === 0 ? 'float--a' : 'float--b']} data-market-only={v.id} data-rating={f.rating || undefined}>
+              <span class:list={['float__icon', f.rating && 'float__icon--star']}><Icon name={f.icon} size={20} /></span>
+              <span class="float__text">
+                <strong>{f.title}</strong>
+                {f.text && <span>{f.text}</span>}
+              </span>
+            </p>
+          )),
+        )}
+      </div>
+    )}
+  </div>
 </section>
 
 <style>
-  .hero { max-width: 72rem; margin: 0 auto; padding: var(--space-7) var(--space-4) var(--space-6); display: grid; gap: var(--space-6); }
-  .copy { display: grid; gap: var(--space-4); }
-  @media (min-width: 1024px) { .has-photo { grid-template-columns: 7fr 5fr; align-items: center; column-gap: var(--space-7); } }
+  .hero {
+    position: relative; overflow: clip;
+    margin-top: calc(-1 * var(--header-h));
+    padding: calc(var(--header-h) + var(--space-6)) 0 var(--space-8);
+    background: linear-gradient(180deg, var(--color-surface), var(--color-paper));
+  }
+  .inner { display: grid; gap: var(--space-7); align-items: center; }
+  @media (min-width: 1024px) {
+    .hero { padding-bottom: var(--space-9); }
+    .has-photo .inner { grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: var(--space-8); }
+  }
 
-  .pill { display: inline-flex; align-items: center; gap: var(--space-2); justify-self: start; padding: var(--space-1) var(--space-4); background: var(--color-surface); border: var(--hairline); border-radius: var(--radius-pill); color: var(--color-primary-text); font-size: var(--text-14); font-weight: 600; }
-  .pill__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary); }
+  .copy { display: grid; gap: var(--space-4); justify-items: start; }
+  h1 { max-width: 15ch; }
+  .lead { max-width: 34rem; color: var(--color-ink-muted); font-size: var(--text-lead); }
 
-  h1 { font-size: var(--text-hero); max-width: 20ch; }
-  .line { font-size: var(--text-18); max-width: var(--measure); color: var(--color-ink-muted); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin-top: var(--space-2); }
+  .actions :global(.emergency-note) { flex-basis: 100%; font-size: var(--text-14); }
+  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); font-weight: 600; text-decoration: none; }
+  .phone__icon { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; background: var(--color-card); border: var(--hairline); border-radius: 50%; color: var(--color-primary-text); }
+  @media (hover: hover) and (pointer: fine) { .phone:hover { text-decoration: underline; } }
 
-  .search { display: grid; gap: var(--space-3); padding: var(--space-3); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
-  @media (min-width: 768px) { .search { grid-template-columns: 1fr 1fr auto; align-items: end; } }
-  .search__field { position: relative; display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-3); background: var(--color-surface); border-radius: var(--radius-control); }
-  .search__field label { font-size: var(--text-14); font-weight: 600; }
-  .search__icon { position: absolute; top: var(--space-2); right: var(--space-3); color: var(--color-ink-muted); }
-  .search__field input { min-height: var(--target-field); padding-right: var(--space-7); background: transparent; border: 1px solid transparent; border-radius: var(--radius-control); }
-  .search__field input:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 1px; }
-  .stub { margin: 0; color: var(--color-ink-muted); font-size: var(--text-14); }
-
-  .quick { display: grid; gap: var(--space-2); }
-  .quick__title { font-size: var(--text-14); font-weight: 600; }
   .quick ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; }
+  .quick :global(.chip) { background: var(--color-card); }
 
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
-  .actions :global(.emergency-note) { flex-basis: 100%; }
-  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); font-weight: 600; text-decoration: underline; }
-
+  /* The photo, a leaf-shaped mask, and decoration behind it. Everything is placed with inset, so
+     it holds its place under reduced motion, where transforms are flattened. */
   .art { position: relative; }
-  .art :global(.photo) { border-radius: var(--radius-panel); box-shadow: var(--shadow-2); }
-  .badge { position: absolute; top: var(--space-4); right: var(--space-4); display: flex; align-items: center; gap: var(--space-2); margin: 0; padding: var(--space-2) var(--space-4); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-2); font-size: var(--text-14); font-weight: 600; }
+  .art :global(.photo), .art :global(.ph) {
+    position: relative; z-index: 1; border: 0;
+    border-radius: 9rem var(--radius-panel) 9rem var(--radius-panel);
+    box-shadow: var(--shadow-3);
+  }
+  .art :global(.photo img) { object-position: var(--focus, center); }
+  @media (max-width: 1023px) {
+    .art :global(.photo), .art :global(.ph) { aspect-ratio: 4 / 3 !important; border-radius: 5rem var(--radius-panel) 5rem var(--radius-panel); }
+  }
+  .blob {
+    position: absolute; inset: -9% -14% auto auto; width: 74%; aspect-ratio: 1;
+    background: var(--color-accent); border-radius: 46% 54% 60% 40% / 48% 42% 58% 52%;
+  }
+  .art::after {
+    content: ''; position: absolute; inset: auto auto -8% -10%; width: 44%; aspect-ratio: 1;
+    background: var(--color-sand); border-radius: 58% 42% 44% 56% / 46% 56% 44% 54%;
+  }
+
+  .float {
+    position: absolute; z-index: 2; display: flex; align-items: center; gap: var(--space-3);
+    margin: 0; padding: var(--space-3) var(--space-4); max-width: 17rem;
+    background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-2);
+    font-size: var(--text-14); line-height: 1.3;
+  }
+  .float--a { left: var(--space-3); bottom: calc(-1 * var(--space-5)); }
+  .float--b { right: var(--space-3); top: var(--space-3); }
+  @media (min-width: 1024px) {
+    .float--a { left: calc(-1 * var(--space-7)); bottom: var(--space-7); }
+    .float--b { right: calc(-1 * var(--space-4)); top: var(--space-7); }
+  }
+  .float__icon { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); }
+  .float__icon--star { background: var(--color-warning-soft); color: var(--color-star); }
+  .float__icon--star :global(svg) { fill: currentColor; }
+  .float__text { display: grid; }
+  .float__text strong { font-size: var(--text-16); }
+  .float__text span { color: var(--color-ink-muted); }
 
   @media (prefers-reduced-motion: no-preference) {
-    @keyframes hero-rise { from { opacity: 0; transform: translateY(12px); } }
-    @keyframes hero-settle { from { opacity: 0; transform: scale(1.04); } }
-    :global(html:not([data-motion='off'])) .copy > * { animation: hero-rise 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
-    :global(html:not([data-motion='off'])) .copy > :nth-child(2) { animation-delay: 60ms; }
-    :global(html:not([data-motion='off'])) .copy > :nth-child(n + 3) { animation-delay: 120ms; }
-    :global(html:not([data-motion='off'])) .art :global(.photo img) { animation: hero-settle 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+    @keyframes hero-rise { from { opacity: 0; transform: translateY(20px); } }
+    /* The photo only settles in scale. It never starts transparent, so the largest paint is not held back. */
+    @keyframes hero-settle { from { transform: scale(1.06); } }
+    @keyframes hero-drift { to { translate: 0 var(--drift); } }
+    :global(html:not([data-motion='off'])) .copy > :global(*) { animation: hero-rise var(--dur-3) var(--ease-out) backwards; }
+    :global(html:not([data-motion='off'])) .copy > :nth-child(2) { animation-delay: 70ms; }
+    :global(html:not([data-motion='off'])) .copy > :nth-child(3) { animation-delay: 140ms; }
+    :global(html:not([data-motion='off'])) .copy > :nth-child(n + 4) { animation-delay: 210ms; }
+    :global(html:not([data-motion='off'])) .copy > .quick { animation-delay: 280ms; }
+    :global(html:not([data-motion='off'])) .art :global(.photo img) { animation: hero-settle var(--dur-3) var(--ease-out) backwards; }
+    :global(html:not([data-motion='off'])) .float { animation: hero-rise var(--dur-3) var(--ease-out) 350ms backwards; }
+    :global(html:not([data-motion='off'])) .float--b { animation-delay: 450ms; }
+
+    /* Parallax: the cards and the blob move a little against the photo as the hero scrolls away. */
+    @supports (animation-timeline: scroll()) {
+      :global(html:not([data-motion='off'])) .blob { --drift: 70px; animation: hero-drift linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
+      :global(html:not([data-motion='off'])) .float {
+        --drift: -36px;
+        animation: hero-rise var(--dur-3) var(--ease-out) 350ms backwards, hero-drift linear both;
+        animation-timeline: auto, scroll(root); animation-range: normal, 0 100vh;
+      }
+      :global(html:not([data-motion='off'])) .float--b { --drift: -64px; animation-delay: 450ms, 0s; }
+    }
   }
 </style>

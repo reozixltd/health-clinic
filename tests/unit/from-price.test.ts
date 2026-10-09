@@ -8,6 +8,8 @@ describe('fromPriceLabel', () => {
     expect(fromPriceLabel({ fromPrice: 95 }, getMarket('AU'))).toBe('From $95');
     expect(fromPriceLabel({ fromPrice: 95 }, getMarket('CA'))).toBe('From $95');
     expect(fromPriceLabel({}, getMarket('AU'))).toBeNull();
+    expect(fromPriceLabel({ fromPrice: { AU: 70, CA: 80 } }, getMarket('CA'))).toBe('From $80');
+    expect(fromPriceLabel({ fromPrice: { AU: 70 } }, getMarket('CA'))).toBeNull();
   });
   it('is hidden where a full price list is required', () => {
     expect(fromPriceLabel({ fromPrice: 48 }, getMarket('UK'))).toBeNull();

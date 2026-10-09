@@ -6,11 +6,21 @@ export interface Review {
   rating: number;
   source: string;
   text: string;
+  /** Where the reviewer lives, already picked for the market. */
+  suburb?: string;
+  /** The service they came for, as its display title. */
+  service?: string;
+  avatarSlot?: string;
 }
 
 /** AU shows a link to Google reviews only; CA and UK show named, dated reviews. */
 export function reviewMode(market: MarketPack): 'link-only' | 'display' {
   return market.reviews;
+}
+
+/** True where a market may show star ratings and quotes. Every rating on the site sits behind this. */
+export function showsRatings(market: MarketPack): boolean {
+  return market.reviews === 'display';
 }
 
 /** Newest first, at most `limit`. */

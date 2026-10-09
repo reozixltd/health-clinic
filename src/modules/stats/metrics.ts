@@ -52,3 +52,40 @@ export function clinicMetrics(input: {
   }
   return tiles;
 }
+
+export interface StatTile {
+  value: number;
+  suffix?: string;
+  decimals?: number;
+  label: string;
+  /** A rating tile. Only ever present for a market that displays reviews. */
+  rating?: true;
+}
+
+/**
+ * The counted stats strip: years open, the first authored figure, clinicians, then the average
+ * rating where the market shows ratings (a count of services where it does not), then the rest of
+ * the authored figures. Years and head counts are worked out, never typed in.
+ */
+export function clinicStats(input: {
+  founded: number;
+  year: number;
+  clinicians: number;
+  services: number;
+  nouns: Nouns;
+  rating?: { value: number; count: number };
+  showsRatings: boolean;
+  authored: { value: number; suffix?: string; label: string }[];
+}): StatTile[] {
+  const { founded, year, clinicians, services, nouns, rating, showsRatings, authored } = input;
+  const fourth: StatTile = showsRatings && rating
+    ? { value: rating.value, decimals: 1, label: 'Average Google rating', rating: true }
+    : { value: services, label: `${nouns.service} under one roof` };
+  return [
+    { value: year - founded, label: 'Years caring for this neighbourhood' },
+    ...authored.slice(0, 1),
+    { value: clinicians, label: `Registered ${nouns.clinician.toLowerCase()}` },
+    fourth,
+    ...authored.slice(1),
+  ];
+}

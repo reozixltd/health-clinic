@@ -86,6 +86,11 @@ export function initOpenStatus(doc: Document = document, now = new Date()): void
     const label = el.querySelector('[data-open-label]');
     if (label) label.textContent = status.label;
   }
+  // Today's row in a week of hours, by the clinic's own calendar.
+  for (const list of doc.querySelectorAll<HTMLElement>('[data-week]')) {
+    const today = new Intl.DateTimeFormat('en-GB', { timeZone: list.dataset.tz ?? 'UTC', weekday: 'long' }).format(now);
+    list.querySelector(`[data-day="${today}"]`)?.setAttribute('aria-current', 'date');
+  }
 }
 
 /** The market this build is configured for (pages use this instead of reading site.market). */

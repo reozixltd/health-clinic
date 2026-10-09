@@ -1,0 +1,21 @@
+---
+/**
+ * A number that counts up once when it scrolls into view (core/motion.ts). The finished number is
+ * in the markup, so it reads correctly with no script, under reduced motion, and to a screen
+ * reader, which gets the final value and never the ticking one.
+ */
+interface Props {
+  value: number;
+  suffix?: string;
+  decimals?: number;
+}
+const { value, suffix = '', decimals = 0 } = Astro.props;
+const text = value.toLocaleString('en', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+---
+
+<span class="counter"><span class="visually-hidden">{text}{suffix}</span><span aria-hidden="true"><span data-count-to={value} data-decimals={decimals || undefined}>{text}</span>{suffix}</span></span>
+
+<style>
+  /* Fixed-width digits, so the line does not jitter while the number runs. */
+  .counter { font-variant-numeric: tabular-nums; white-space: nowrap; }
+</style>

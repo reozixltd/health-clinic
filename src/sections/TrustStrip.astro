@@ -1,0 +1,61 @@
+---
+/** Awards and accreditations as a row of medallions, then the funds the clinic works with as a moving strip, per market. */
+import FundLogo from '@/core/ui/FundLogo.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import Marquee from '@/core/ui/Marquee.astro';
+import type { MarketId } from '@/domain/markets';
+
+interface Props {
+  awards: { name: string; issuer: string; year: number; icon: string }[];
+  variants: { id: MarketId; funds: { name: string; mark: number }[] }[];
+}
+const { awards, variants } = Astro.props;
+const FUNDS = 'Health funds and insurers we work with';
+---
+
+<section class="trust" aria-label="Accreditations, awards and health funds">
+  <div class="wrap">
+    {awards.length > 0 && (
+      <ul class="awards" data-reveal-group>
+        {awards.map((a) => (
+          <li>
+            <span class="medal"><Icon name={a.icon as IconName} size={22} /></span>
+            <span class="text">
+              <strong>{a.name}</strong>
+              <span>{a.issuer}, {a.year}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    )}
+    {variants.map((v) => v.funds.length > 0 && (
+      <div class="funds" data-market-only={v.id}>
+        <p class="label">{FUNDS}</p>
+        <Marquee label={FUNDS}>
+          {v.funds.map((f) => <li><FundLogo name={f.name} mark={f.mark} /></li>)}
+        </Marquee>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .trust { padding-block: var(--space-7); background: var(--color-card); border-block: var(--hairline); }
+  .awards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 640px) { .awards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .awards { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+  .awards li { display: grid; gap: var(--space-2); justify-items: center; align-content: start; text-align: center; }
+  .medal {
+    display: grid; place-items: center; width: 3rem; height: 3rem;
+    background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text);
+    box-shadow: 0 0 0 4px var(--color-card), 0 0 0 5px var(--color-line);
+  }
+  .text { display: grid; gap: 2px; font-size: var(--text-14); line-height: 1.35; }
+  .text span { color: var(--color-ink-muted); }
+  .funds { margin-top: var(--space-6); padding-top: var(--space-5); border-top: var(--hairline); }
+  .label {
+    max-width: none; margin-bottom: var(--space-2); text-align: center;
+    color: var(--color-ink-muted); font-size: var(--text-14); font-weight: 600; letter-spacing: var(--track-label); text-transform: uppercase;
+  }
+</style>

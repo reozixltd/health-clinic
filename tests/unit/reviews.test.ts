@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getMarket } from '@/domain/markets';
-import { hasReviewContent, reviewMode } from '@/modules/reviews/reviews';
+import { hasReviewContent, reviewMode, showsRatings } from '@/modules/reviews/reviews';
 
 describe('reviewMode', () => {
   it('AU is link-only, CA and UK display', () => {
@@ -16,5 +16,13 @@ describe('hasReviewContent', () => {
     expect(hasReviewContent('link-only', 0, 'https://g.page/x')).toBe(true);
     expect(hasReviewContent('display', 0, 'https://g.page/x')).toBe(false);
     expect(hasReviewContent('display', 2)).toBe(true);
+  });
+});
+
+describe('showsRatings', () => {
+  it('is off in AU and on in CA and UK', () => {
+    expect(showsRatings(getMarket('AU'))).toBe(false);
+    expect(showsRatings(getMarket('CA'))).toBe(true);
+    expect(showsRatings(getMarket('UK'))).toBe(true);
   });
 });

@@ -1,9 +1,17 @@
 ---
+/**
+ * Home. A site with an about file gets the full sixteen-section page; one without (the vet demo,
+ * the fixtures) gets the same shared sections around the plainer bands it had before.
+ */
 import { getCollection, getEntry } from 'astro:content';
 import { site, allSites } from '@/config';
-import { rolePhoto } from '@/config/photo-slots';
+import { photoAlt, rolePhoto, slotPhoto } from '@/config/photo-slots';
+import { hasPhoto } from '@/core/photos';
+import type { IconName } from '@/core/ui/icons';
 import { isOn } from '@/domain/modules';
 import { providersBySlug } from '@/modules/providers/lookup';
+import { showsRatings } from '@/modules/reviews/reviews';
+import { clinicStats } from '@/modules/stats/metrics';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { hoursText, marketVariants, telHref } from '@/layouts/site';
 import CtaBand from '@/sections/CtaBand.astro';
@@ -12,55 +20,111 @@ import Faq from '@/sections/Faq.astro';
 import FeesTeaser from '@/sections/FeesTeaser.astro';
 import FeaturesBand from '@/sections/FeaturesBand.astro';
 import FirstVisit from '@/sections/FirstVisit.astro';
+import GalleryBand from '@/sections/GalleryBand.astro';
 import Hero from '@/sections/Hero.astro';
+import InsuranceBand from '@/sections/InsuranceBand.astro';
 import Location from '@/sections/Location.astro';
 import MetricsBand from '@/sections/MetricsBand.astro';
+import Newsletter from '@/sections/Newsletter.astro';
 import ReviewsBand from '@/sections/ReviewsBand.astro';
 import ServicesBand from '@/sections/ServicesBand.astro';
+import StoryBand from '@/sections/StoryBand.astro';
 import TeamRow from '@/sections/TeamRow.astro';
+import TipsBand from '@/sections/TipsBand.astro';
 import TrustRow from '@/sections/TrustRow.astro';
+import TrustStrip from '@/sections/TrustStrip.astro';
 import UrgentBand from '@/sections/UrgentBand.astro';
+import WhyBand from '@/sections/WhyBand.astro';
 
 const { clinic, preset, booking } = site;
-const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id), hours: v.clinic.hours.map(hoursText) }));
 const on = (id: Parameters<typeof isOn>[0]) => isOn(id, site);
+const photo = (role: Parameters<typeof rolePhoto>[1]) => rolePhoto(site.contentDir, role);
+/** A slot's photo, only when the file is there: a card without one lays out without the picture. */
+const filed = (slot?: string) => (slot && hasPhoto(slot) ? slotPhoto(slot) : undefined);
 
-const services = on('services') ? (await getCollection('services')).map((s) => s.data).sort((a, b) => a.order - b.order) : [];
-const providers = on('providers') ? (await getCollection('providers')).map((p) => p.data).sort((a, b) => a.name.localeCompare(b.name)) : [];
+const about = on('about') ? (await getCollection('about')).map((e) => e.data)[0] : undefined;
+const services = on('services') ? (await getCollection('services')).map((e) => e.data).sort((a, b) => a.order - b.order) : [];
+const providers = on('providers') ? (await getCollection('providers')).map((e) => e.data).sort((a, b) => (a.joined ?? 0) - (b.joined ?? 0) || a.name.localeCompare(b.name)) : [];
 const acceptingNew = providers.filter((p) => p.acceptingNew).length;
-const providerNames = Object.fromEntries([...providersBySlug(providers)].map(([slug, p]) => [slug, p.name]));
-const reviews = on('reviews') ? (await getCollection('reviews')).map((r) => r.data) : [];
-const faqs = (await getCollection('faqs')).map((f) => f.data).filter((f) => f.tags.includes('home')).slice(0, 5);
+const reviews = on('reviews') ? (await getCollection('reviews')).map((e) => e.data) : [];
+const faqs = (await getCollection('faqs')).map((e) => e.data).filter((f) => f.tags.includes('home')).slice(0, 5);
 const prices = on('price-list') && !on('fees') ? await getEntry('prices', 'prices') : undefined;
-const reviewedAt = prices?.data.reviewedAt;
+const funds = about ? (await getCollection('funds')).map((e) => e.data) : [];
 const treats = services.length ? `${preset.copy.treatsLead} ${services.map((s) => s.title.toLowerCase()).join(', ')}.` : '';
 const quickLinks = services.slice(0, 4).map((s) => ({ label: s.title, href: `/services/${s.slug}/` }));
-const photo = (role: Parameters<typeof rolePhoto>[1]) => rolePhoto(site.contentDir, role);
-/* FirstVisit already claims the exterior slot elsewhere on some sites, so the facilities band takes it only when nothing else does. */
-const roomPhoto = on('services') ? photo('exterior') : undefined;
+const serviceTitle = new Map(services.map((s) => [s.slug, s.title]));
+const year = new Date().getFullYear();
+
+const variants = marketVariants(site, allSites()).map((v) => {
+  const rated = showsRatings(v.market) ? about?.rating : undefined;
+  const cards = (about?.hero.cards ?? []).map((c) => ({ ...c, icon: c.icon as IconName }));
+  const rating = rated && { icon: 'star' as const, title: `${rated.value.toFixed(1)} out of 5`, text: `From ${rated.count.toLocaleString('en')} Google reviews`, rating: true };
+  return {
+    ...v,
+    tel: telHref(v.clinic.phone, v.id),
+    hours: v.clinic.hours.map(hoursText),
+    // A rating leads the hero only in a market that shows ratings; elsewhere the two authored cards stand.
+    floats: about ? (rating ? [rating, ...cards] : cards).slice(0, 2) : acceptingNew > 0 ? [{ icon: 'user' as const, title: `${acceptingNew} taking new patients` }] : [],
+    funds: funds.filter((f) => f.market === v.id),
+    items: reviews.map((r) => ({ ...r, suburb: r.suburb?.[v.id], service: r.service && serviceTitle.get(r.service) })),
+    stats: about ? clinicStats({ founded: about.founded, year, clinicians: providers.length, services: services.length, nouns: preset.copy.nouns, rating: about.rating, showsRatings: showsRatings(v.market), authored: about.stats }) : [],
+  };
+});
+
+const serviceCards = services.map((s) => ({ ...s, photo: filed(s.photoSlot) }));
+const founder = about && providersBySlug(providers).get(about.founder);
+const posts = about && on('blog')
+  ? (await getCollection('blog')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3)
+      .map((p) => ({ ...p.data, id: p.id, date: p.data.date.toISOString().slice(0, 10), photo: filed(p.data.photoSlot) }))
+  : [];
+const gallery = about ? (await getCollection('gallery')).map((e) => e.data).map((g) => ({ slot: g.photoSlot, alt: photoAlt[g.photoSlot] ?? g.caption, caption: g.caption })) : [];
 ---
 
-<BaseLayout title={clinic.name} description={preset.copy.heroLine}>
-  <Hero name={clinic.name} treats={treats} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} photo={photo('hero')} quickLinks={quickLinks} acceptingNew={acceptingNew} />
-  <TrustRow variants={variants} presetTrust={preset.copy.trust} pricesOn={on('price-list')} ownershipOn={on('ownership')} />
-  <div class="stack">
-    {on('providers') && <MetricsBand services={services.length} providers={providers.length} acceptingNew={acceptingNew} reviews={reviews} nouns={preset.copy.nouns} variants={variants} />}
-    {services.length > 0 && <ServicesBand services={services} providerNames={providerNames} variants={variants} />}
-    {providers.length > 0 && <TeamRow providers={providers} variants={variants} />}
-    <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} photo={photo('firstVisit')} />
-    {on('emergency') && <UrgentBand variants={variants} preset={preset} emergencyOn={on('emergency')} hours={Object.fromEntries(variants.map((v) => [v.id, v.hours]))} />}
-    <FeesTeaser variants={variants} feesOn={on('fees')} priceListOn={on('price-list')} reviewedAt={reviewedAt} />
-    <CoverageBand feesOn={on('fees')} priceListOn={on('price-list')} />
-    {on('reviews') && <ReviewsBand items={reviews} variants={variants} />}
-    <Location variants={variants} />
-    {roomPhoto && <FeaturesBand photo={roomPhoto} />}
-    {faqs.length > 0 && <Faq items={faqs} />}
-    <CtaBand variants={variants} bookLabel={preset.copy.bookLabel} bookingOn={on('booking')} />
-  </div>
+<BaseLayout title={clinic.name} description={about?.hero.lead ?? preset.copy.heroLine}>
+  {about ? (
+    <>
+      <Hero eyebrow={about.hero.eyebrow} headline={about.hero.headline} lead={about.hero.lead} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} photo={photo('hero')} quickLinks={quickLinks} />
+      <TrustStrip awards={(await getCollection('awards')).map((e) => e.data)} variants={variants} />
+      {services.length > 0 && <ServicesBand services={serviceCards} variants={variants} conditions={(await getCollection('conditions')).map((e) => e.data)} lede="Three kinds of care in one building, so the people looking after you can talk to each other." />}
+      <WhyBand title={`Why patients choose ${clinic.name}`} features={about.features} variants={variants} />
+      <StoryBand heading={about.story.heading} paragraphs={about.story.paragraphs} mission={about.mission} founded={about.founded} founder={{ name: founder?.name ?? clinic.name, role: about.founderRole }} photo={filed(about.story.photoSlot)} href="/about/" />
+      {providers.length > 0 && <TeamRow providers={providers} variants={variants} lede="Registered clinicians who share notes, with your consent, and have time to listen." />}
+      <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} photo={photo('firstVisit')} guideHref="/new-patients/" />
+      {on('fees') && <InsuranceBand services={services} variants={variants} payments={about.payments} />}
+      {on('reviews') && <ReviewsBand variants={variants} rating={about.rating} />}
+      {gallery.length > 0 && <GalleryBand items={gallery} />}
+      {posts.length > 0 && <TipsBand posts={posts} variants={variants} />}
+      <Location variants={variants} photo={photo('exterior')} />
+      {faqs.length > 0 && <Faq items={faqs} allHref="/faq/" />}
+      <CtaBand variants={variants} bookLabel={preset.copy.bookLabel} bookingOn={on('booking')} lede="Most new patients are seen in the same week." />
+      <Newsletter heading={about.newsletter.heading} text={about.newsletter.text} careers={{ ...about.careers, href: '/about/#careers' }} />
+    </>
+  ) : (
+    <>
+      <Hero headline={clinic.name} lead={`${preset.copy.heroLine}. ${treats}`} preset={preset} variants={variants} bookingOn={on('booking')} emergencyOn={on('emergency')} photo={photo('hero')} quickLinks={quickLinks} />
+      <TrustRow variants={variants} presetTrust={preset.copy.trust} pricesOn={on('price-list')} ownershipOn={on('ownership')} />
+      {on('providers') && <div class="wrap legacy"><MetricsBand services={services.length} providers={providers.length} acceptingNew={acceptingNew} reviews={reviews} nouns={preset.copy.nouns} variants={variants} /></div>}
+      {services.length > 0 && <ServicesBand services={serviceCards} variants={variants} />}
+      {providers.length > 0 && <TeamRow providers={providers} variants={variants} />}
+      <FirstVisit bookingOn={on('booking')} confirmPromise={booking.confirmPromise} items={preset.copy.firstVisit} photo={photo('firstVisit')} />
+      <div class="wrap legacy">
+        {on('emergency') && <UrgentBand variants={variants} preset={preset} emergencyOn={on('emergency')} hours={Object.fromEntries(variants.map((v) => [v.id, v.hours]))} />}
+        <FeesTeaser variants={variants} feesOn={on('fees')} priceListOn={on('price-list')} reviewedAt={prices?.data.reviewedAt} />
+        <CoverageBand feesOn={on('fees')} priceListOn={on('price-list')} />
+      </div>
+      {on('reviews') && <ReviewsBand variants={variants} />}
+      <Location variants={variants} />
+      {/* The location band leaves the exterior photo free on these sites, so the facilities band takes it. */}
+      {on('services') && photo('exterior') && <div class="wrap legacy"><FeaturesBand photo={photo('exterior')} /></div>}
+      {faqs.length > 0 && <Faq items={faqs} allHref="/faq/" />}
+      <CtaBand variants={variants} bookLabel={preset.copy.bookLabel} bookingOn={on('booking')} />
+    </>
+  )}
 </BaseLayout>
 
 <style>
-  .stack { max-width: 72rem; margin: 0 auto; padding: var(--space-6) var(--space-4) 0; display: grid; gap: var(--space-8); }
-  .stack > :global(section) { display: grid; gap: var(--space-4); align-content: start; }
-  .stack :global(h2) { font-size: var(--text-28); }
+  /* The plainer bands were written for a single stacked column; they keep that rhythm inside the page's wrap. */
+  .legacy { display: grid; gap: var(--space-8); padding-block: var(--space-7); }
+  .legacy > :global(section) { display: grid; gap: var(--space-4); align-content: start; }
+  .legacy :global(h2) { font-size: var(--text-28); }
 </style>

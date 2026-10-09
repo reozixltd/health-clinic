@@ -1,68 +1,118 @@
 ---
-/** Services as cards. Each names the clinicians who provide it and links to the service page. */
-import Card from '@/core/ui/Card.astro';
+/**
+ * Services as image cards: photo, icon, summary and a from price, each one link to its page.
+ * Below them, when the site lists conditions, a grid of tags that lead to the matching service.
+ */
+import Chip from '@/core/ui/Chip.astro';
 import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import Photo from '@/core/ui/Photo.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
-import { fromPriceLabel } from '@/modules/services/from-price';
+import { fromPriceLabel, type FromPrice } from '@/modules/services/from-price';
 
 interface Props {
-  services: { slug: string; title: string; summary: string; fromPrice?: number; providers: string[] }[];
-  /** Provider slug to display name, for naming who provides each service. */
-  providerNames: Record<string, string>;
+  services: { slug: string; title: string; summary: string; fromPrice?: FromPrice; icon?: string; photo?: { slot: string; alt: string } }[];
   variants: { id: MarketId; market: MarketPack }[];
+  conditions?: { name: string; service: string }[];
+  lede?: string;
 }
-const { services, providerNames, variants } = Astro.props;
+const { services, variants, conditions = [], lede } = Astro.props;
+/* Three across leaves two on the last row for five or eight services; those two then share the row. */
+const wideTail = services.length % 3 === 2;
 ---
 
-<section id="services" aria-labelledby="services-title">
-  <div class="head">
-    <h2 id="services-title">Our services</h2>
-    <a class="all" href="/services/">
-      All {services.length} services
-      <Icon name="arrow-right" size={18} />
-    </a>
-  </div>
-  <ul class="grid" data-reveal-group>
-    {services.map((s) => {
-      const names = s.providers.map((slug) => providerNames[slug]).filter(Boolean);
-      return (
+<section id="services" class="section" aria-labelledby="services-title">
+  <div class="wrap">
+    <SectionHeading id="services-title" title="Our services" eyebrow="What we do" lede={lede}>
+      <a class="text-link all" href="/services/">All {services.length} services <Icon name="arrow-right" size={18} /></a>
+    </SectionHeading>
+    <ul class:list={['grid', wideTail && 'grid--tail']} data-reveal-group>
+      {services.map((s) => (
         <li>
-          <Card>
-            <h3><a href={`/services/${s.slug}/`}>{s.title}</a></h3>
-            <p>{s.summary}</p>
-            {names.length > 0 && <p class="who"><Icon name="stethoscope" size={18} /> {names.join(', ')}</p>}
-            <p class="foot">
-              {variants.map((v) => {
-                const label = fromPriceLabel(s, v.market);
-                return label && <span class="price" data-market-only={v.id}>{label}</span>;
-              })}
-              <a class="more" href={`/services/${s.slug}/`}>
-                About this service
-                <Icon name="chevron-right" size={18} />
-              </a>
-            </p>
-          </Card>
+          <article class="card">
+            {s.photo && (
+              <div class="media">
+                <Photo slot={s.photo.slot} alt={s.photo.alt} ratio="16 / 10" sizes="(min-width: 1024px) 34rem, (min-width: 640px) 50vw, 100vw" />
+                {s.icon && <span class="icon"><Icon name={s.icon as IconName} size={22} /></span>}
+              </div>
+            )}
+            <div class="body">
+              <h3><a href={`/services/${s.slug}/`}>{s.title}</a></h3>
+              <p>{s.summary}</p>
+              <p class="foot">
+                {variants.map((v) => {
+                  const label = fromPriceLabel(s, v.market);
+                  return label && <span class="price" data-market-only={v.id}>{label}</span>;
+                })}
+                <span class="more">About this service <Icon name="arrow-right" size={18} /></span>
+              </p>
+            </div>
+          </article>
         </li>
-      );
-    })}
-  </ul>
+      ))}
+    </ul>
+
+    {conditions.length > 0 && (
+      <div class="conditions" data-reveal>
+        <h3 id="conditions-title">Conditions we treat</h3>
+        <ul class="tags" aria-labelledby="conditions-title">
+          {conditions.map((c) => <li><Chip href={`/services/${c.service}/`}>{c.name}</Chip></li>)}
+        </ul>
+      </div>
+    )}
+  </div>
 </section>
 
 <style>
-  .head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
-  .all { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); color: var(--color-primary-text); font-weight: 600; text-decoration: none; }
-  @media (hover: hover) { .all:hover { text-decoration: underline; } }
-  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
-  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-  /* The li is the grid item, so the card inside it stretches and every card in a row is the same height. */
+  .all { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); font-weight: 600; }
+  .grid { display: grid; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
   .grid > li { display: grid; }
-  h3 { font-size: var(--text-20); }
-  h3 a { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: none; }
-  p { color: var(--color-ink-muted); }
-  .who { display: flex; align-items: flex-start; gap: var(--space-2); font-size: var(--text-14); }
-  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin: 0; padding-top: var(--space-2); border-top: var(--hairline); }
-  .price { color: var(--color-ink); font-weight: 600; }
-  .more { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); margin-left: auto; color: var(--color-primary-text); font-weight: 600; text-decoration: none; }
-  @media (hover: hover) { .more:hover { text-decoration: underline; } }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) {
+    .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .grid > li { grid-column: span 2; }
+    .grid--tail > li:nth-last-child(-n + 2) { grid-column: span 3; }
+  }
+
+  /* The lift sits on the card, not on the list item: the item is the reveal target and has to end with no transform. */
+  .card {
+    position: relative; display: grid; grid-template-rows: auto 1fr;
+    background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-card); box-shadow: var(--shadow-1);
+    transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+  .card::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: var(--shadow-3); opacity: 0; transition: opacity var(--dur-2) var(--ease-out);
+  }
+  .media { position: relative; }
+  /* The photo rounds its own top corners; clipping the card instead would cut off the hover shadow layer. */
+  .media :global(.photo), .media :global(.ph) { border: 0; border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0; }
+  .icon {
+    position: absolute; left: var(--space-4); bottom: calc(-1 * var(--space-4)); z-index: 1;
+    display: grid; place-items: center; width: 3rem; height: 3rem;
+    background: var(--color-card); border-radius: 50%; box-shadow: var(--shadow-2); color: var(--color-primary-text);
+  }
+  .body { display: grid; gap: var(--space-3); align-content: start; grid-template-rows: auto 1fr auto; padding: var(--space-6) var(--space-5) var(--space-4); }
+  h3 { font-size: var(--text-24); }
+  /* One link per card, stretched over the whole box. */
+  h3 a { text-decoration: none; }
+  h3 a::after { content: ''; position: absolute; inset: 0; z-index: 2; }
+  .body p { color: var(--color-ink-muted); }
+  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); max-width: none; padding-top: var(--space-3); border-top: var(--hairline); }
+  .price { color: var(--color-ink); font-weight: 700; }
+  .more { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); margin-left: auto; color: var(--color-primary-text); font-weight: 600; }
+  .more :global(svg) { transition: transform var(--dur-2) var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover { transform: translateY(-4px); border-color: var(--color-primary); }
+    .card:hover::after { opacity: 1; }
+    .card:hover .more :global(svg) { transform: translateX(4px); }
+    :global(html:not([data-motion='off'])) .card:hover :global(.photo img) { transform: scale(1.05); }
+  }
+  .card:focus-within { border-color: var(--color-primary); }
+
+  .conditions { display: grid; gap: var(--space-4); margin-top: var(--space-8); padding: var(--space-6); background: var(--color-surface); border-radius: var(--radius-panel); }
+  .conditions h3 { font-size: var(--text-24); }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .tags :global(.chip) { background: var(--color-card); }
 </style>

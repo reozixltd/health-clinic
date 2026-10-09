@@ -1,10 +1,10 @@
 ---
 /** Services as ruled rows: title, summary, duration and an optional from price per market. */
 import type { MarketId, MarketPack } from '@/domain/markets';
-import { fromPriceLabel } from './from-price';
+import { fromPriceLabel, type FromPrice } from './from-price';
 
 interface Props {
-  services: { slug: string; title: string; summary: string; duration: string; fromPrice?: number }[];
+  services: { slug: string; title: string; summary: string; duration: string; fromPrice?: FromPrice }[];
   variants: { id: MarketId; market: MarketPack }[];
 }
 const { services, variants } = Astro.props;

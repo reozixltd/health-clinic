@@ -1,43 +1,101 @@
 ---
-/** Patient reviews: a Google link only (link-only) or up to three named, dated reviews with their source. */
+/**
+ * Patient reviews. Display mode: an aggregate rating badge beside a carousel of every review,
+ * newest first, each named, dated and sourced. Link-only mode: a panel that points to the Google
+ * profile and shows no quote, star or number.
+ */
 import type { Review } from './reviews';
 import { latestReviews } from './reviews';
+import Button from '@/core/ui/Button.astro';
+import Carousel from '@/core/ui/Carousel.astro';
 import Icon from '@/core/ui/Icon.astro';
+import Photo from '@/core/ui/Photo.astro';
+import Stars from '@/core/ui/Stars.astro';
 
 interface Props {
   items: Review[];
   mode: 'link-only' | 'display';
   googleUrl?: string;
   locale?: string;
+  /** The aggregate to show beside the reviews, already worded. */
+  rating?: { value: string; note: string };
 }
-const { items, mode, googleUrl, locale = 'en-GB' } = Astro.props;
+const { items, mode, googleUrl, locale = 'en-GB', rating } = Astro.props;
 const day = (iso: string) =>
   new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
 ---
 
 {mode === 'link-only' ? (
-  googleUrl ? <p><a class="link" href={googleUrl}>Read our reviews on Google</a></p> : null
+  googleUrl ? (
+    <div class="google">
+      <span class="disc"><Icon name="message-circle" size={24} /></span>
+      <div class="google__text">
+        <h3>Hear it from our patients</h3>
+        <p>We do not publish patient reviews on this site. You can read them, and leave your own, on our Google profile.</p>
+      </div>
+      <Button href={googleUrl} variant="secondary" arrow rel="noopener">Read our reviews on Google</Button>
+    </div>
+  ) : null
 ) : (
-  <ul class="list">
-    {latestReviews(items).map((r) => (
-      <li data-review>
-        <p class="stars">
-          <Icon name="star" size={18} />
-          <span>{r.rating} out of 5</span>
-        </p>
-        <blockquote>{r.text}</blockquote>
-        <p class="by">{r.name}, <time datetime={r.date}>{day(r.date)}</time>. {r.source}.</p>
-      </li>
-    ))}
-  </ul>
+  <div class:list={['reviews', rating && 'has-score']}>
+    {rating && (
+      <div class="score" data-rating>
+        <p class="num">{rating.value}<span class="visually-hidden"> out of 5</span></p>
+        <Stars rating={Number(rating.value)} size={22} />
+        <p class="note">{rating.note}</p>
+        {googleUrl && <a class="text-link" href={googleUrl} rel="noopener">Read them on Google</a>}
+      </div>
+    )}
+    <Carousel label="Patient reviews" auto={items.length > 1} class="rail">
+      {latestReviews(items, items.length).map((r) => (
+        <li data-review>
+          <figure class="card">
+            <Stars rating={r.rating} />
+            <blockquote>{r.text}</blockquote>
+            <figcaption>
+              {r.avatarSlot && <span class="avatar"><Photo slot={r.avatarSlot} alt={`${r.name}, patient`} ratio="1 / 1" sizes="48px" widths={[64, 128]} /></span>}
+              <span class="who">
+                <strong>{r.name}</strong>
+                {(r.suburb || r.service) && <span>{[r.suburb, r.service].filter(Boolean).join(', ')}</span>}
+                <span><time datetime={r.date}>{day(r.date)}</time>, {r.source}</span>
+              </span>
+            </figcaption>
+          </figure>
+        </li>
+      ))}
+    </Carousel>
+  </div>
 )}
 
 <style>
-  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
-  @media (min-width: 768px) { .list { grid-template-columns: repeat(3, 1fr); } }
-  li { display: grid; gap: var(--space-3); align-content: start; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
-  .stars { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--color-primary-text); font-size: var(--text-14); font-weight: 600; }
-  blockquote { margin: 0; max-width: var(--measure); }
-  .by { margin: 0; color: var(--color-ink-muted); font-size: var(--text-14); }
-  .link { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: underline; }
+  .reviews { display: grid; gap: var(--space-6); min-width: 0; }
+  .reviews > :global(.rail) { --carousel-item: min(86%, 26rem); min-width: 0; }
+  @media (min-width: 900px) { .has-score { grid-template-columns: 16rem minmax(0, 1fr); gap: var(--space-7); align-items: start; } }
+
+  .score { display: grid; gap: var(--space-2); justify-items: start; align-content: start; padding: var(--space-6) var(--space-5); background: var(--color-deep); border-radius: var(--radius-panel); box-shadow: var(--shadow-2); color: var(--color-on-deep); }
+  .num { font-family: var(--font-display); font-size: var(--text-hero); font-weight: 560; line-height: 1; letter-spacing: var(--track-hero); }
+  .note { color: var(--color-on-deep-muted); font-size: var(--text-14); }
+  .score a { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-on-deep); font-weight: 600; }
+
+  li { display: grid; }
+  .card { display: grid; grid-template-rows: auto 1fr auto; gap: var(--space-4); margin: 0; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  blockquote { font-size: var(--text-18); line-height: 1.55; }
+  figcaption { display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-4); border-top: var(--hairline); }
+  .avatar { flex: none; width: 3rem; }
+  .avatar :global(.photo) { border: 0; border-radius: 50%; }
+  .who { display: grid; font-size: var(--text-14); line-height: 1.4; }
+  .who strong { font-size: var(--text-16); }
+  .who span { color: var(--color-ink-muted); }
+
+  .google {
+    display: grid; gap: var(--space-4); justify-items: start; align-items: center; padding: var(--space-6) var(--space-5);
+    background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1);
+  }
+  @media (min-width: 800px) { .google { grid-template-columns: auto 1fr auto; gap: var(--space-5); padding: var(--space-6) var(--space-7); } }
+  .disc { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); }
+  .google__text { display: grid; gap: var(--space-1); }
+  .google h3 { font-size: var(--text-24); }
+  /* The label is one line on a 320px phone only with tighter sides. */
+  .google :global(.btn) { padding-inline: var(--space-4); }
+  .google p { color: var(--color-ink-muted); }
 </style>

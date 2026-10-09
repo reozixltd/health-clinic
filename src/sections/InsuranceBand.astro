@@ -1,0 +1,83 @@
+---
+/** Fees and insurance: what each service starts from in this market, how rebates and claims work, and the ways to pay. */
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+import type { MarketId, MarketPack } from '@/domain/markets';
+import { fromPriceLabel, type FromPrice } from '@/modules/services/from-price';
+
+interface Props {
+  services: { slug: string; title: string; fromPrice?: FromPrice }[];
+  variants: { id: MarketId; market: MarketPack }[];
+  payments: { icon: string; title: string; text: string }[];
+}
+const { services, variants, payments } = Astro.props;
+---
+
+<section id="fees" class="section" aria-labelledby="fees-title">
+  <div class="wrap">
+    <SectionHeading id="fees-title" title="Know the fee before you book" eyebrow="Fees and insurance" lede="Every fee is listed in full, and we tell you the cost of anything extra before we start." />
+    <div class="cols">
+      <div class="panel" data-reveal>
+        {variants.map((v) => {
+          const rows = services.map((s) => ({ ...s, label: fromPriceLabel(s, v.market) })).filter((s) => s.label);
+          const funding = Object.values(v.market.fundingLabels);
+          return (
+            <div class="market" data-market-only={v.id}>
+              {rows.length > 0 && (
+                <ul class="prices">
+                  {rows.map((s) => (
+                    <li><a href={`/services/${s.slug}/`}>{s.title}</a><span>{s.label}</span></li>
+                  ))}
+                </ul>
+              )}
+              {funding.length > 0 && (
+                <ul class="funding">
+                  {funding.map((f) => <li><Icon name="check" size={18} /> {f}</li>)}
+                </ul>
+              )}
+              <p class="tax">{v.market.taxNote}</p>
+            </div>
+          );
+        })}
+        <Button href="/fees/" variant="secondary" arrow>See all fees</Button>
+      </div>
+
+      <ul class="pay" data-reveal-group>
+        {payments.map((p) => (
+          <li>
+            <span class="disc"><Icon name={p.icon as IconName} size={22} /></span>
+            <div>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cols { display: grid; gap: var(--space-6); }
+  @media (min-width: 900px) { .cols { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: var(--space-8); align-items: start; } }
+  .panel { display: grid; gap: var(--space-5); justify-items: start; padding: var(--space-6) var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-2); }
+  @media (min-width: 640px) { .panel { padding: var(--space-7); } }
+  .market { width: 100%; }
+  .prices { margin: 0; padding: 0; list-style: none; }
+  .prices li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 3.25rem; border-bottom: var(--hairline); }
+  .prices a { display: inline-flex; align-items: center; min-height: var(--target); font-family: var(--font-display); font-size: var(--text-20); font-weight: 520; text-decoration: none; }
+  .prices span { font-weight: 700; white-space: nowrap; }
+  @media (hover: hover) and (pointer: fine) { .prices a:hover { text-decoration: underline; } }
+  .funding { display: grid; gap: var(--space-2); margin: var(--space-5) 0 0; padding: 0; list-style: none; }
+  .funding li { display: flex; align-items: flex-start; gap: var(--space-2); }
+  .funding :global(svg) { flex: none; margin-top: 3px; color: var(--color-success); }
+  .tax { margin-top: var(--space-3); color: var(--color-ink-muted); font-size: var(--text-14); }
+
+  .pay { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  .pay > li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start; padding: var(--space-5); background: var(--color-surface); border-radius: var(--radius-card); }
+  .disc { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; background: var(--color-card); border-radius: 50%; box-shadow: var(--shadow-1); color: var(--color-primary-text); }
+  .pay h3 { font-size: var(--text-20); }
+  .pay p { margin-top: var(--space-1); color: var(--color-ink-muted); }
+</style>

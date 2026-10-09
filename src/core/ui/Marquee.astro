@@ -1,0 +1,70 @@
+---
+/**
+ * A strip of list items that drifts sideways for ever. Pass `li` elements. The items are written
+ * twice so the loop has no seam; the copy is hidden from assistive tech. It stops on hover, on
+ * keyboard focus and with its own pause button, and under reduced motion it is a plain wrapped row.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Names the strip, for example "Health funds we work with". */
+  label: string;
+  class?: string;
+}
+const { label, class: className } = Astro.props;
+const items = await Astro.slots.render('default');
+---
+
+<div class:list={['marquee', className]} data-marquee role="group" aria-label={label}>
+  <div class="view">
+    <ul class="track"><Fragment set:html={items} /></ul>
+    <ul class="track" aria-hidden="true"><Fragment set:html={items} /></ul>
+  </div>
+  <button type="button" class="toggle" data-marquee-toggle aria-pressed="false">
+    <Icon name="pause" size={16} />
+    <span>Pause<span class="visually-hidden"> the moving logos</span></span>
+  </button>
+</div>
+
+<style>
+  .marquee { --marquee-gap: var(--space-7); display: grid; gap: var(--space-3); justify-items: center; }
+  .view {
+    display: flex; gap: var(--marquee-gap); overflow: hidden; width: 100%;
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  }
+  .track {
+    flex: none; display: flex; align-items: center; justify-content: space-around; gap: var(--marquee-gap);
+    min-width: 100%; margin: 0; padding: var(--space-2) 0; list-style: none;
+    animation: marquee 48s linear infinite;
+  }
+  @keyframes marquee { to { transform: translateX(calc(-100% - var(--marquee-gap))); } }
+  .marquee[data-paused] .track, .marquee:focus-within .track { animation-play-state: paused; }
+  @media (hover: hover) and (pointer: fine) { .view:hover .track { animation-play-state: paused; } }
+
+  .toggle {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    min-height: var(--target); padding: 0 var(--space-4);
+    background: none; border: 0; border-radius: var(--radius-pill);
+    color: var(--color-ink-muted); font: inherit; font-size: var(--text-14); font-weight: 600; cursor: pointer;
+  }
+  .toggle[aria-pressed='true'] { background: var(--color-surface); color: var(--color-ink); }
+
+  /* Still strip: reduced motion, or a site with motion switched off. One copy, wrapped, no button. */
+  @media (prefers-reduced-motion: reduce) {
+    .view { flex-wrap: wrap; mask-image: none; }
+    .track { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; }
+    .track[aria-hidden], .toggle { display: none; }
+  }
+  :global(html[data-motion='off']) .view { flex-wrap: wrap; mask-image: none; }
+  :global(html[data-motion='off']) .track { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; animation: none; }
+  :global(html[data-motion='off']) .track[aria-hidden], :global(html[data-motion='off']) .toggle { display: none; }
+</style>
+
+<script>
+  for (const button of document.querySelectorAll('[data-marquee-toggle]')) {
+    button.addEventListener('click', () => {
+      const paused = button.closest('[data-marquee]')?.toggleAttribute('data-paused') ?? false;
+      button.setAttribute('aria-pressed', String(paused));
+    });
+  }
+</script>

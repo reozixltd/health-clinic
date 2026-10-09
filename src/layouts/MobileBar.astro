@@ -29,6 +29,10 @@ const booking = site.modules.includes('booking');
       border-top: 1px solid var(--color-line);
     }
     .mobile-bar :global(.book), .solo :global(.call) { flex: 1; }
-    .mobile-bar :global(.btn) { white-space: nowrap; }
+    .mobile-bar :global(.btn) { padding-inline: var(--space-4); white-space: nowrap; }
+  }
+  /* The narrowest phones keep both labels whole by dropping the calendar icon. */
+  @media (max-width: 359px) {
+    .mobile-bar :global(.book svg) { display: none; }
   }
 </style>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AU } from '@/domain/markets/au';
 import { CA } from '@/domain/markets/ca';
-import { clinicMetrics, formatRating } from '@/modules/stats/metrics';
+import { clinicMetrics, clinicStats, formatRating } from '@/modules/stats/metrics';
 import { alliedHealth } from '@/presets/allied-health';
 import { vet } from '@/presets/vet';
 
@@ -73,5 +73,37 @@ describe('clinicMetrics', () => {
 
   it('gives every tile a note', () => {
     for (const m of clinicMetrics({ ...base, market: CA })) expect(m.note, m.label).toBeTruthy();
+  });
+});
+describe('clinicStats', () => {
+  const input = {
+    founded: 2011,
+    year: 2026,
+    clinicians: 6,
+    services: 5,
+    nouns: NOUNS,
+    rating: { value: 4.9, count: 1240 },
+    authored: [
+      { value: 18400, suffix: '+', label: 'Patients helped' },
+      { value: 92, suffix: '%', label: 'Seen in the same week' },
+    ],
+  };
+
+  it('counts the years open and leads with them', () => {
+    expect(clinicStats({ ...input, showsRatings: true })[0]).toEqual({ value: 15, label: 'Years caring for this neighbourhood' });
+  });
+
+  it('shows the rating only where the market shows ratings', () => {
+    const rated = clinicStats({ ...input, showsRatings: true });
+    expect(rated.map((s) => s.value)).toEqual([15, 18400, 6, 4.9, 92]);
+    expect(rated[3]).toMatchObject({ rating: true, decimals: 1 });
+
+    const unrated = clinicStats({ ...input, showsRatings: false });
+    expect(unrated.map((s) => s.value)).toEqual([15, 18400, 6, 5, 92]);
+    expect(unrated.some((s) => s.rating)).toBe(false);
+  });
+
+  it('never invents a rating that was not authored', () => {
+    expect(clinicStats({ ...input, rating: undefined, showsRatings: true }).some((s) => s.rating)).toBe(false);
   });
 });

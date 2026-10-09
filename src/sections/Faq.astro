@@ -1,22 +1,38 @@
 ---
+/** Five questions tagged home, as an accordion that keeps one answer open at a time. */
 import { linkHtml } from '@/core/inline';
-/** Five questions tagged home. */
+import Accordion from '@/core/ui/Accordion.astro';
+import Icon from '@/core/ui/Icon.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+
 interface Props {
   items: { q: string; a: string }[];
+  /** The page with every question, when the site has one. */
+  allHref?: string;
 }
-const { items } = Astro.props;
+const { items, allHref } = Astro.props;
 ---
 
-<section id="faq" aria-labelledby="faq-title">
-  <h2 id="faq-title">Common questions</h2>
-  <dl data-reveal-group>
-    {items.map((f) => (<><dt>{f.q}</dt><dd set:html={linkHtml(f.a)} /></>))}
-  </dl>
+<section id="faq" class="section" aria-labelledby="faq-title">
+  <div class="wrap cols">
+    <SectionHeading id="faq-title" title="Common questions" eyebrow="Good to know" class="head">
+      {allHref && <a class="text-link all" href={allHref}>All questions <Icon name="arrow-right" size={18} /></a>}
+    </SectionHeading>
+    <div class="list" data-reveal-group>
+      {items.map((f, i) => (
+        <Accordion summary={f.q} name="home-faq" open={i === 0}><p set:html={linkHtml(f.a)} /></Accordion>
+      ))}
+    </div>
+  </div>
 </section>
 
 <style>
-  dl { margin: 0; max-width: var(--measure); }
-  dt { font-weight: 700; margin-top: var(--space-4); }
-  dd { margin: var(--space-1) 0 0; color: var(--color-ink-muted); }
-  dd :global(a) { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
+  .cols { display: grid; }
+  @media (min-width: 900px) {
+    .cols { grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+    .cols > :global(.head) { flex-direction: column; align-items: flex-start; margin-bottom: 0; }
+  }
+  .list { border-top: 1px solid var(--color-line); }
+  .all { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--target); font-weight: 600; }
+  .list :global(.body a) { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
 </style>

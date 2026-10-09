@@ -133,10 +133,10 @@ Starts after Task 0, because it needs the schemas.
 - `FundLogo` props `name: string, mark: number`; inline SVG using `currentColor` only.
 - `index.astro`: `const about = (await getCollection('about'))[0]?.data`; when present it renders the sixteen-section order from the spec, otherwise today's composition.
 
-- [ ] `home.e2e`: FAQ selector to `#faq details`; add "AU never shows a rating" (no `[data-rating]:visible` at load and after `?market=CA` then `?market=AU`); add "CA shows the carousel with a pause button".
-- [ ] Build each section against its content shape. Sections take plain props; the page loads collections.
-- [ ] The rating gate is one helper, `showsRatings(market)` in `modules/reviews/reviews.ts`, used by hero card, stats and badge.
-- [ ] Build, test, check, then `E2E_SITES=fernway-au,fernway-ca,hollybank node tests/e2e/run.mjs` for `home` and `shell`. Commit `feat: sixteen-section homepage`.
+- [x] `home.e2e`: FAQ selector to `#faq details`; add "AU never shows a rating" (no `[data-rating]:visible` at load and after `?market=CA` then `?market=AU`); add "CA shows the carousel with a pause button".
+- [x] Build each section against its content shape. Sections take plain props; the page loads collections.
+- [x] The rating gate is one helper, `showsRatings(market)` in `modules/reviews/reviews.ts`, used by hero card, stats and badge.
+- [x] Build, test, check, then `E2E_SITES=fernway-au,fernway-ca,hollybank node tests/e2e/run.mjs` for `home` and `shell`. Commit `feat: sixteen-section homepage`.
 
 ### Task 4: Inner pages and blog
 

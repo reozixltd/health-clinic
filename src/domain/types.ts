@@ -23,7 +23,8 @@ export interface Service {
   title: string;
   summary: string;
   duration: string;
-  fromPrice?: number;
+  /** One figure, or one per market where the fees differ. */
+  fromPrice?: number | { AU?: number; CA?: number; UK?: number };
   whatToExpect: string[];
   providers: string[];
   faqs: { q: string; a: string }[];

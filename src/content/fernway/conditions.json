@@ -1,0 +1,20 @@
+[
+  { "name": "Lower back pain", "service": "physiotherapy" },
+  { "name": "Neck and shoulder pain", "service": "physiotherapy" },
+  { "name": "Headaches from the neck", "service": "physiotherapy" },
+  { "name": "Arthritis and stiff joints", "service": "physiotherapy" },
+  { "name": "Recovery after surgery", "service": "physiotherapy" },
+  { "name": "Runner's knee", "service": "sports-physio" },
+  { "name": "Ankle sprains", "service": "sports-physio" },
+  { "name": "Hamstring and calf strains", "service": "sports-physio" },
+  { "name": "Tendon pain", "service": "sports-physio" },
+  { "name": "Toothache", "service": "dental-check-up" },
+  { "name": "Sensitive teeth", "service": "dental-check-up" },
+  { "name": "Chipped or worn teeth", "service": "dental-check-up" },
+  { "name": "Bleeding gums", "service": "dental-hygiene" },
+  { "name": "Tartar and staining", "service": "dental-hygiene" },
+  { "name": "Anxiety and worry", "service": "psychology" },
+  { "name": "Low mood", "service": "psychology" },
+  { "name": "Stress and burnout", "service": "psychology" },
+  { "name": "Trouble sleeping", "service": "psychology" }
+]

@@ -45,7 +45,7 @@ const services = defineCollection({
     duration: z.string(),
     whatToExpect: z.array(z.string()).min(1),
     providers: z.array(z.string()).min(1),
-    fromPrice: z.number().optional(),
+    fromPrice: z.union([z.number(), z.object({ AU: z.number().optional(), CA: z.number().optional(), UK: z.number().optional() })]).optional(),
     photoSlot: photoSlot.optional(),
     icon: icon.optional(),
     /** Conditions and problems this service helps with. */
@@ -132,7 +132,7 @@ const about = defineCollection({
     founder: z.string(),
     founderRole: z.string(),
     mission: z.string(),
-    hero: z.object({ eyebrow: z.string(), headline: z.string(), lead: z.string() }),
+    hero: z.object({ eyebrow: z.string(), headline: z.string(), lead: z.string(), cards: z.array(iconCard).default([]) }),
     story: z.object({ heading: z.string(), paragraphs: z.array(z.string()).min(1), photoSlot: photoSlot.optional() }),
     milestones: z.array(z.object({ year: z.number(), text: z.string() })),
     /** Shown only where the market displays reviews. */

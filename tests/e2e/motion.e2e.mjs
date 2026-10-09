@@ -65,7 +65,7 @@ await step('an anchor link to a lower section shows that section', async () => {
   await withPage({ viewport: { width: 375, height: 800 } }, async (page) => {
     await page.goto(`${BASE}/#faq`);
     await page.waitForTimeout(900);
-    const opacities = await page.locator('#faq dl > *').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity));
+    const opacities = await page.locator('#faq details').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity));
     expect(opacities.length >= 5 && opacities.every((o) => o === '1'), `faq opacities: ${opacities}`);
   });
 });

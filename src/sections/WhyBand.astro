@@ -1,0 +1,85 @@
+---
+/** Why choose the clinic: feature cards, then a deep panel of figures that count up as it scrolls into view. */
+import Counter from '@/core/ui/Counter.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+import type { MarketId } from '@/domain/markets';
+import type { StatTile } from '@/modules/stats/metrics';
+
+interface Props {
+  title: string;
+  lede?: string;
+  features: { icon: string; title: string; text: string }[];
+  /** The figures differ by market: a rating appears only where ratings may be shown. */
+  variants: { id: MarketId; stats: StatTile[] }[];
+}
+const { title, lede, features, variants } = Astro.props;
+---
+
+<section id="why" class="section why" aria-labelledby="why-title">
+  <div class="wrap">
+    <SectionHeading id="why-title" title={title} eyebrow="Why choose us" lede={lede} align="center" />
+    <ul class="features" data-reveal-group>
+      {features.map((f) => (
+        <li>
+          <div class="feature">
+            <span class="disc"><Icon name={f.icon as IconName} size={24} /></span>
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <div class="panel" data-reveal>
+      <span class="blob" aria-hidden="true"></span>
+      {variants.map((v) => (
+        <dl class="stats" data-market-only={v.id}>
+          {v.stats.map((s) => (
+            <div class="stat" data-rating={s.rating || undefined}>
+              <dt>{s.label}</dt>
+              <dd><Counter value={s.value} suffix={s.suffix} decimals={s.decimals} /></dd>
+            </div>
+          ))}
+        </dl>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .why { background: var(--color-surface); }
+  .features { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  .features > li { display: grid; }
+  @media (min-width: 640px) { .features { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) { .features { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); } }
+  .feature {
+    display: grid; gap: var(--space-3); align-content: start; padding: var(--space-6) var(--space-5);
+    background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .disc { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; background: var(--color-accent); border-radius: 40% 60% 55% 45% / 55% 45% 55% 45%; color: var(--color-primary-text); }
+  .feature h3 { font-size: var(--text-24); }
+  .feature p { color: var(--color-ink-muted); }
+  @media (hover: hover) and (pointer: fine) { .feature:hover { transform: translateY(-4px); } }
+
+  .panel {
+    position: relative; overflow: hidden; margin-top: var(--space-7); padding: var(--space-7) var(--space-5);
+    background: var(--color-deep); border-radius: var(--radius-panel); box-shadow: var(--shadow-3); color: var(--color-on-deep);
+  }
+  .blob {
+    position: absolute; inset: -40% -8% auto auto; width: 22rem; aspect-ratio: 1;
+    background: var(--color-primary); border-radius: 46% 54% 60% 40% / 48% 42% 58% 52%; opacity: 0.45;
+  }
+  .stats { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-4); margin: 0; }
+  @media (min-width: 900px) {
+    .panel { padding: var(--space-8) var(--space-7); }
+    .stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
+  .stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: var(--space-2); }
+  .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  @media (min-width: 900px) { .stat:last-child:nth-child(odd) { grid-column: auto; } }
+  dd { font-family: var(--font-display); font-size: var(--text-display); font-weight: 560; line-height: 1; letter-spacing: var(--track-heading); }
+  dt { color: var(--color-on-deep-muted); font-size: var(--text-14); line-height: 1.4; }
+</style>

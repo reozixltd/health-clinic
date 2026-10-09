@@ -1,5 +1,5 @@
 ---
-/** Closing prompt: book, or call. */
+/** Closing prompt: book, or call. A deep gradient panel with soft shapes behind the words. */
 import Button from '@/core/ui/Button.astro';
 import Eyebrow from '@/core/ui/Eyebrow.astro';
 import Icon from '@/core/ui/Icon.astro';
@@ -10,34 +10,49 @@ interface Props {
   variants: { id: MarketId; clinic: Clinic; tel: string }[];
   bookLabel: string;
   bookingOn: boolean;
+  lede?: string;
 }
-const { variants, bookLabel, bookingOn } = Astro.props;
+const { variants, bookLabel, bookingOn, lede } = Astro.props;
 ---
 
-<section class="cta" aria-labelledby="cta-title" data-reveal>
-  <div class="inner">
-    <Eyebrow>Ready when you are</Eyebrow>
-    <h2 id="cta-title">Book a visit, or call us</h2>
-    {variants.map((v) => (
-      <div class="actions" data-market-only={v.id}>
-        {bookingOn && <Button href="/book/" size="lg">{bookLabel}</Button>}
-        <a class="phone" href={v.tel}>
-          <Icon name="phone" size={20} />
-          Call {v.clinic.phone}
-        </a>
+<section class="section cta" aria-labelledby="cta-title">
+  <div class="wrap">
+    <div class="inner" data-reveal>
+      <span class="blob blob--a" aria-hidden="true"></span>
+      <span class="blob blob--b" aria-hidden="true"></span>
+      <div class="text">
+        <Eyebrow>Ready when you are</Eyebrow>
+        <h2 id="cta-title">Book a visit, or call us</h2>
+        {lede && <p>{lede}</p>}
       </div>
-    ))}
+      {variants.map((v) => (
+        <div class="actions" data-market-only={v.id}>
+          {bookingOn && <Button href="/book/" size="lg" variant="inverse" arrow>{bookLabel}</Button>}
+          <a class="phone" href={v.tel}>
+            <Icon name="phone" size={20} />
+            Call {v.clinic.phone}
+          </a>
+        </div>
+      ))}
+    </div>
   </div>
 </section>
 
 <style>
-  .cta { display: grid; }
-  .inner { display: grid; gap: var(--space-3); justify-items: start; padding: var(--space-7) var(--space-6); background: var(--color-primary); border-radius: var(--radius-panel); box-shadow: var(--shadow-2); }
-  @media (min-width: 768px) { .inner { padding: var(--space-8) var(--space-7); } }
-  /* Full-strength white, not a faded one: the eyebrow is small text and has to clear 4.5:1 on the primary fill. */
-  .inner :global(.eyebrow) { color: var(--color-on-ink); }
-  h2 { color: var(--color-on-ink); font-size: var(--text-36); }
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
-  .actions :global(.btn) { background: var(--color-card); border-color: var(--color-card); color: var(--color-primary-text); }
-  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); color: var(--color-on-ink); font-weight: 600; }
+  .inner {
+    --eyebrow-color: var(--color-on-deep);
+    position: relative; overflow: hidden; display: grid; gap: var(--space-5); justify-items: start;
+    padding: var(--space-7) var(--space-5);
+    background: linear-gradient(135deg, var(--color-deep), var(--color-primary)); border-radius: var(--radius-panel); box-shadow: var(--shadow-3);
+    color: var(--color-on-deep);
+  }
+  @media (min-width: 768px) { .inner { padding: var(--space-9) var(--space-8); } }
+  .blob { position: absolute; aspect-ratio: 1; background: var(--color-on-deep); opacity: 0.07; }
+  .blob--a { inset: -30% -6% auto auto; width: 26rem; border-radius: 46% 54% 60% 40% / 48% 42% 58% 52%; }
+  .blob--b { inset: auto auto -45% 18%; width: 18rem; border-radius: 58% 42% 44% 56% / 46% 56% 44% 54%; }
+  .text { position: relative; display: grid; gap: var(--space-3); }
+  h2 { max-width: 16ch; color: var(--color-on-deep); }
+  .text p { color: var(--color-on-deep-muted); font-size: var(--text-lead); }
+  .actions { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+  .phone { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); color: var(--color-on-deep); font-weight: 600; }
 </style>

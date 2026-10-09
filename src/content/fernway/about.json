@@ -1,0 +1,64 @@
+{
+  "founded": 2011,
+  "founder": "priya-nair",
+  "founderRole": "Founder and principal physiotherapist",
+  "mission": "Unhurried, joined-up care, with the fee known before you walk in.",
+  "hero": {
+    "eyebrow": "Physiotherapy, dental and psychology",
+    "headline": "Unhurried care, all under one roof",
+    "lead": "Six clinicians who share one building and talk to each other. Long appointments, plain answers, and a fee you know before you book.",
+    "cards": [
+      { "icon": "calendar", "title": "Same-week appointments", "text": "For 92% of new patients" },
+      { "icon": "credit-card", "title": "Fees listed up front", "text": "Every service, before you book" }
+    ]
+  },
+  "story": {
+    "heading": "It started with two rooms and a longer appointment",
+    "paragraphs": [
+      "I opened Fernway in 2011 with two treatment rooms and one rule: nobody gets rushed. A first physio visit ran 45 minutes then, and it still does.",
+      "People kept asking who we would send them to for their teeth, or for someone to talk to. So we moved to a bigger building in 2015 and brought those clinicians in. Now your physio, your dentist and your psychologist can share notes, with your say-so, instead of starting from nothing.",
+      "We are still a small clinic. You will see the same faces, and we will tell you the fee before you book."
+    ],
+    "photoSlot": "founder-priya"
+  },
+  "milestones": [
+    { "year": 2011, "text": "Priya Nair opens Fernway as a two-room physiotherapy practice." },
+    { "year": 2014, "text": "Tom Hargreave joins and starts the sports physio clinic." },
+    { "year": 2015, "text": "We move to the current building and Dr Elena Marsh opens the dental rooms." },
+    { "year": 2016, "text": "Sam Whitlock joins as our oral health therapist." },
+    { "year": 2018, "text": "Dr Hannah Reyes brings psychology into the clinic." },
+    { "year": 2019, "text": "Dr Lucas Brandt joins the psychology team." },
+    { "year": 2021, "text": "The rehab gym opens on the ground floor." }
+  ],
+  "rating": { "value": 4.9, "count": 1240 },
+  "stats": [
+    { "value": 18400, "suffix": "+", "label": "Patients helped since we opened" },
+    { "value": 92, "suffix": "%", "label": "New patients seen in the same week" }
+  ],
+  "features": [
+    { "icon": "clock", "title": "Time to listen", "text": "First visits run 45 to 50 minutes, so you can tell the whole story once." },
+    { "icon": "users", "title": "One team, one plan", "text": "Your physio, dentist and psychologist work in the same building and can share notes when you ask them to." },
+    { "icon": "credit-card", "title": "Fees known first", "text": "Every fee is on this site. You hear the cost before any treatment starts." },
+    { "icon": "calendar", "title": "Seen this week", "text": "Most new patients get a time within the week, with early and Saturday slots." },
+    { "icon": "badge-check", "title": "Registered clinicians", "text": "Every clinician is named here with a registration you can check on the public register." },
+    { "icon": "heart-pulse", "title": "Easy to get into", "text": "Step-free entrance, an accessible toilet and a quiet waiting area for anyone who needs it." }
+  ],
+  "payments": [
+    { "icon": "credit-card", "title": "Card and tap", "text": "Pay by card, phone or watch at the front desk." },
+    { "icon": "shield", "title": "On-the-spot claims", "text": "Swipe your fund or plan card and pay only the gap, where your cover allows it." },
+    { "icon": "calendar", "title": "Payment plans", "text": "Longer dental treatment can be spread over interest-free instalments." }
+  ],
+  "careers": {
+    "heading": "Work with us",
+    "text": "We hire slowly and keep people for a long time. Clinicians here get long appointments, paid learning days and a team that eats lunch together.",
+    "roles": [
+      { "title": "Physiotherapist", "hours": "Part time, 3 days", "text": "Three or more years in musculoskeletal practice. An interest in persistent pain is welcome." },
+      { "title": "Dental assistant", "hours": "Full time", "text": "Chairside support for our dentist and oral health therapist. We will train the right person." },
+      { "title": "Patient coordinator", "hours": "Part time, including Saturdays", "text": "The first voice people hear. Calm on the phone and good with a full diary." }
+    ]
+  },
+  "newsletter": {
+    "heading": "One useful health tip a month",
+    "text": "Short, practical notes from our clinicians. No sales emails, and you can leave any time."
+  }
+}

@@ -3,10 +3,10 @@
 import Button from '@/core/ui/Button.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
 import { linkHtml } from '@/core/inline';
-import { fromPriceLabel } from './from-price';
+import { fromPriceLabel, type FromPrice } from './from-price';
 
 interface Props {
-  service: { slug: string; duration: string; whatToExpect: string[]; fromPrice?: number; faqs: { q: string; a: string }[] };
+  service: { slug: string; duration: string; whatToExpect: string[]; fromPrice?: FromPrice; faqs: { q: string; a: string }[] };
   clinicians: { slug: string; name: string; role: string }[];
   variants: { id: MarketId; market: MarketPack }[];
   /** Label for the booking link, or undefined when the booking module is off. */
