@@ -2,7 +2,7 @@ import type { LeadKind } from '@/core/leads/types';
 
 export const MODULE_IDS = [
   'providers', 'services', 'booking', 'fees', 'price-list',
-  'estimates', 'ownership', 'reviews', 'reminders', 'referrals', 'emergency',
+  'estimates', 'ownership', 'reviews', 'reminders', 'referrals', 'emergency', 'about', 'blog',
 ] as const;
 export type ModuleId = (typeof MODULE_IDS)[number];
 
@@ -26,6 +26,9 @@ export const MODULES: Record<ModuleId, ModuleDef> = {
   referrals: { id: 'referrals', routes: ['/referrers/'], leadKinds: ['referral'] },
   // Route comes from the preset's emergencyPage flag (see routesFor).
   emergency: { id: 'emergency', routes: [] },
+  // Both need their content files (about.json, blog/), so they are off in every preset.
+  about: { id: 'about', routes: ['/about/'] },
+  blog: { id: 'blog', routes: ['/blog/'] },
 };
 
 interface SiteLike {

@@ -1,4 +1,4 @@
-/** Photo slot names per content folder. Names only: drop <slot>.jpg into src/assets/photos/. */
+/** Photo slot names per content folder. Names only: drop <slot>.jpg into src/assets/images/. */
 export const photoSlots: Record<string, string[]> = {
   fernway: [
     'clinic-exterior',

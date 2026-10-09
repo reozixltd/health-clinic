@@ -270,7 +270,7 @@ interface AppointmentPayload {
 | Services, clinicians, fees or price list, FAQs, policies | `content/` |
 | Navigation order and labels | preset defaults; override in `config/site.ts` |
 | Colours, type, spacing | `styles/tokens.css` |
-| Photos | `src/assets/photos/<slot>.jpg`; `npm run photos:status` lists gaps |
+| Photos | `src/assets/images/<slot>.jpg`; `npm run photos:status` lists gaps |
 
 Sample `config/site.ts` (Fernway AU):
 
@@ -450,7 +450,7 @@ Live practice-system availability (Cliniko API first), real SMS and email sendin
 1. Copy a preset's sample config into `config/`; set `site.ts` (preset, market, modules, `demoMode: false`, theme).
 2. Fill `clinic.ts`, `booking.ts` (choose `none`, `embed` or `link`), and adjust `messages.ts` if needed.
 3. Replace `content/` with real services, clinicians, fees or price list, FAQs and policies.
-4. Drop real photos into `src/assets/photos/`; run `npm run photos:status`.
+4. Drop real photos into `src/assets/images/`; run `npm run photos:status`.
 5. Production storage and messaging: implement `HttpLeadRepository`; send messages server-side from `messages.ts`.
 6. Confirm the market pack with local counsel; run `npm test`, `npm run check`, `npm run build`, `npm run e2e` before deploying.
 

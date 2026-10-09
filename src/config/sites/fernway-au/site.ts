@@ -6,7 +6,7 @@ export const site: SiteConfigInput['site'] = {
   preset: 'allied-health',
   market: 'AU',
   markets: ['AU', 'CA'],
-  modules: { referrals: true },
+  modules: { referrals: true, about: true, blog: true },
   demoMode: true,
   theme: 'fernway',
   themes: ['fernway', 'harbour'],

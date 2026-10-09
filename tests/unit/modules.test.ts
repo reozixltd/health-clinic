@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { MODULES, indexPaths, isOn, routesFor, validateModules } from '@/domain/modules';
 
 describe('module registry', () => {
-  it('has the eleven spec ids', () => {
-    expect(Object.keys(MODULES)).toHaveLength(11);
+  it('has the eleven spec ids and the two redesign ones', () => {
+    expect(Object.keys(MODULES)).toHaveLength(13);
+    expect(MODULES.about.routes).toEqual(['/about/']);
+    expect(MODULES.blog.routes).toEqual(['/blog/']);
   });
   it('estimates requires price-list', () => {
     expect(validateModules(['estimates'])).toEqual(['estimates requires price-list']);

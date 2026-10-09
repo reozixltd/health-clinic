@@ -7,7 +7,7 @@ const brands = [...src.matchAll(/^\s{2}'?([a-z0-9-]+)'?: \[([^\]]*)\]/gm)].map((
   brand,
   slots: [...body.matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]),
 }));
-const dir = 'src/assets/photos';
+const dir = 'src/assets/images';
 const have = new Set(existsSync(dir) ? readdirSync(dir).map((f) => f.replace(/\.[a-z]+$/i, '')) : []);
 
 const title = (slug) => slug.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
@@ -55,8 +55,8 @@ const sections = brands.map(({ brand, slots }) => {
 
 const md = `# Photo brief
 
-Save each photo as \`src/assets/photos/<slot>.jpg\`. It is optimised and cropped automatically. An empty room slot shows a labelled placeholder.
-A slot name listed under two brands is one file, shown on both. Demo photo sources are in \`docs/photo-credits.md\`.
+Save each photo as \`src/assets/images/<slot>.jpg\`. It is optimised and cropped automatically. An empty room slot shows a labelled placeholder.
+A slot name listed under two brands is one file, shown on both. Demo photo sources are in \`CREDITS.md\`.
 
 Generated from \`src/config/photo-slots.ts\` by \`npm run photos:status\`. Do not edit by hand.
 

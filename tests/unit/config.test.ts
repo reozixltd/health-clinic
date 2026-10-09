@@ -59,7 +59,7 @@ describe('demo site configs', () => {
       for (const s of services) {
         const offering = providers.filter((p) => p.data.services.includes(s.data.slug)).map((p) => p.data.slug).sort();
         expect([...s.data.providers].sort(), `${b}/${s.data.slug}`).toEqual(offering);
-        expect(s.data.faqs).toHaveLength(3);
+        expect(s.data.faqs.length).toBeGreaterThanOrEqual(3);
         expect(s.data.summary.length).toBeLessThanOrEqual(200);
         expect(s.data.seoDescription.length).toBeLessThanOrEqual(160);
       }

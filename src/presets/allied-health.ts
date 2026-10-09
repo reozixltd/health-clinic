@@ -6,7 +6,9 @@ export const alliedHealth: Preset = {
   nav: [
     { label: 'Services', href: '/services/', module: 'services' },
     { label: 'Team', href: '/team/', module: 'providers' },
+    { label: 'About', href: '/about/', module: 'about' },
     { label: 'Fees', href: '/fees/', module: 'fees' },
+    { label: 'Health tips', href: '/blog/', module: 'blog' },
     { label: 'New patients', href: '/new-patients/' },
     { label: 'Contact', href: '/contact/' },
     { label: 'Referrers', href: '/referrers/', module: 'referrals', footer: true },

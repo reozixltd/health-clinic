@@ -53,7 +53,7 @@ Notes:
 | Shared UI, leads, storage, formats | `src/core/` |
 | Colours, type, spacing, elevation | `src/styles/tokens.css` |
 | Card, Eyebrow, Stat and Chip primitives | `src/core/ui/` |
-| Photo slots and photo files | `src/config/photo-slots.ts`, `src/assets/photos/` |
+| Photo slots and photo files | `src/config/photo-slots.ts`, `src/assets/images/` |
 | Unit tests | `tests/unit/` |
 | End-to-end tests | `tests/e2e/` (`run.mjs` builds and serves each site) |
 | Dependency rules | `tools/boundaries.mjs`, run by `npm test` |

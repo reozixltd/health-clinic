@@ -1,7 +1,7 @@
 # Photo brief
 
-Save each photo as `src/assets/photos/<slot>.jpg`. It is optimised and cropped automatically. An empty room slot shows a labelled placeholder.
-A slot name listed under two brands is one file, shown on both. Demo photo sources are in `docs/photo-credits.md`.
+Save each photo as `src/assets/images/<slot>.jpg`. It is optimised and cropped automatically. An empty room slot shows a labelled placeholder.
+A slot name listed under two brands is one file, shown on both. Demo photo sources are in `CREDITS.md`.
 
 Generated from `src/config/photo-slots.ts` by `npm run photos:status`. Do not edit by hand.
 

@@ -12,6 +12,10 @@ export interface Provider {
   acceptingNew: boolean;
   bio: string;
   photoSlot: string;
+  qualifications?: string[];
+  interests?: string[];
+  availability?: string[];
+  joined?: number;
 }
 
 export interface Service {
@@ -23,6 +27,9 @@ export interface Service {
   whatToExpect: string[];
   providers: string[];
   faqs: { q: string; a: string }[];
+  icon?: string;
+  treats?: string[];
+  timeline?: { when: string; title: string; text: string }[];
 }
 
 /** Allied health fee; one file serves every market (amount keyed by market). */

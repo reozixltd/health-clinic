@@ -13,7 +13,7 @@ How to turn this repo into a real clinic site. You edit config, content, tokens 
 | Services, clinicians, fees or price list, reviews, FAQs, policies | `src/content/<contentDir>/` |
 | Navigation order and labels | `src/presets/*.ts` (`nav`), or `nav` in `site.ts` to replace the preset nav for one site. Same item shape (`label`, `href`, optional `module`, optional `footer`). Items whose module is off are still removed. |
 | Colours, type, spacing | `src/styles/tokens.css` |
-| Photos | `src/assets/photos/<slot>.jpg`. Run `npm run photos:status`. |
+| Photos | `src/assets/images/<slot>.jpg`. Run `npm run photos:status`. |
 
 The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernway-ca` and `hollybank`. `SITE` picks one at build time (see the README). A real client build has one site folder and one content folder.
 
@@ -27,11 +27,11 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 | `photoRoles` | Which slot shows in the home hero, beside the first-visit steps, and beside the address, for each content folder. |
 | `photoAlt` | The alt text for each room slot, keyed by slot name. |
 
-A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. The slot also needs a line in `photoAlt`. Without the alt text the build fails and names the service. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `docs/photo-credits.md`.
+A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. The slot also needs a line in `photoAlt`. Without the alt text the build fails and names the service. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `CREDITS.md`.
 
 To add a slot from scratch:
 
-1. Drop the file at `src/assets/photos/<slot>.jpg`, named exactly after the slot.
+1. Drop the file at `src/assets/images/<slot>.jpg`, named exactly after the slot.
 2. Add the slot to `photoSlots` for that content folder, so `npm run photos:status` lists it as still needed.
 3. Add the slot to `photoRoles` if it should appear in the home hero, beside the first-visit steps, or beside the address. Each of those places is claimed by one slot, so a slot used by one component must come out of the others.
 4. Add the slot to `photoAlt` with its alt text.
