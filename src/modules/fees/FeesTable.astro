@@ -14,7 +14,7 @@ const groups = groupByService(rows);
 
 <div class="fees">
   {groups.map((g) => (
-    <section class="panel" aria-labelledby={`fees-${market}-${g.service}`}>
+    <section class="panel" data-reveal aria-labelledby={`fees-${market}-${g.service}`}>
       <h2 id={`fees-${market}-${g.service}`}>{titles[g.service] ?? g.service}</h2>
       <table>
         <thead class="sr-only"><tr><th scope="col">Visit</th><th scope="col">Fee</th><th scope="col">Cover</th></tr></thead>

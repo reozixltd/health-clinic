@@ -59,7 +59,7 @@ const { treats = [], timeline = [] } = service;
     <div class="prose"><slot /></div>
 
     {treats.length > 0 && (
-      <section aria-labelledby="treats">
+      <section aria-labelledby="treats" data-reveal>
         <h2 id="treats">What it can help with</h2>
         <ul class="treats">
           {treats.map((t) => <li><Icon name="check" size={16} /> {t}</li>)}
@@ -67,13 +67,13 @@ const { treats = [], timeline = [] } = service;
       </section>
     )}
 
-    <section aria-labelledby="expect">
+    <section aria-labelledby="expect" data-reveal>
       <h2 id="expect">What to expect</h2>
       <ol class="steps">{service.whatToExpect.map((t) => <li>{t}</li>)}</ol>
     </section>
 
     {timeline.length > 0 && (
-      <section aria-labelledby="path">
+      <section aria-labelledby="path" data-reveal>
         <h2 id="path">How care usually unfolds</h2>
         <p class="note">A common pattern, not a promise. You agree your own plan with your clinician.</p>
         <ol class="timeline">
@@ -89,7 +89,7 @@ const { treats = [], timeline = [] } = service;
     )}
 
     {clinicians.length > 0 && (
-      <section aria-labelledby="who">
+      <section aria-labelledby="who" data-reveal>
         <h2 id="who">Who offers this</h2>
         <ul class="people">
           {clinicians.map((c) => (
@@ -103,7 +103,7 @@ const { treats = [], timeline = [] } = service;
       </section>
     )}
 
-    <section id="faq" aria-labelledby="faq-title">
+    <section id="faq" aria-labelledby="faq-title" data-reveal>
       <h2 id="faq-title">Common questions</h2>
       <div class="faqs">
         {service.faqs.map((f) => <Accordion summary={f.q}><p set:html={linkHtml(f.a)} /></Accordion>)}

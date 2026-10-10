@@ -51,20 +51,20 @@ const week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
     {body && <div class="prose" set:html={body} />}
 
     {interests.length > 0 && (
-      <section aria-labelledby="interests">
+      <section aria-labelledby="interests" data-reveal>
         <h2 id="interests">Special interests</h2>
         <ul class="tags">{interests.map((i) => <li>{i}</li>)}</ul>
       </section>
     )}
 
     {qualifications.length > 0 && (
-      <section aria-labelledby="quals">
+      <section aria-labelledby="quals" data-reveal>
         <h2 id="quals">Qualifications</h2>
         <ul class="quals">{qualifications.map((q) => <li><Icon name="award" size={20} /> {q}</li>)}</ul>
       </section>
     )}
 
-    <section aria-labelledby="details">
+    <section aria-labelledby="details" data-reveal>
       <h2 id="details">Registration and details</h2>
       <dl>
         <div class="row">
@@ -96,7 +96,7 @@ const week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
     </section>
 
     {services.length > 0 && (
-      <section aria-labelledby="sv">
+      <section aria-labelledby="sv" data-reveal>
         <h2 id="sv">Services</h2>
         <ul class="links">{services.map((s) => <li><Chip href={`/services/${s.slug}/`}>{s.title} <Icon name="arrow-right" size={16} /></Chip></li>)}</ul>
       </section>

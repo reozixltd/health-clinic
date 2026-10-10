@@ -173,10 +173,10 @@ Starts after Task 0, because it needs the schemas.
 - Modify: `src/core/motion.ts`, `src/styles/global.css`, sections that need `data-reveal`
 - Test: `tests/e2e/motion.e2e.mjs`
 
-- [ ] `motion.e2e`: FAQ selector; add "reduced motion: carousel does not advance and marquee has no animation"; add "JavaScript off: counters show their final value".
-- [ ] Reveal: 20px rise, 70 ms stagger, 600 ms, once. Count-up on `[data-count-to]`.
-- [ ] CSS: timeline line-draw and hero parallax under `@supports (animation-timeline: view())` and `prefers-reduced-motion: no-preference`; marquee; card lift and image zoom; underline; accordion height.
-- [ ] Build, test, check, `npm run budget`. Commit `feat: motion system`.
+- [x] `motion.e2e`: FAQ selector; add "reduced motion: carousel does not advance and marquee has no animation"; add "JavaScript off: counters show their final value".
+- [x] Reveal: 20px rise, 70 ms stagger, 600 ms, once. Count-up on `[data-count-to]`.
+- [x] CSS: timeline line-draw and hero parallax under `@supports (animation-timeline: view())` and `prefers-reduced-motion: no-preference`; marquee; card lift and image zoom; underline; accordion height.
+- [x] Build, test, check, `npm run budget`. Commit `feat: motion system`.
 
 ### Task 7: View transitions
 

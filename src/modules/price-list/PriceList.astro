@@ -17,7 +17,7 @@ const groups = groupPrices(items);
 <div class="prices">
   <p class="note">{market.taxNote}. Last reviewed {reviewedLabel}.</p>
   {groups.map((g, i) => (
-    <section class="panel" aria-labelledby={`price-group-${i}`}>
+    <section class="panel" data-reveal aria-labelledby={`price-group-${i}`}>
       <h2 id={`price-group-${i}`}>{g.group}</h2>
       <table>
         <thead class="sr-only"><tr><th scope="col">Item</th><th scope="col">Price</th></tr></thead>

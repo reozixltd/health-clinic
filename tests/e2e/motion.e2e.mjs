@@ -80,6 +80,43 @@ await step('reduced motion: nothing is ever hidden or moved', async () => {
   });
 });
 
+await step('reduced motion: carousel does not advance and marquee has no animation', async () => {
+  await withPage({ reducedMotion: 'reduce' }, async (page) => {
+    await page.goto(`${BASE}/`);
+    const marquee = await page.locator('[data-marquee] .track').evaluateAll((els) => els.map((e) => getComputedStyle(e).animationName));
+    expect(marquee.every((n) => n === 'none'), `marquee animation names: ${marquee}`);
+    expect((await page.locator('[data-marquee-toggle]:visible').count()) === 0, 'a still marquee should not offer a pause button');
+    // Only a market that displays reviews has an auto-advancing carousel.
+    const track = page.locator('[data-carousel]:has([data-carousel-pause]) [data-carousel-track]:visible').first();
+    if ((await track.count()) === 0) return;
+    await track.scrollIntoViewIfNeeded();
+    const before = await track.evaluate((e) => e.scrollLeft);
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(6600); // one auto-advance interval and a bit
+    expect((await track.evaluate((e) => e.scrollLeft)) === before, 'carousel advanced under reduced motion');
+    expect((await page.locator('[data-carousel-pause]:visible').count()) === 0, 'a still carousel should not offer a pause button');
+  });
+});
+
+await step('JavaScript off: counters show their final value', async () => {
+  await withPage({ javaScriptEnabled: false }, async (page) => {
+    await page.goto(`${BASE}/`);
+    const counters = await page.locator('[data-count-to]').evaluateAll((els) => els.map((e) => ({ to: Number(e.dataset.countTo), text: e.textContent.trim() })));
+    for (const c of counters) expect(Number(c.text.replace(/,/g, '')) === c.to, `counter shows "${c.text}" for ${c.to}`);
+  });
+});
+
+await step('counters below the fold count up and land on their value', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/`);
+    if ((await page.locator('[data-count-to]').count()) === 0) return;
+    await scrollToBottom(page);
+    await page.waitForTimeout(1700);
+    const counters = await page.locator('[data-count-to]').evaluateAll((els) => els.map((e) => ({ to: Number(e.dataset.countTo), text: e.textContent.trim() })));
+    for (const c of counters) expect(Number(c.text.replace(/,/g, '')) === c.to, `counter ended on "${c.text}" for ${c.to}`);
+  });
+});
+
 await step('JavaScript off: every section is visible', async () => {
   await withPage({ javaScriptEnabled: false }, async (page) => {
     await page.goto(`${BASE}/`);

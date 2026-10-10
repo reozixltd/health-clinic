@@ -7,7 +7,7 @@ import { inView } from 'motion';
 import { animate } from 'motion/mini';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const STAGGER = 0.04;
+const STAGGER = 0.07;
 const LAST_STAGGERED = 7; // the first eight children stagger; the rest arrive with the eighth
 // Trigger once any part crosses a line 10% above the viewport bottom. A share-of-element threshold
 // would never fire for a section several viewports tall.
@@ -22,8 +22,8 @@ function hide(el: HTMLElement): void {
 function reveal(el: HTMLElement, index = 0): void {
   animate(
     el,
-    { opacity: [0, 1], transform: ['translateY(12px)', 'none'] },
-    { duration: 0.4, delay: Math.min(index, LAST_STAGGERED) * STAGGER, ease: EASE },
+    { opacity: [0, 1], transform: ['translateY(20px)', 'none'] },
+    { duration: 0.6, delay: Math.min(index, LAST_STAGGERED) * STAGGER, ease: EASE },
   ).then(() => {
     el.style.opacity = '';
     el.style.transform = '';
