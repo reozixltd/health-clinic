@@ -1,6 +1,6 @@
 # health-clinic
 
-A modular static website for allied-health and vet clinics, built with Astro 5 and plain CSS on tokens. One codebase serves the sales demo and each paying clinic. A clinic site is set up by editing config, content, tokens and photos. You do not edit components. The visual design is a port of the Google Stitch "Lumina Health Clinic" composition, driven entirely by real content and config; anything the source design showed that this project has no data for renders as a labelled stub rather than a plausible number.
+A modular static website for allied-health and vet clinics, built with Astro and plain CSS on tokens. One codebase serves the sales demo and each paying clinic. A clinic site is set up by editing config, content, tokens and photos. You do not edit components. The Fernway demo is dressed as a premium private clinic: a sixteen-section home page, rich service and team pages, an about page, health tips, photography and a calm motion system. Everything it claims is invented sample content held in data files, and the ribbon at the top of every page says so.
 
 Demo sites:
 
@@ -10,7 +10,7 @@ Demo sites:
 | `fernway-ca` | allied-health | CA (switch to AU with `?market=AU`) | Fernway Health, Ottawa |
 | `hollybank` | vet | UK | Hollybank Vets, Leeds |
 
-All names, numbers and prices are fictional samples.
+All names, numbers, prices, awards, funds, reviews and articles are fictional samples. Photos are free-licence stock, credited in `CREDITS.md`; the people shown are models.
 
 ## Quick start
 
@@ -40,7 +40,7 @@ Notes:
 | Clinic details, booking, message templates | `src/config/sites/<id>/` (`clinic.ts`, `booking.ts`, `messages.ts`) |
 | Site registry (add a site here) | `src/config/registry.ts` |
 | `SITE_ID` handling | `src/config/index.ts` |
-| Services, clinicians, fees, prices, reviews, FAQs, policies | `src/content/<contentDir>/` |
+| Services, clinicians, fees, prices, reviews, FAQs, policies, clinic story, awards, funds, gallery, health tips | `src/content/<contentDir>/` |
 | Content schemas | `src/content.config.ts` |
 | Preset defaults (modules, nav, wording, messages) | `src/presets/allied-health.ts`, `src/presets/vet.ts` |
 | Module registry, `indexPaths`, `routesFor` | `src/domain/modules.ts` |
@@ -52,8 +52,9 @@ Notes:
 | Page bands used by pages | `src/sections/` |
 | Shared UI, leads, storage, formats | `src/core/` |
 | Colours, type, spacing, elevation | `src/styles/tokens.css` |
-| Card, Eyebrow, Stat and Chip primitives | `src/core/ui/` |
-| Photo slots and photo files | `src/config/photo-slots.ts`, `src/assets/images/` |
+| Shared UI: Button, Card, SectionHeading, Carousel, Accordion, Lightbox and the rest | `src/core/ui/` |
+| Scroll reveals, count-up and the card to detail morph | `src/core/motion.ts`, `src/core/morph.ts` |
+| Photo slots, photo files and their sources | `src/config/photo-slots.ts`, `src/assets/images/`, `CREDITS.md` |
 | Unit tests | `tests/unit/` |
 | End-to-end tests | `tests/e2e/` (`run.mjs` builds and serves each site) |
 | Dependency rules | `tools/boundaries.mjs`, run by `npm test` |
@@ -67,13 +68,13 @@ Imports run one way: `pages` to `layouts` and `sections`, then `modules`, then `
 | `docs/spec.md` | The product spec and decisions |
 | `docs/customising.md` | Setting up a clinic, adding a market or module, going live |
 | `docs/modules.md` | One entry per module |
-| `docs/design-system.md` | Tokens, type, the four UI primitives, the layout vocabulary, what is real and what is a labelled stub |
+| `docs/design-system.md` | Tokens, themes, type, the UI primitives, the layout vocabulary, motion and the rules |
 | `docs/photo-brief.md` | Photo slots and what each should show (generated) |
 | `docs/plans/` | The build plan |
 
 ## Before a clinic goes live
 
-- Set `demoMode: false`, replace all sample content and add real photos.
+- Set `demoMode: false`, replace all sample content (including `about.json`, awards, funds, reviews and the health tips) and replace the stock photos with the clinic's own.
 - Implement `HttpLeadRepository`, set `LEAD_STORE` to `'http'` and send messages from your server. The site never sends. Set the site `url` in `site.ts`.
 - Have local counsel confirm the market pack. The CA pack is `verified: false`.
 - The vet modules (`price-list`, `estimates`, `ownership`) were built for the CMA remedies. Confirm the Order status and wording first.

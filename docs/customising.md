@@ -11,6 +11,9 @@ How to turn this repo into a real clinic site. You edit config, content, tokens 
 | Booking provider (`none`, `embed`, `link`), practice-system URL, request windows, lead time, horizon, days off, confirmation promise | `src/config/sites/<id>/booking.ts` |
 | Reminder, recall and review templates and timings | `src/config/sites/<id>/messages.ts` (undefined uses the preset defaults) |
 | Services, clinicians, fees or price list, reviews, FAQs, policies | `src/content/<contentDir>/` |
+| Clinic story, stats, rating, "Why choose us", payment options, careers, newsletter copy | `src/content/<contentDir>/about.json` |
+| Awards, health funds and insurers, conditions, gallery | `awards.json`, `funds.json`, `conditions.json`, `gallery.json` in the same folder |
+| Health tips articles | `src/content/<contentDir>/blog/*.md` |
 | Navigation order and labels | `src/presets/*.ts` (`nav`), or `nav` in `site.ts` to replace the preset nav for one site. Same item shape (`label`, `href`, optional `module`, optional `footer`). Items whose module is off are still removed. |
 | Colours, type, spacing | `src/styles/tokens.css` |
 | Photos | `src/assets/images/<slot>.jpg`. Run `npm run photos:status`. |
@@ -27,7 +30,9 @@ The demo repo holds three sites under `src/config/sites/`: `fernway-au`, `fernwa
 | `photoRoles` | Which slot shows in the home hero, beside the first-visit steps, and beside the address, for each content folder. |
 | `photoAlt` | The alt text for each room slot, keyed by slot name. |
 
-A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. The slot also needs a line in `photoAlt`. Without the alt text the build fails and names the service. A room slot with no file shows a labelled placeholder. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. Demo photo sources are in `CREDITS.md`.
+A service shows a photo when its file has `photoSlot: <slot>` in the frontmatter. The slot also needs a line in `photoAlt`. Without the alt text the build fails and names the service. A slot with no file shows a branded placeholder: a soft gradient with an icon. A content folder with no `photoRoles` entry shows no photos in those places. A clinician with no portrait file shows a tile with their initials. A clinician portrait is `provider-<slug>.jpg` and takes its alt text from the name. Blog articles and gallery entries name a slot the same way a service does.
+
+The demo photos are free-licence stock, and the people in them are models. Each source is listed in `CREDITS.md`. A live clinic replaces every portrait with its own people and removes the matching lines.
 
 To add a slot from scratch:
 
@@ -38,17 +43,19 @@ To add a slot from scratch:
 
 Step 4 is enforced. `tests/unit/photos.test.ts` asserts that every slot with alt text has a file, so adding an entry before the file lands fails the test suite. A slot that is only ever used by name in markup, with no alt entry, is fine and shows the placeholder.
 
-Nine slots ship with the repo and nine alt entries match them. A new section that wants a picture reuses an existing slot; anything else renders `Placeholder.astro` directly with a literal label, rather than adding a slot for a photograph nobody has taken.
+Every slot in `photoSlots` for the Fernway demo ships with a file. Portrait and avatar slots carry no `photoAlt` entry, because their alt text is the person's name; every other slot has one. `photoFocus` sets the focal point for a slot that is cropped hard.
 
 ## Re-skin the design
 
-Two theme blocks at the bottom of `src/styles/tokens.css` hold every colour: `:root, [data-theme='fernway']` and `[data-theme='harbour']`. Change those values and the whole site follows, because no component holds a raw colour.
+Three theme blocks at the bottom of `src/styles/tokens.css` hold every colour: `:root, [data-theme='fernway']`, `[data-theme='harbour']` and `[data-theme='fernway-dark']`. Change those values and the whole site follows, because no component holds a raw colour. The dark block is ready but no site lists it; add it to `themes` in `site.ts` to offer it.
 
-Two of the tokens need care.
+Three of the tokens need care.
 
-`--color-primary` and `--color-primary-text` are deliberately different steps of the same hue. Primary is for fills, borders and icons, where the boundary is what has to be visible. Primary-text is for primary-coloured text on a tinted panel, where legibility is what has to be visible. Setting them to the same value is the mistake to avoid: in the shipped fernway theme, primary measures 4.46:1 against `--color-surface`, just under AA for body text, and primary-text measures 6.48:1.
+`--color-primary` and `--color-primary-text` are deliberately different steps of the same hue. Primary carries fills, borders, icons and text on the light surfaces. Primary-text is the darker step for brand-coloured text on `--color-sand` and `--color-accent`, where primary does not clear AA. Setting them to the same value is the mistake to avoid.
 
-Run `npm test` after any change. `tests/unit/contrast.test.ts` checks an explicit pair list in both themes, and `tests/unit/tokens.test.ts` pins the type scale, radii, spacing and elevation values. If either fails, change the design rather than the test.
+`--color-cta` is the one call-to-action fill. It must clear 4.5:1 under white text, and it is the only warm colour on the page, so pick it last and use it nowhere else.
+
+Run `npm test` after any change. `tests/unit/contrast.test.ts` checks an explicit pair list in every theme, and `tests/unit/tokens.test.ts` pins the type scale, radii, spacing and elevation values. If either fails, change the design rather than the test.
 
 ## Set up a new clinic from a preset
 
@@ -58,7 +65,7 @@ Run `npm test` after any change. `tests/unit/contrast.test.ts` checks an explici
 4. Fill `clinic.ts`. Use the clinic's real legal name, identifier, hours and time zone. The time zone drives every date the site shows, so use an IANA name such as `Australia/Melbourne`. Two optional fields hold claims about the clinic, and nothing is shown until you set them: `trust` (the lines under the home page hero, for example `['Registered with AHPRA', 'Accessible entrance']`; leave it out to use the preset's generic lines) and `accessibility` (one sentence about the building, shown under "Find us" on the home page). Only state what is true for this clinic.
 5. Copy `src/content/<demo>/` to `src/content/<contentDir>/` and replace every file with real text. The content schemas in `src/content.config.ts` fail the build when a field is missing.
 6. Choose the booking provider in `booking.ts`. `none` uses the built-in request form. `link` sends people to the practice system with the service preselected. `embed` shows the practice system in an iframe. The request form stays as a fallback in both cases.
-7. Edit `src/styles/tokens.css` if the clinic needs its own colours. Run `npm test`, because the contrast test checks both themes.
+7. Edit `src/styles/tokens.css` if the clinic needs its own colours. Run `npm test`, because the contrast test checks every theme.
 8. Add photos and run `npm run photos:status`.
 
 Module switches go in `site.ts`:
@@ -76,7 +83,9 @@ modules: { referrals: true, 'price-list': false }
 - Clinicians can carry `registration.byMarket.CA` when the same person shows a different register in Canada.
 - Never ask for symptoms, history, medications or a pet's condition anywhere on the site. Clinical intake happens in the practice system.
 - Write in sentence case, with short sentences. An uppercase tracked label above a heading is fine, but only through `Eyebrow.astro`. No all-caps body copy, no arrows on buttons.
-- Do not fill a gap with a plausible number. Either the figure comes from content or config, or the section renders a labelled stub that says it is not published yet. The clinic's home page counts, prices and registration lines are all real; its insurer list, waiting time, accreditation and telehealth claims are all stubs, and stay that way until someone supplies the fact.
+- Every figure and claim comes from content or config, never from a component. The Fernway demo content is invented from end to end: the story, stats, rating, awards, funds, reviews and articles. Replace all of it before a clinic goes live, and leave a field out rather than keep a sample number. A section with no content is left out or shows a labelled stub.
+- Fund and insurer marks are drawn placeholders with invented names. Use a real company's name or logo only with its permission.
+- A market that shows no review quotes shows no rating number either. That is the market pack's rule, not a content choice.
 
 ## Add a market pack
 
@@ -113,7 +122,7 @@ Only `src/domain/presets.ts` and `src/layouts/*` may read `site.market`. Pages t
 ## Go live
 
 1. Set `demoMode: false` in `site.ts`. This removes the demo ribbon, the `?market=` and `?theme=` switching and the "Preview, not sent" label in the console. It also forces `markets` down to the configured market, so the live site never embeds another clinic's details, and it leaves out the `/dev/ui/` component gallery, the console's "Load samples" and "Clear" buttons and the console's first sign-in seeding. Those three are demo-only. `Seo` can emit `aggregateRating` only when a page passes it a `rating`, and only when demo mode is off and the market allows testimonials; no page passes one today, so JSON-LD carries no rating unless you add it.
-2. Replace every sample line in content. Sample reviews, sample prices and "sample content" notes must go. The console and its demo sign-in text are still demo code until you add real authentication.
+2. Replace every sample line in content. Sample reviews, sample prices, the invented story, stats, awards, funds and articles, the stock portraits and "sample content" notes must go. The console and its demo sign-in text are still demo code until you add real authentication.
 3. Choose one `market` and drop `markets`.
 4. Confirm the market pack with counsel (below).
 5. Check `url` in `site.ts`, and `trust` and `accessibility` in `clinic.ts`.

@@ -12,7 +12,7 @@ const have = new Set(existsSync(dir) ? readdirSync(dir).map((f) => f.replace(/\.
 
 const title = (slug) => slug.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
 
-/** What each kind of slot should show. Rooms and equipment only; never stock people as clinicians. */
+/** What each kind of slot should show a real clinic. The demo's own stock sources are in CREDITS.md. */
 function describe(slot) {
   if (slot.startsWith('provider-')) {
     const name = title(slot.replace('provider-', ''));
@@ -22,7 +22,22 @@ function describe(slot) {
       orientation: 'portrait',
     };
   }
+  if (slot.startsWith('service-')) {
+    const name = title(slot.replace('service-', '')).toLowerCase();
+    return { shows: `The ${name} service in use or its room set up, warm natural light. Anyone shown has given consent.`, search: `${name} clinic natural light`, orientation: 'landscape' };
+  }
+  if (slot.startsWith('blog-')) {
+    const name = title(slot.replace('blog-', '')).toLowerCase();
+    return { shows: `An everyday scene that suits the article on ${name}, warm natural light, no clinical detail.`, search: `${name} lifestyle natural light`, orientation: 'landscape' };
+  }
+  if (slot.startsWith('founder-')) {
+    return { shows: 'The founder at work or at a desk, relaxed, taken with their consent, warm natural light.', search: 'Not for stock. Book a short shoot with the real founder.', orientation: 'landscape' };
+  }
   const rooms = {
+    'hero-consult': ['A clinician and a patient talking, unposed, warm natural light. Both have given consent.', 'clinician patient conversation natural light'],
+    'waiting-area': ['Waiting area with seating and plants, empty, tidy, natural light.', 'clinic waiting area empty natural light'],
+    'rehab-gym': ['Rehabilitation gym with mats and exercise equipment, empty.', 'physiotherapy rehab gym empty'],
+    'clinic-detail': ['A close detail that shows care: a plant, a shelf, equipment set out. No people.', 'clinic interior detail plant'],
     'clinic-exterior': ['Front of the building and the entrance, daylight, no people, door and any step or ramp visible.', 'clinic building entrance daylight'],
     reception: ['Reception desk and waiting area, empty, tidy, natural light.', 'empty clinic reception waiting area'],
     'vet-exterior': ['Front of the building and the entrance, daylight, no people, door and any step or ramp visible.', 'veterinary clinic entrance daylight'],
@@ -55,18 +70,19 @@ const sections = brands.map(({ brand, slots }) => {
 
 const md = `# Photo brief
 
-Save each photo as \`src/assets/images/<slot>.jpg\`. It is optimised and cropped automatically. An empty room slot shows a labelled placeholder.
+Save each photo as \`src/assets/images/<slot>.jpg\`. It is optimised and cropped automatically. An empty slot shows a branded placeholder.
 A slot name listed under two brands is one file, shown on both. Demo photo sources are in \`CREDITS.md\`.
 
 Generated from \`src/config/photo-slots.ts\` by \`npm run photos:status\`. Do not edit by hand.
 
 ## Rules
 
-- Rooms and equipment only. Never use stock photos of people as clinicians.
+- The demo ships with free-licence stock, and the people in it are models. A live clinic never presents a stock model as one of its clinicians.
 - Clinician portraits come from the real clinician, with their consent.
 - No patients, no pets in distress, no screens showing records.
 - Suggestion, not enforced: shoot landscape slots at 1600 px wide or more and portrait slots at 800 px or more.
-- Pages show the room slots named in \`photoRoles\` (home, contact) and each service's \`photoSlot\`. A clinician slot with no file shows an initials tile.
+- Pages show the room slots named in \`photoRoles\` (home, contact), each service's and article's \`photoSlot\` and the gallery. A clinician slot with no file shows an initials tile.
+- Keep one look across the set: warm, natural light, pale backgrounds.
 
 ${sections.join('\n')}`;
 writeFileSync('docs/photo-brief.md', md);

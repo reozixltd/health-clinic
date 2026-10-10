@@ -19,7 +19,7 @@ const services = (await getCollection('services'))
   .map((s) => s.data)
   .sort((a, b) => a.order - b.order)
   .map((s) => ({ ...s, photo: s.photoSlot && hasPhoto(s.photoSlot) ? slotPhoto(s.photoSlot) : undefined }));
-const conditions = (await getCollection('conditions')).map((e) => e.data);
+const conditions = isOn('about', site) ? (await getCollection('conditions')).map((e) => e.data) : [];
 const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id) }));
 ---
 

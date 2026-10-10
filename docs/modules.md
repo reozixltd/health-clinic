@@ -9,6 +9,7 @@ A module is a switchable feature. Turn one on or off in `modules` in `src/config
 | providers, services, booking, reviews, reminders, emergency | On | On |
 | fees, referrals | On (referrals is also set on explicitly in the Fernway sites) | Off |
 | price-list, estimates, ownership | Off | On |
+| about, blog | Off (set on in the Fernway sites) | Off |
 
 `estimates` requires `price-list`. Turning on a module whose requirement is off fails the build.
 
@@ -27,16 +28,18 @@ A module is a switchable feature. Turn one on or off in `modules` in `src/config
 | reminders | none (console timeline) | none | none |
 | referrals | `/referrers/` | `referral` | none |
 | emergency | `/out-of-hours/` when the preset has `emergencyPage` | none | none |
+| about | `/about/` | none | none |
+| blog | `/blog/`, `/blog/<slug>/` | none | none |
 
 The `enquiry` lead kind belongs to the preset, not to a module.
 
 ## Motion
 
-Motion is a site setting, not a module. `motion: false` in a site's `site.ts` removes the reveal script, the hero entrance and the page cross-fade. It also removes the booking step slide and the hover zoom. Button press feedback and the card line fill stay. It is on when not set.
+Motion is a site setting, not a module. `motion: false` in a site's `site.ts` removes the reveal and count-up script, the hero entrance, the page transitions, the marquee and the carousel's auto-advance. It also removes the booking step slide and the hover zoom. Button press feedback and the card line fill stay. It is on when not set. See `docs/design-system.md` for the motion tokens.
 
 ## providers
 
-Lists clinicians and gives each a profile: photo slot, name, role, registration body and number, languages, services, whether they are accepting new patients, a short bio and a **Book with** link that opens `/book/` with the clinician chosen. The registration links to the public register when `clinic.registerUrl` is set.
+Lists clinicians as photo cards and gives each a profile: portrait, name, role, registration body and number, qualifications, special interests, languages, the days they work, services, whether they are accepting new patients, a bio and a **Book with** link that opens `/book/` with the clinician chosen. The registration links to the public register when `clinic.registerUrl` is set.
 
 - Content: `src/content/<dir>/providers/*.md`.
 - Config: `clinic.registerUrl`.
@@ -44,10 +47,10 @@ Lists clinicians and gives each a profile: photo slot, name, role, registration 
 
 ## services
 
-One page per service with summary, duration, what to expect, the clinicians who offer it, three FAQs and a **Book this** link. A "from" price shows only when `fromPrice` is set and the market allows it.
+One page per service: a photo header, an "At a glance" panel (appointment length, fee, who you will see), the long read, what it can help with, what to expect, a care timeline, the clinicians who offer it, questions as accordions and a **Book this** link. A "from" price shows only when `fromPrice` is set and the market allows it. The conditions chips on the home page come from `conditions.json` and link to the service that treats each one.
 
 - Content: `src/content/<dir>/services/*.md`.
-- Notes: `fromPriceLabel` returns nothing for the UK vet pack, where the full price list is required.
+- Notes: `fromPrice` is one number or a number per market. `fromPriceLabel` returns nothing for the UK vet pack, where the full price list is required. `treats` and `timeline` are optional; the sections show only for services that list them. The timeline carries a note that it is a common pattern, not a promise.
 
 ## booking
 
@@ -94,8 +97,8 @@ Shows reviews on the home page according to the market pack.
 
 | Pack | Mode | What shows |
 |---|---|---|
-| AU | `link-only` | A "Read our reviews on Google" link from `clinic.reviewsUrl`. No quotes. |
-| CA, UK | `display` | Named, dated reviews with the source, newest first |
+| AU | `link-only` | A "Read our reviews on Google" panel from `clinic.reviewsUrl`. No quotes and no rating number anywhere on the site. |
+| CA, UK | `display` | Named, dated reviews in a carousel that advances by itself and can be paused, with a rating badge when `about.json` has a `rating` |
 
 - Content: `src/content/<dir>/reviews.json` (`name`, `date`, `rating`, `source`, `text`).
 - Notes: AU bans testimonials on clinic-controlled pages (AHPRA). In demo mode the sample reviews are labelled as samples and JSON-LD carries no `aggregateRating`.
@@ -129,6 +132,20 @@ Pure scheduling that drives the console's message timeline. Nothing is sent. In 
 The after-hours note shown in the hero and footer, from `clinic.emergency`. When the preset has `emergencyPage: true` (vet), it also builds `/out-of-hours/`. Allied health has no emergency page and says so on the contact page.
 
 - Config: `clinic.emergency` (`text`, `phone`, `href`).
+
+## about
+
+The clinic story on `/about/` and the bands on the home page that draw on it: the hero copy and floating cards, the stats strip, "Why choose us", the story band with the founder, payment options, the gallery, the newsletter signup and the careers teaser. The page itself adds the milestones timeline, awards and accreditations, and the open roles.
+
+- Content: `about.json` (founded year, founder slug, mission, hero, story, milestones, rating, stats, features, payments, careers, newsletter), `awards.json`, `funds.json`, `conditions.json` and `gallery.json`, all in `src/content/<dir>/`.
+- Notes: a site with the module off, or with no `about.json`, gets the shorter home page. The rating shows only where the market displays reviews. Fund marks are drawn placeholders (`FundLogo.astro`) and each fund names its market. The newsletter form is front-end only: it validates the address and confirms, and sends nothing. The careers link is a `mailto:` to the clinic.
+
+## blog
+
+Health tips on `/blog/`, one article per file, with a category, an author from the team, a reading time and a photo. The home page shows the latest three. An article page ends with related articles, same category first.
+
+- Content: `src/content/<dir>/blog/*.md` (`title`, `date`, `author` as a provider slug, `summary`, `photoSlot`, `minutes`, `category`).
+- Notes: articles are general information, not advice for one person, and each says so. `postCards()` in `src/modules/blog/posts.ts` sorts and shapes them.
 
 ## Vet modules and the competition remedies
 

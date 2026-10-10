@@ -187,3 +187,32 @@ Phases 1 to 6 of the spec, 16 tasks, complete at cb19088. The Google Stitch "Lum
 - Ruling S6: `ServicesBand` uses `Card.astro` while `ServiceList.astro` keeps a local card rule, because the latter is in a module and the ruled-row and card treatments are meant to stay independent - cost if wrong: two card styles to keep in step.
 - Ruling S7: `--space-xl` and `--text-22` from the plan were dropped; the names read as aliases of existing steps and an unused token cannot be exercised - cost if wrong: a future component wants a name that is not there.
 - Ruling S8: the initials tile''s sub-160px corner branch is no longer reachable from any page, because Task 13 turned both team lists into card grids and every tile is now 320px or more. The container query stays as a guard for a future compact row, and `tests/e2e/photos.e2e.mjs` was re-pointed to constrain the tile in the browser and measure both sides of the threshold - cost if wrong: a compact row added later gets a 16px corner on a 72px avatar until someone reads the CSS comment.
+
+## Premium redesign (2026-10-10)
+
+Branch `redesign/premium-clinic`, one commit per stage. Spec and plan: `docs/superpowers/specs/` and `docs/superpowers/plans/2026-10-10-premium-redesign.md`.
+
+**Brief.** Dress the Fernway demo as a complete premium private clinic, with invented content allowed. This reverses the earlier "real content or a labelled stub" rule for the demo only: the invented facts live in content files, the demo ribbon stays, and `docs/customising.md` says to replace all of it before a clinic goes live.
+
+**Content model.** New collections `about`, `awards`, `funds`, `conditions`, `gallery` and `blog`, each optional per content folder, plus `qualifications`, `interests`, `availability`, `treats` and `timeline` on clinicians and services. `fromPrice` may be a number per market. Two new modules, `about` and `blog`, off in every preset and set on in the Fernway sites, so the vet demo and the fixtures build unchanged.
+
+**Tokens and type.** The fernway theme moved to warm sand neutrals, a fern green primary and one terracotta call-to-action colour, with a deep band for the footer and closing panel. Fraunces carries headings; Atkinson stays for body. Fluid `clamp()` display steps, three motion durations and one easing. A `fernway-dark` theme declares every token and is not switched on.
+
+**Pages.** A sixteen-section home page for sites with an about file; the shorter page for the rest. Every inner page has a header band with breadcrumb and photo. Rich service, team, fees, referrers and legal layouts, `/about/`, `/blog/` and article pages, and a restyled booking flow.
+
+**Imagery.** Forty photos in `src/assets/images/`, all from Pexels, sources in `CREDITS.md`. A missing slot renders a branded gradient placeholder.
+
+**Motion.** Reveals, count-up, marquee, carousel, timeline draw, hovers and native cross-document view transitions with a card to detail photo morph. All of it is off under reduced motion and under `motion: false`.
+
+**Tests updated rather than weakened.** Contrast pairs now cover three themes. `photos.e2e` requires a loading portrait on every Fernway team card and a non-empty alt on every image. `motion.e2e` gained reduced-motion checks for the carousel and marquee, counter checks with and without JavaScript, and a uniqueness check on view-transition names.
+
+**Rulings.**
+
+- Ruling P1: AU keeps the market gate. No review quote and no rating number shows there; a "Read our reviews on Google" panel and non-rating trust cards stand in - cost if wrong: the AU demo looks a little less decorated than CA.
+- Ruling P2: page transitions use the browser's cross-document view transitions, not Astro's client router - cost if wrong: Firefox navigates without a transition; every page keeps working as plain HTML.
+- Ruling P3: no hero video. A still photo with a slow settle and scroll drift does the job without the bytes - cost if wrong: one optional item in the brief is not shown.
+- Ruling P4: fund and insurer marks are drawn placeholders with invented names, and awards name invented issuers - cost if wrong: none; a real clinic supplies its own.
+- Ruling P5: the newsletter form is front-end only and the careers link is a `mailto:` - cost if wrong: a clinic that wants either wired needs a server, as it already does for leads.
+- Ruling P6: scroll-driven effects (timeline draw, hero drift) sit behind `@supports`, with no JavaScript fallback - cost if wrong: browsers without the feature show the finished state.
+- Ruling P7: the dark theme ships declared but not listed in any site - cost if wrong: a dark-mode visitor sees the light theme.
+- Ruling P8: the tab icon is `/favicon.svg`, the clinic's initial on its theme's primary colour, built from the tokens - cost if wrong: one endpoint is replaced by a drawn file.

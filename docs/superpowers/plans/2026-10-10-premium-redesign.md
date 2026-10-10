@@ -193,8 +193,8 @@ Starts after Task 0, because it needs the schemas.
 **Files:**
 - Modify: `docs/design-system.md`, `docs/customising.md`, `docs/modules.md`, `docs/photo-brief.md`, `README.md`, `docs/build-ledger.md`
 
-- [ ] Rewrite the design-system doc to match: tokens, type, primitives, motion, and the rules that changed.
-- [ ] `npm test && npm run check && npm run build:all && npm run budget && npm run e2e`. All green.
-- [ ] Lighthouse mobile on `/`, `/services/physiotherapy/`, `/blog/` against `astro preview`. Fix anything under 90.
-- [ ] Commit `docs: design system and customising notes for the redesign`.
-- [ ] Report scores, every invented fact, and every judgement call.
+- [x] Rewrite the design-system doc to match: tokens, type, primitives, motion, and the rules that changed.
+- [x] `npm test && npm run check && npm run build:all && npm run budget && npm run e2e`. All green.
+- [x] Lighthouse mobile on `/`, `/services/physiotherapy/`, `/blog/` against `astro preview`. Fix anything under 90.
+- [x] Commit `docs: design system and customising notes for the redesign`.
+- [x] Report scores, every invented fact, and every judgement call.
