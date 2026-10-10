@@ -183,10 +183,10 @@ Starts after Task 0, because it needs the schemas.
 **Files:**
 - Modify: `src/layouts/BaseLayout.astro`, card and detail components for services, team and blog
 
-- [ ] Card photo and detail photo share `view-transition-name` (`service-<slug>`, `provider-<slug>`, `post-<slug>`). Names are unique per page.
-- [ ] Root cross-fade uses `--dur-2`; morph groups use `--dur-3` and `--ease-out`.
-- [ ] Add a `motion.e2e` step: on `/services/`, every `view-transition-name` on the page is unique.
-- [ ] Build, test, check. Commit `feat: card to detail view transitions`.
+- [x] Card photo and detail photo share `view-transition-name` (`service-<slug>`, `provider-<slug>`, `post-<slug>`). Names are unique per page.
+- [x] Root cross-fade uses `--dur-2`; morph groups use `--dur-3` and `--ease-out`.
+- [x] Add a `motion.e2e` step: on `/services/`, every `view-transition-name` on the page is unique.
+- [x] Build, test, check. Commit `feat: card to detail view transitions`.
 
 ### Task 8: Docs and verification
 

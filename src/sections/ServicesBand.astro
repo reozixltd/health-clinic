@@ -6,6 +6,7 @@
 import Chip from '@/core/ui/Chip.astro';
 import Icon from '@/core/ui/Icon.astro';
 import type { IconName } from '@/core/ui/icons';
+import { morph } from '@/core/morph';
 import Photo from '@/core/ui/Photo.astro';
 import SectionHeading from '@/core/ui/SectionHeading.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
@@ -36,7 +37,7 @@ const wideTail = services.length % 3 === 2;
         <li>
           <article class="card">
             {s.photo && (
-              <div class="media">
+              <div class="media" style={morph('service', s.slug)}>
                 <Photo slot={s.photo.slot} alt={s.photo.alt} ratio="16 / 10" sizes="(min-width: 1024px) 34rem, (min-width: 640px) 50vw, 100vw" />
                 {s.icon && <span class="icon"><Icon name={s.icon as IconName} size={22} /></span>}
               </div>

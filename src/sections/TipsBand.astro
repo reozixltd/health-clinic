@@ -3,6 +3,7 @@
 import { formatDate } from '@/core/format';
 import Badge from '@/core/ui/Badge.astro';
 import Icon from '@/core/ui/Icon.astro';
+import { morph } from '@/core/morph';
 import Photo from '@/core/ui/Photo.astro';
 import SectionHeading from '@/core/ui/SectionHeading.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
@@ -29,7 +30,7 @@ const { posts, variants, title = 'Latest health tips', eyebrow = 'From our clini
       {posts.map((p) => (
         <li>
           <article class="card">
-            {p.photo && <div class="media"><Photo slot={p.photo.slot} alt={p.photo.alt} ratio="3 / 2" sizes="(min-width: 900px) 24rem, 100vw" /></div>}
+            {p.photo && <div class="media" style={morph('post', p.id)}><Photo slot={p.photo.slot} alt={p.photo.alt} ratio="3 / 2" sizes="(min-width: 900px) 24rem, 100vw" /></div>}
             <div class="body">
               <Badge>{p.category}</Badge>
               <h3><a href={`/blog/${p.id}/`}>{p.title}</a></h3>

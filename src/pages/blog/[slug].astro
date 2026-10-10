@@ -3,6 +3,7 @@
 import { getCollection, render } from 'astro:content';
 import { site, allSites } from '@/config';
 import { slotPhoto } from '@/config/photo-slots';
+import { morph } from '@/core/morph';
 import { formatDate } from '@/core/format';
 import { hasPhoto } from '@/core/photos';
 import { articleSchema } from '@/core/schema';
@@ -46,7 +47,7 @@ const schema = articleSchema({
 ---
 
 <BaseLayout title={post.title} description={post.summary} schema={schema}>
-  <PageHeader title={post.title} eyebrow={post.category} lede={post.summary} crumbs={[{ label: 'Health tips', href: '/blog/' }, { label: post.title }]} photo={filed(post.photoSlot)}>
+  <PageHeader title={post.title} eyebrow={post.category} lede={post.summary} crumbs={[{ label: 'Health tips', href: '/blog/' }, { label: post.title }]} photo={filed(post.photoSlot)} transitionStyle={morph('post', entry.id)}>
     <p class="meta">
       <span>By <a href={`/team/${author.slug}/`}>{author.name}</a>, {author.role.toLowerCase()}</span>
       {variants.map((v) => <time datetime={date} data-market-only={v.id}>{formatDate(date, v.market.locale)}</time>)}

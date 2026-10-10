@@ -234,5 +234,29 @@ await step('page changes cross-fade where the browser supports it, and never und
   });
 });
 
+await step('every view-transition-name on a page is unique, and a card shares its name with its detail photo', async () => {
+  /** Every name the page sets, hidden market variants included: a duplicate cancels the whole transition. */
+  const names = (page) => page.locator('*').evaluateAll((els) => els.map((e) => getComputedStyle(e).viewTransitionName).filter((n) => n && n !== 'none'));
+  await withPage({}, async (page) => {
+    for (const path of ['/', '/services/', '/team/']) {
+      await page.goto(`${BASE}${path}`);
+      const all = await names(page);
+      const twice = all.filter((n, i) => all.indexOf(n) !== i);
+      expect(twice.length === 0, `${path} repeats view-transition-name: ${twice}`);
+      expect(all.length >= 3, `${path} names too few elements: ${all}`);
+    }
+    // Follow the first service card and the first team card: the name must be on the next page too.
+    for (const [path, prefix] of [['/services/', 'service-'], ['/team/', 'provider-']]) {
+      await page.goto(`${BASE}${path}`);
+      const card = (await names(page)).find((n) => n.startsWith(prefix));
+      expect(card, `${path} has no ${prefix} name`);
+      await page.goto(`${BASE}${path}${card.slice(prefix.length)}/`);
+      const detail = await names(page);
+      expect(detail.filter((n) => n === card).length === 1, `${card} should appear once on its detail page, found: ${detail}`);
+      expect(new Set(detail).size === detail.length, `${card} detail page repeats a name: ${detail}`);
+    }
+  });
+});
+
 await closeBrowser();
 finish();

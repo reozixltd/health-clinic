@@ -3,6 +3,7 @@
 import { getCollection, render } from 'astro:content';
 import { site, allSites } from '@/config';
 import { slotPhoto } from '@/config/photo-slots';
+import { morph } from '@/core/morph';
 import { hasPhoto } from '@/core/photos';
 import { serviceSchema } from '@/core/schema';
 import Button from '@/core/ui/Button.astro';
@@ -46,6 +47,7 @@ const schema = serviceSchema({
     lede={service.summary}
     crumbs={[{ label: 'Services', href: '/services/' }, { label: service.title }]}
     photo={service.photoSlot && hasPhoto(service.photoSlot) ? slotPhoto(service.photoSlot) : undefined}
+    transitionStyle={morph('service', service.slug)}
   >
     <p class="actions">
       {bookingOn && <Button href={`/book/?service=${service.slug}`} arrow>Book this</Button>}

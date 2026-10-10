@@ -20,10 +20,12 @@ interface Props {
 }
 
 const { title, description, schema, noindex, bare = false, hideMobileBar = false } = Astro.props;
-// Page to page: a short cross-fade in browsers with cross-document view transitions. Others navigate as usual.
+// Page to page: a short cross-fade in browsers with cross-document view transitions, and a card photo that grows into the photo on its detail page (core/morph.ts). Others navigate as usual.
 // Inline and only here, so the console and bare pages never get it. The global reduce-motion rule is not enough: the transition is a browser feature, not an animation on an element.
 const viewTransitionCss = `@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }`;
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-2); }
+::view-transition-group(*.morph) { animation-duration: var(--dur-3); animation-timing-function: var(--ease-out); }
+::view-transition-old(*.morph), ::view-transition-new(*.morph) { height: 100%; object-fit: cover; overflow: clip; animation-duration: var(--dur-3); }`;
 ---
 
 <!doctype html>

@@ -16,9 +16,9 @@ interface Props {
   crumbs?: { label: string; href?: string }[];
   photo?: { slot: string; alt: string };
   /** Pairs the photo with the card it came from across a page change. */
-  transitionName?: string;
+  transitionStyle?: string;
 }
-const { title, lede, eyebrow, crumbs = [{ label: title }], photo, transitionName } = Astro.props;
+const { title, lede, eyebrow, crumbs = [{ label: title }], photo, transitionStyle } = Astro.props;
 ---
 
 <section class="page-header">
@@ -31,7 +31,7 @@ const { title, lede, eyebrow, crumbs = [{ label: title }], photo, transitionName
       <slot />
     </div>
     {photo && (
-      <div class="media" style={transitionName ? `view-transition-name: ${transitionName}` : undefined}>
+      <div class="media" style={transitionStyle}>
         <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 1024px) 34rem, 100vw" priority />
       </div>
     )}

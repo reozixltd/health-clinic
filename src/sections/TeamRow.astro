@@ -4,6 +4,7 @@
  * the photo. On a phone the cards are one row that scrolls sideways and snaps.
  */
 import Icon from '@/core/ui/Icon.astro';
+import { morph } from '@/core/morph';
 import Photo from '@/core/ui/Photo.astro';
 import SectionHeading from '@/core/ui/SectionHeading.astro';
 import type { MarketId } from '@/domain/markets';
@@ -26,7 +27,7 @@ const { providers, variants, lede } = Astro.props;
     <ul class="grid" data-reveal-group>
       {providers.map((p) => (
         <li>
-          <div class="pic">
+          <div class="pic" style={morph('provider', p.slug)}>
             <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="4 / 5" sizes="(min-width: 768px) 22rem, 72vw" />
             {/* Not clipped by a rounded wrapper: the overlay carries its own radius, and the initials tile keeps its corner. */}
             <div class="over" aria-hidden="true">
