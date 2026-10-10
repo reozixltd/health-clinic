@@ -79,6 +79,19 @@ export function faqSchema(items: { q: string; a: string }[]): object {
   };
 }
 
+export function articleSchema(a: { headline: string; description: string; url: string; datePublished: string; author: { name: string; jobTitle: string; url: string }; publisher: string }): object {
+  return {
+    '@context': CONTEXT,
+    '@type': 'Article',
+    headline: a.headline,
+    description: a.description,
+    datePublished: a.datePublished,
+    mainEntityOfPage: a.url,
+    author: { '@type': 'Person', ...a.author },
+    publisher: { '@type': 'Organization', name: a.publisher },
+  };
+}
+
 /** JSON for <script type="application/ld+json">, with "<" escaped so content can never close the tag. */
 export function jsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, '\\u003c');

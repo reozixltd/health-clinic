@@ -1,60 +1,169 @@
 ---
-/** One service: what to expect, who offers it, questions, and a Book this link. */
+/**
+ * The body of a service page: the facts at a glance beside the long read. What it helps with and the
+ * care timeline show only for services that list them.
+ */
+import Accordion from '@/core/ui/Accordion.astro';
 import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import Photo from '@/core/ui/Photo.astro';
 import type { MarketId, MarketPack } from '@/domain/markets';
 import { linkHtml } from '@/core/inline';
 import { fromPriceLabel, type FromPrice } from './from-price';
 
 interface Props {
-  service: { slug: string; duration: string; whatToExpect: string[]; fromPrice?: FromPrice; faqs: { q: string; a: string }[] };
-  clinicians: { slug: string; name: string; role: string }[];
+  service: {
+    slug: string; duration: string; whatToExpect: string[]; fromPrice?: FromPrice; faqs: { q: string; a: string }[];
+    treats?: string[]; timeline?: { when: string; title: string; text: string }[];
+  };
+  clinicians: { slug: string; name: string; role: string; photoSlot: string; initials: string }[];
   variants: { id: MarketId; market: MarketPack }[];
   /** Label for the booking link, or undefined when the booking module is off. */
   bookLabel?: string;
+  /** The full fee or price list, when the site has one. */
+  feesHref?: string;
 }
-const { service, clinicians, variants, bookLabel } = Astro.props;
+const { service, clinicians, variants, bookLabel, feesHref } = Astro.props;
+const { treats = [], timeline = [] } = service;
 ---
 
-<div class="body">
-  <div class="facts">
-    <p><strong>Appointment length</strong> {service.duration}</p>
-    {variants.map((v) => {
-      const label = fromPriceLabel(service, v.market);
-      return label && <p data-market-only={v.id}>{label}</p>;
-    })}
-    {bookLabel && <Button href={`/book/?service=${service.slug}`}>{bookLabel}</Button>}
-  </div>
-  <section aria-labelledby="expect">
-    <h2 id="expect">What to expect</h2>
-    <ul>{service.whatToExpect.map((t) => <li>{t}</li>)}</ul>
-  </section>
-  <div class="prose"><slot /></div>
-  {clinicians.length > 0 && (
-    <section aria-labelledby="who">
-      <h2 id="who">Who offers this</h2>
-      <ul class="plain">
-        {clinicians.map((c) => <li><a href={`/team/${c.slug}/`}>{c.name}</a>, {c.role}</li>)}
-      </ul>
-    </section>
-  )}
-  <section aria-labelledby="faq">
-    <h2 id="faq">Common questions</h2>
+<div class="wrap page-body cols">
+  <aside class="panel glance" aria-labelledby="glance">
+    <h2 id="glance">At a glance</h2>
     <dl>
-      {service.faqs.map((f) => (<><dt>{f.q}</dt><dd set:html={linkHtml(f.a)} /></>))}
+      <div class="row">
+        <dt><Icon name="clock" size={18} /> Appointment length</dt>
+        <dd>{service.duration}</dd>
+      </div>
+      {variants.map((v) => {
+        const label = fromPriceLabel(service, v.market);
+        return label && (
+          <div class="row" data-market-only={v.id}>
+            <dt><Icon name="credit-card" size={18} /> Fee</dt>
+            <dd>{label}</dd>
+          </div>
+        );
+      })}
+      {clinicians.length > 0 && (
+        <div class="row">
+          <dt><Icon name="users" size={18} /> Who you will see</dt>
+          <dd>{clinicians.length === 1 ? clinicians[0]!.name : `One of ${clinicians.length} clinicians`}</dd>
+        </div>
+      )}
     </dl>
-  </section>
+    {bookLabel && <Button href={`/book/?service=${service.slug}`} arrow>{bookLabel}</Button>}
+    {feesHref && <a class="text-link" href={feesHref}>See the full fee list <Icon name="arrow-right" size={18} /></a>}
+  </aside>
+
+  <div class="main">
+    <div class="prose"><slot /></div>
+
+    {treats.length > 0 && (
+      <section aria-labelledby="treats">
+        <h2 id="treats">What it can help with</h2>
+        <ul class="treats">
+          {treats.map((t) => <li><Icon name="check" size={16} /> {t}</li>)}
+        </ul>
+      </section>
+    )}
+
+    <section aria-labelledby="expect">
+      <h2 id="expect">What to expect</h2>
+      <ol class="steps">{service.whatToExpect.map((t) => <li>{t}</li>)}</ol>
+    </section>
+
+    {timeline.length > 0 && (
+      <section aria-labelledby="path">
+        <h2 id="path">How care usually unfolds</h2>
+        <p class="note">A common pattern, not a promise. You agree your own plan with your clinician.</p>
+        <ol class="timeline">
+          {timeline.map((t) => (
+            <li>
+              <span class="timeline__when">{t.when}</span>
+              <h3>{t.title}</h3>
+              <p>{t.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    {clinicians.length > 0 && (
+      <section aria-labelledby="who">
+        <h2 id="who">Who offers this</h2>
+        <ul class="people">
+          {clinicians.map((c) => (
+            <li>
+              <div class="face"><Photo slot={c.photoSlot} alt={c.name} ratio="1 / 1" sizes="4.5rem" widths={[160, 320]} initials={c.initials} /></div>
+              <p class="who"><a href={`/team/${c.slug}/`}>{c.name}</a><span>{c.role}</span></p>
+              <Icon name="arrow-right" size={20} class="go" />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <section id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">Common questions</h2>
+      <div class="faqs">
+        {service.faqs.map((f) => <Accordion summary={f.q}><p set:html={linkHtml(f.a)} /></Accordion>)}
+      </div>
+    </section>
+  </div>
 </div>
 
 <style>
-  .body { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
-  .body > * { max-width: var(--measure); }
-  .facts { display: grid; gap: var(--space-2); justify-items: start; }
-  h2 { font-size: var(--text-24); margin-bottom: var(--space-3); }
-  ul { padding-left: var(--space-5); display: grid; gap: var(--space-2); }
-  .plain { list-style: none; padding: 0; }
-  .plain a { display: inline-flex; align-items: center; min-height: var(--target); }
-  dt { font-weight: 700; margin-top: var(--space-4); }
-  dd { margin: var(--space-1) 0 0; color: var(--color-ink-muted); }
-  dd :global(a) { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); }
-  .prose :global(a) { text-decoration: underline; }
+  .cols { align-items: start; }
+  .main { display: grid; gap: var(--space-8); }
+  section { display: grid; gap: var(--space-4); }
+  h2 { font-size: var(--text-28); }
+  .prose { font-size: var(--text-18); }
+  .note { color: var(--color-ink-muted); font-size: var(--text-14); }
+
+  .glance { display: grid; gap: var(--space-4); justify-items: start; }
+  .glance h2 { font-size: var(--text-24); }
+  dl { display: grid; width: 100%; }
+  .row { display: grid; gap: var(--space-1); padding-block: var(--space-3); border-top: var(--hairline); }
+  dt { display: flex; align-items: center; gap: var(--space-2); color: var(--color-ink-muted); font-size: var(--text-14); }
+  dt :global(svg) { color: var(--color-primary-text); }
+  dd { font-weight: 700; }
+
+  .treats, .steps, .people { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 560px) { .treats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .treats li { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; }
+  .treats :global(svg) { flex: none; box-sizing: content-box; padding: var(--space-1); background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); }
+
+  .steps { counter-reset: step; max-width: var(--measure); }
+  .steps li {
+    counter-increment: step; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-4);
+    padding: var(--space-4) var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card);
+  }
+  .steps li::before {
+    content: counter(step); display: grid; place-items: center; width: 2.5rem; height: 2.5rem;
+    background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); font-family: var(--font-display); font-size: var(--text-20); font-weight: 600;
+  }
+
+  @media (min-width: 560px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .people li {
+    position: relative; display: grid; grid-template-columns: 4.5rem 1fr auto; align-items: center; gap: var(--space-4);
+    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card);
+    transition: border-color var(--dur-2) var(--ease-out);
+  }
+  .face :global(.photo), .face :global(.ph) { border: 0; border-radius: 50%; }
+  .who { display: grid; }
+  .who a { font-family: var(--font-display); font-size: var(--text-20); font-weight: 520; text-decoration: none; }
+  /* One link per card, stretched over the whole box. */
+  .who a::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-card); }
+  .who span { color: var(--color-ink-muted); }
+  .people :global(.go) { color: var(--color-primary-text); transition: transform var(--dur-2) var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) {
+    .people li:hover { border-color: var(--color-primary); }
+    .people li:hover :global(.go) { transform: translateX(4px); }
+  }
+
+  @media (min-width: 1024px) {
+    .cols { grid-template-columns: minmax(0, 1fr) 21rem; gap: var(--space-9); }
+    .glance { grid-column: 2; grid-row: 1; position: sticky; top: calc(var(--header-h) + var(--utility-h) + var(--space-5)); }
+    .main { grid-column: 1; grid-row: 1; }
+  }
 </style>

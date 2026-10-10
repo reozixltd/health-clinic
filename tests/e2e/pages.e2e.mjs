@@ -29,7 +29,7 @@ await step('every page: one h1, legal id, no horizontal scroll at 375 and 1280',
 await step('faq has FAQPage JSON-LD', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/faq/`);
-    const count = await page.locator('main section h2').count();
+    const count = await page.locator('main details').count();
     const blocks = await page.locator('script[type="application/ld+json"]').allInnerTexts();
     const faq = blocks.map((b) => JSON.parse(b)).flatMap((j) => (Array.isArray(j) ? j : j['@graph'] ?? [j])).find((j) => j['@type'] === 'FAQPage');
     expect(faq && faq.mainEntity.length === count, `FAQPage should have ${count} questions`);
@@ -55,9 +55,11 @@ await step('privacy names the market law', async () => {
 await step('contact shows after-hours route and building access notes', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/contact/`);
-    for (const name of ['Getting in', 'After hours', 'Opening hours']) {
+    for (const name of ['Getting in', 'After hours']) {
       expect(await page.getByRole('heading', { name, level: 2 }).first().isVisible(), `${name} heading missing`);
     }
+    // The hours sit inside the Find us panel, a level below its heading.
+    expect(await page.getByRole('heading', { name: 'Opening hours' }).first().isVisible(), 'Opening hours heading missing');
     const text = await page.locator('main').innerText();
     expect(/step-free/.test(text), 'building access note missing');
   });
@@ -96,7 +98,30 @@ if (fernway) {
       expect(text2.includes(other === 'AU' ? 'Private health fund rebate may apply' : 'Extended health benefits may apply'), 'switched funding note');
     });
   });
+  await step('blog lists six posts and an article names its author', async () => {
+    await withPage({}, async (page) => {
+      await page.goto(`${BASE}/blog/`);
+      const posts = await page.locator('main a[href^="/blog/"]').evaluateAll((as) => [...new Set(as.map((a) => a.getAttribute('href')))].filter((h) => h !== '/blog/'));
+      expect(posts.length === 6, `posts listed: ${posts.length}`);
+      await page.goto(`${BASE}/blog/back-care-habits/`);
+      expect((await page.locator('h1').count()) === 1, 'article h1');
+      expect((await page.locator('main a[href="/team/priya-nair/"]').count()) >= 1, 'author link missing');
+      expect(await page.locator('[data-general-note]').isVisible(), 'general information note missing');
+      const ld = await page.locator('script[type="application/ld+json"]').allInnerTexts();
+      expect(ld.some((t) => t.includes('"Article"')), 'Article JSON-LD missing');
+    });
+  });
+  await step('about page tells the story and lists the awards', async () => {
+    await withPage({}, async (page) => {
+      await page.goto(`${BASE}/about/`);
+      expect(await page.locator('#story').isVisible(), 'story missing');
+      expect((await page.locator('#awards li').count()) >= 4, 'awards missing');
+    });
+  });
 } else {
+  await step('/about/ and /blog/ are 404 on Hollybank', async () => {
+    for (const path of ['/about/', '/blog/']) expect((await fetch(`${BASE}${path}`)).status === 404, `${path} should be 404`);
+  });
   await step('/fees/ is 404 on Hollybank', async () => {
     expect((await fetch(`${BASE}/fees/`)).status === 404, '/fees/ should be 404');
   });

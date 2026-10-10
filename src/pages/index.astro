@@ -9,6 +9,7 @@ import { photoAlt, rolePhoto, slotPhoto } from '@/config/photo-slots';
 import { hasPhoto } from '@/core/photos';
 import type { IconName } from '@/core/ui/icons';
 import { isOn } from '@/domain/modules';
+import { postCards } from '@/modules/blog/posts';
 import { providersBySlug } from '@/modules/providers/lookup';
 import { showsRatings } from '@/modules/reviews/reviews';
 import { clinicStats } from '@/modules/stats/metrics';
@@ -73,10 +74,7 @@ const variants = marketVariants(site, allSites()).map((v) => {
 
 const serviceCards = services.map((s) => ({ ...s, photo: filed(s.photoSlot) }));
 const founder = about && providersBySlug(providers).get(about.founder);
-const posts = about && on('blog')
-  ? (await getCollection('blog')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3)
-      .map((p) => ({ ...p.data, id: p.id, date: p.data.date.toISOString().slice(0, 10), photo: filed(p.data.photoSlot) }))
-  : [];
+const posts = about && on('blog') ? postCards(await getCollection('blog'), filed).slice(0, 3) : [];
 const gallery = about ? (await getCollection('gallery')).map((e) => e.data).map((g) => ({ slot: g.photoSlot, alt: photoAlt[g.photoSlot] ?? g.caption, caption: g.caption })) : [];
 ---
 

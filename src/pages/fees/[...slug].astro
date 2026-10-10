@@ -1,12 +1,16 @@
 ---
+/** Every fee in full for each market, what cover may pay towards it, and the ways to pay. */
 import { getCollection, getEntry, render } from 'astro:content';
 import { site, allSites } from '@/config';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import PageHeader from '@/core/ui/PageHeader.astro';
 import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { marketVariants } from '@/layouts/site';
 import FeesTable from '@/modules/fees/FeesTable.astro';
 import { fundingRows } from '@/modules/fees/funding';
-import PageHeader from '@/sections/PageHeader.astro';
 
 export function getStaticPaths() {
   return indexPaths('fees', site);
@@ -17,22 +21,51 @@ const titles = Object.fromEntries((await getCollection('services')).map((s) => [
 const variants = marketVariants(site, allSites());
 const notes = await getEntry('policies', 'fees-notes');
 const Notes = notes ? (await render(notes)).Content : undefined;
+const payments = (await getCollection('about')).map((e) => e.data)[0]?.payments ?? [];
 ---
 
 <BaseLayout title="Fees" description={`Our fees and what your cover may pay at ${site.clinic.name}.`}>
-  <PageHeader title="Fees" lede="What each visit costs, and what your cover may pay towards it." />
-  <div class="wrap">
-    {variants.map((v) => (
-      <div data-market-only={v.id}><FeesTable rows={fundingRows(fees, v.id, v.market)} titles={titles} market={v.id} /></div>
-    ))}
-    {Notes && <div class="prose"><Notes /></div>}
+  <PageHeader title="Fees" eyebrow="Clear pricing" lede="What each visit costs, and what your cover may pay towards it." crumbs={[{ label: 'Fees' }]} />
+  <div class="wrap page-body cols">
+    <div class="main">
+      {variants.map((v) => (
+        <div data-market-only={v.id}>
+          <FeesTable rows={fundingRows(fees, v.id, v.market)} titles={titles} market={v.id} />
+          <p class="tax">{v.market.taxNote}.</p>
+        </div>
+      ))}
+      {Notes && <div class="prose"><Notes /></div>}
+    </div>
+    <aside class="panel pay" aria-labelledby="pay-title">
+      <h2 id="pay-title">Ways to pay</h2>
+      {payments.length > 0 ? (
+        <ul>
+          {payments.map((p) => (
+            <li>
+              <span class="disc"><Icon name={p.icon as IconName} size={20} /></span>
+              <div><h3>{p.title}</h3><p>{p.text}</p></div>
+            </li>
+          ))}
+        </ul>
+      ) : <p>You pay at the end of your visit. We give you a receipt for your cover provider.</p>}
+      {isOn('booking', site) && <Button href="/book/" arrow>{site.preset.copy.bookLabel}</Button>}
+    </aside>
   </div>
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
-  .prose { max-width: var(--measure); }
-  .prose :global(h2) { font-size: var(--text-24); margin: var(--space-5) 0 var(--space-2); }
-  .prose :global(p) { margin: 0 0 var(--space-3); }
-  .prose :global(a) { display: inline-flex; align-items: center; min-height: var(--target); }
+  .cols { align-items: start; }
+  .main { display: grid; gap: var(--space-7); }
+  .tax { margin-top: var(--space-4); color: var(--color-ink-muted); font-size: var(--text-14); }
+  .pay { display: grid; gap: var(--space-4); justify-items: start; }
+  .pay h2 { font-size: var(--text-24); }
+  .pay ul { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  .pay li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); }
+  .disc { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); }
+  .pay h3 { font-family: var(--font-body); font-size: var(--text-16); font-weight: 700; }
+  .pay p { color: var(--color-ink-muted); font-size: var(--text-14); }
+  @media (min-width: 1024px) {
+    .cols { grid-template-columns: minmax(0, 1fr) 21rem; gap: var(--space-8); }
+    .pay { position: sticky; top: calc(var(--header-h) + var(--utility-h) + var(--space-5)); }
+  }
 </style>

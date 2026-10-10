@@ -1,10 +1,10 @@
 ---
 import { site } from '@/config';
-import { indexPaths, isOn } from '@/domain/modules';
+import { indexPaths } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, telHref } from '@/layouts/site';
 import OwnershipStatement from '@/modules/ownership/OwnershipStatement.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 
 export function getStaticPaths() {
   return indexPaths('ownership', site);
@@ -15,9 +15,9 @@ const { clinic } = site;
 
 <BaseLayout title="Who owns us" description={`Who owns ${clinic.name}.`}>
   <PageHeader title="Who owns us" lede="You should know who runs the practice that looks after your pet." />
-  <div class="wrap"><OwnershipStatement clinic={clinic} phoneHref={telHref(clinic.phone, configuredMarket(site).id)} /></div>
+  <div class="wrap page-body"><div class="panel"><OwnershipStatement clinic={clinic} phoneHref={telHref(clinic.phone, configuredMarket(site).id)} /></div></div>
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
+  .panel { max-width: 48rem; }
 </style>

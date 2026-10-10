@@ -54,6 +54,43 @@ a { color: inherit; text-underline-offset: 0.2em; }
 .section--loose { padding-block: clamp(var(--space-8), 10vw, var(--space-10)); }
 .grid-12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-5); }
 
+/* The body of an inner page, under its PageHeader: one gap between blocks, one bottom rhythm. */
+.page-body { display: grid; gap: var(--space-7); padding-block: var(--space-7) clamp(var(--space-8), 8vw, var(--space-9)); }
+.page-body > * { min-width: 0; }
+
+/* Long-form text from Markdown: articles, policies, service and clinician notes. */
+.prose { max-width: var(--measure); }
+.prose > * + *, .prose > [data-market-only] > * + * { margin-top: var(--space-4); }
+.prose h2 { margin-top: var(--space-7); font-size: var(--text-28); }
+.prose h3 { margin-top: var(--space-6); font-size: var(--text-20); }
+.prose > :first-child { margin-top: 0; }
+.prose ul, .prose ol { margin-bottom: 0; padding-left: 1.3em; }
+.prose li + li { margin-top: var(--space-2); }
+.prose li::marker { color: var(--color-primary-text); font-weight: 700; }
+.prose a { color: var(--color-primary-text); font-weight: 600; }
+
+/* A white panel for a block of facts or a form on an inner page. */
+.panel { padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
+@media (min-width: 768px) { .panel { padding: var(--space-6); } }
+
+/* A vertical timeline, one dot per entry on a line that draws as it scrolls into view: milestones, recovery paths. */
+.timeline { --dot: 0.875rem; position: relative; display: grid; gap: var(--space-6); max-width: var(--measure); margin: 0; padding: 0; list-style: none; }
+.timeline > li { position: relative; display: grid; gap: var(--space-1); padding-left: calc(var(--dot) + var(--space-5)); color: var(--color-ink-muted); }
+.timeline > li::before {
+  content: ''; position: absolute; left: 0; top: 0.3em; z-index: 1; width: var(--dot); height: var(--dot);
+  background: var(--color-card); border: 3px solid var(--color-primary); border-radius: 50%;
+}
+.timeline::before, .timeline::after { content: ''; position: absolute; left: calc(var(--dot) / 2 - 1px); top: 0.6em; bottom: var(--space-6); width: 2px; background: var(--color-line); }
+.timeline::after { background: var(--color-primary); transform-origin: top; }
+.timeline__when { color: var(--color-primary-text); font-size: var(--text-14); font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; }
+.timeline h3 { color: var(--color-ink); font-size: var(--text-20); }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    @keyframes timeline-draw { from { transform: scaleY(0); } }
+    html:not([data-motion='off']) .timeline::after { animation: timeline-draw linear both; animation-timeline: view(); animation-range: entry 25% cover 60%; }
+  }
+}
+
 /* A text link whose underline draws in from the left. Only transform moves. */
 .text-link {
   position: relative;

@@ -4,7 +4,7 @@ date: 2026-06-16
 author: lucas-brandt
 summary: Why poor sleep and pain feed each other, and a few gentle steps many people find help them settle.
 photoSlot: blog-sleep-and-pain
-minutes: 2
+minutes: 3
 category: Psychology
 ---
 

@@ -16,16 +16,20 @@ interface Props {
   variants: { id: MarketId; market: MarketPack }[];
   conditions?: { name: string; service: string }[];
   lede?: string;
+  title?: string;
+  eyebrow?: string;
+  /** Link to the services page. Off on that page itself. */
+  all?: boolean;
 }
-const { services, variants, conditions = [], lede } = Astro.props;
+const { services, variants, conditions = [], lede, title = 'Our services', eyebrow = 'What we do', all = true } = Astro.props;
 /* Three across leaves two on the last row for five or eight services; those two then share the row. */
 const wideTail = services.length % 3 === 2;
 ---
 
 <section id="services" class="section" aria-labelledby="services-title">
   <div class="wrap">
-    <SectionHeading id="services-title" title="Our services" eyebrow="What we do" lede={lede}>
-      <a class="text-link all" href="/services/">All {services.length} services <Icon name="arrow-right" size={18} /></a>
+    <SectionHeading id="services-title" title={title} eyebrow={eyebrow} lede={lede}>
+      {all && <a class="text-link all" href="/services/">All {services.length} services <Icon name="arrow-right" size={18} /></a>}
     </SectionHeading>
     <ul class:list={['grid', wideTail && 'grid--tail']} data-reveal-group>
       {services.map((s) => (

@@ -27,5 +27,8 @@ const { body, clinicName } = Astro.props;
 </script>
 
 <style>
+  [data-preview]:not([hidden]) { display: grid; gap: var(--space-2); }
+  h3 { font-size: var(--text-20); }
+  p:last-child { color: var(--color-ink-muted); font-size: var(--text-14); }
   .sample { padding: var(--space-3); background: var(--color-surface); border-radius: var(--radius-control); }
 </style>

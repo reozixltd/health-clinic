@@ -1,41 +1,60 @@
 ---
+import { getEntry, render } from 'astro:content';
 import { site, allSites } from '@/config';
 import { rolePhoto } from '@/config/photo-slots';
-import Photo from '@/core/ui/Photo.astro';
+import Icon from '@/core/ui/Icon.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 import { hoursText, marketVariants, telHref } from '@/layouts/site';
-import PolicyPage from '@/layouts/PolicyPage.astro';
+import Location from '@/sections/Location.astro';
 
-const variants = marketVariants(site, allSites());
-const photo = rolePhoto(site.contentDir, 'exterior');
+const entry = await getEntry('policies', 'contact');
+if (!entry) throw new Error('Missing policy content: contact');
+const { Content } = await render(entry);
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id), hours: v.clinic.hours.map(hoursText) }));
 ---
 
-<PolicyPage policy="contact" lede="Where we are, when we are open and how to reach us.">
-  <div slot="before" class:list={['details', photo && 'has-photo']}>
-    <div>
-      {variants.map((v) => (
-        <div class="detail" data-market-only={v.id}>
-          <h2>Find us</h2>
-          <address>{v.clinic.address.street}, {v.clinic.address.locality} {v.clinic.address.region} {v.clinic.address.postcode}</address>
-          <p><a href={telHref(v.clinic.phone, v.id)}>{v.clinic.phone}</a></p>
+<BaseLayout title="Contact" description={`Contact ${site.clinic.name}: phone, email, opening hours and how to find us.`}>
+  <PageHeader title="Contact" eyebrow="Get in touch" lede="Where we are, when we are open and how to reach us." photo={rolePhoto(site.contentDir, 'exterior')} />
+  <div class="wrap reach">
+    {variants.map((v) => (
+      <ul class="cards" data-market-only={v.id}>
+        <li class="panel">
+          <span class="icon"><Icon name="phone" size={22} /></span>
+          <h2>Call us</h2>
+          <p><a href={v.tel}>{v.clinic.phone}</a></p>
           {v.clinic.mobile && <p><a href={telHref(v.clinic.mobile, v.id)}>{v.clinic.mobile}</a></p>}
+          <p class="note">{v.hours[0]}</p>
+        </li>
+        <li class="panel">
+          <span class="icon"><Icon name="mail" size={22} /></span>
+          <h2>Email us</h2>
           <p><a href={`mailto:${v.clinic.email}`}>{v.clinic.email}</a></p>
-          <h2>Opening hours</h2>
-          <ul>{v.clinic.hours.map((h) => <li>{hoursText(h)}</li>)}</ul>
-          <p>{v.clinic.emergency.text}</p>
-        </div>
-      ))}
-    </div>
-    {photo && <Photo slot={photo.slot} alt={photo.alt} ratio="4 / 3" sizes="(min-width: 768px) 50vw, 100vw" />}
+          <p class="note">We reply on the next working day.</p>
+        </li>
+        <li class="panel urgent">
+          <span class="icon"><Icon name="alert" size={22} /></span>
+          <h2>In an emergency</h2>
+          <p class="note">{v.clinic.emergency.text}</p>
+        </li>
+      </ul>
+    ))}
   </div>
-</PolicyPage>
+  <Location variants={variants} />
+  <div class="wrap page-body notes">
+    <div class="prose"><Content /></div>
+  </div>
+</BaseLayout>
 
 <style>
-  .details { display: grid; gap: var(--space-5); max-width: var(--measure); }
-  @media (min-width: 768px) { .details.has-photo { max-width: none; grid-template-columns: 1fr 1fr; align-items: start; column-gap: var(--space-7); } }
-  .detail { display: grid; gap: var(--space-2); }
-  h2 { margin: var(--space-3) 0 0; font-size: var(--text-24); }
-  address { font-style: normal; }
-  ul { list-style: none; margin: 0; padding: 0; }
-  p { margin: 0; }
-  a { display: inline-flex; align-items: center; min-height: var(--target); }
+  .reach { padding-top: var(--space-7); }
+  .cards { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 768px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .cards li { display: grid; gap: var(--space-2); align-content: start; justify-items: start; }
+  .icon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: var(--radius-card); background: var(--color-accent); color: var(--color-primary-text); }
+  .urgent .icon { background: var(--color-warning-soft); color: var(--color-ink); }
+  h2 { font-size: var(--text-20); }
+  .cards a { display: inline-flex; align-items: center; min-height: var(--target); font-size: var(--text-18); font-weight: 600; overflow-wrap: anywhere; }
+  .note { color: var(--color-ink-muted); font-size: var(--text-14); }
+  .notes { padding-top: 0; }
 </style>

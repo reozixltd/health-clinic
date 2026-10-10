@@ -4,7 +4,7 @@ date: 2026-09-08
 author: tom-hargreave
 summary: Why a gradual return usually works better than rushing, and a simple walk-run plan to build from.
 photoSlot: blog-return-to-running
-minutes: 2
+minutes: 3
 category: Sports physio
 ---
 

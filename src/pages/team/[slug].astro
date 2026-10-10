@@ -1,23 +1,36 @@
 ---
-import { getCollection } from 'astro:content';
+/** One clinician: who they are, how they work, what they are registered to do and how to book them. */
+import { getCollection, render } from 'astro:content';
 import { site, allSites } from '@/config';
+import { slotPhoto } from '@/config/photo-slots';
+import { hasPhoto } from '@/core/photos';
 import { personSchema } from '@/core/schema';
+import PageHeader from '@/core/ui/PageHeader.astro';
 import { isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { configuredMarket, marketVariants } from '@/layouts/site';
+import { configuredMarket, marketVariants, telHref } from '@/layouts/site';
+import { postCards } from '@/modules/blog/posts';
 import ProviderProfile from '@/modules/providers/ProviderProfile.astro';
-import { registrationFor } from '@/modules/providers/registration';
-import PageHeader from '@/sections/PageHeader.astro';
+import { firstName, registrationFor } from '@/modules/providers/registration';
+import CtaBand from '@/sections/CtaBand.astro';
+import TipsBand from '@/sections/TipsBand.astro';
 
 export async function getStaticPaths() {
   if (!isOn('providers', site)) return [];
   return (await getCollection('providers')).map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
 }
 
-const provider = Astro.props.entry.data;
+const { entry } = Astro.props;
+const provider = entry.data;
+const { Content } = await render(entry);
 const services = isOn('services', site)
   ? (await getCollection('services')).map((s) => s.data).filter((s) => provider.services.includes(s.slug)).sort((a, b) => a.order - b.order)
   : [];
+const posts = isOn('blog', site)
+  ? postCards(await getCollection('blog'), (slot) => (hasPhoto(slot) ? slotPhoto(slot) : undefined)).filter((p) => p.author === provider.slug)
+  : [];
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id) }));
+const bookingOn = isOn('booking', site);
 const schema = personSchema({
   name: provider.name,
   jobTitle: provider.role,
@@ -27,6 +40,10 @@ const schema = personSchema({
 ---
 
 <BaseLayout title={provider.name} description={`${provider.name}, ${provider.role} at ${site.clinic.name}.`} schema={schema}>
-  <PageHeader title={provider.name} />
-  <ProviderProfile provider={provider} services={services} variants={marketVariants(site, allSites())} bookingOn={isOn('booking', site)} />
+  <PageHeader title={provider.name} eyebrow={provider.role} lede={provider.bio} crumbs={[{ label: 'Team', href: '/team/' }, { label: provider.name }]} />
+  <ProviderProfile provider={provider} services={services} variants={variants} bookingOn={bookingOn}>
+    <Content />
+  </ProviderProfile>
+  {posts.length > 0 && <TipsBand posts={posts} variants={variants} title={`Written by ${firstName(provider.name)}`} eyebrow="Health tips" lede="" />}
+  <CtaBand variants={variants} bookLabel={site.preset.copy.bookLabel} bookingOn={bookingOn} />
 </BaseLayout>

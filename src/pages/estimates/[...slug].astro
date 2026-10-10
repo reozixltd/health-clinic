@@ -1,11 +1,11 @@
 ---
 import { site } from '@/config';
 import { formatMoney } from '@/core/format';
-import { indexPaths, isOn } from '@/domain/modules';
+import { indexPaths } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, telHref } from '@/layouts/site';
 import EstimateForm from '@/modules/estimates/EstimateForm.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 
 export function getStaticPaths() {
   return indexPaths('estimates', site);
@@ -18,13 +18,13 @@ const threshold = formatMoney(clinic.estimateThreshold ?? 500, market.currency, 
 
 <BaseLayout title="Request an estimate" description={`Ask ${clinic.name} for a written estimate before planned treatment.`}>
   <PageHeader title="Request an estimate" lede={`We give you a written estimate before treatment that is likely to cost ${threshold} or more.`} />
-  <div class="wrap">
-    <p>Tell us your pet and what the treatment is for. A vet or nurse will email you. Please do not put health details in this form. We will ask about those when we speak.</p>
-    <EstimateForm siteId={site.id} demo={site.demoMode} market={market} phone={clinic.phone} phoneHref={telHref(clinic.phone, market.id)} />
+  <div class="wrap page-body">
+    <p class="intro">Tell us your pet and what the treatment is for. A vet or nurse will email you. Please do not put health details in this form. We will ask about those when we speak.</p>
+    <div class="panel"><EstimateForm siteId={site.id} demo={site.demoMode} market={market} phone={clinic.phone} phoneHref={telHref(clinic.phone, market.id)} /></div>
   </div>
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-5); }
-  .wrap > p { margin: 0; max-width: var(--measure); }
+  .intro { font-size: var(--text-18); }
+  .panel { max-width: 40rem; }
 </style>

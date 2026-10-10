@@ -4,7 +4,7 @@ date: 2026-07-07
 author: hannah-reyes
 summary: What usually happens in a first psychology session, what you do not have to do, and how to get the most out of it.
 photoSlot: blog-first-psychology-session
-minutes: 2
+minutes: 3
 category: Psychology
 ---
 

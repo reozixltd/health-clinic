@@ -4,7 +4,7 @@ date: 2026-08-18
 author: elena-marsh
 summary: A plain walk-through of a routine dental check-up, from the first chat to your written plan, for anyone who has been putting it off.
 photoSlot: blog-dental-check-up
-minutes: 2
+minutes: 3
 category: Dental
 ---
 

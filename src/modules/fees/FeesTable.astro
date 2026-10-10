@@ -14,7 +14,7 @@ const groups = groupByService(rows);
 
 <div class="fees">
   {groups.map((g) => (
-    <section aria-labelledby={`fees-${market}-${g.service}`}>
+    <section class="panel" aria-labelledby={`fees-${market}-${g.service}`}>
       <h2 id={`fees-${market}-${g.service}`}>{titles[g.service] ?? g.service}</h2>
       <table>
         <thead class="sr-only"><tr><th scope="col">Visit</th><th scope="col">Fee</th><th scope="col">Cover</th></tr></thead>
@@ -33,16 +33,17 @@ const groups = groupByService(rows);
 </div>
 
 <style>
-  .fees { display: grid; gap: var(--space-6); }
-  section { display: grid; gap: var(--space-3); }
-  h2 { margin: 0; font-size: var(--text-24); }
+  .fees { display: grid; gap: var(--space-5); }
+  section { display: grid; gap: var(--space-2); }
+  h2 { font-size: var(--text-24); }
   table { width: 100%; border-collapse: collapse; }
-  tr { border-top: 1px solid var(--color-line); }
-  th, td { padding: var(--space-3) var(--space-2); text-align: left; vertical-align: top; }
-  th { font-weight: 400; }
-  .price { font-weight: 600; white-space: nowrap; }
+  tr + tr { border-top: 1px solid var(--color-line); }
+  th, td { padding: var(--space-3) var(--space-2) var(--space-3) 0; text-align: left; vertical-align: top; }
+  th { font-weight: 600; }
+  .price { font-family: var(--font-display); font-size: var(--text-20); font-weight: 560; white-space: nowrap; }
   .notes ul { list-style: none; margin: 0; padding: 0; }
-  .notes { color: var(--color-ink-muted); }
+  .notes { color: var(--color-ink-muted); font-size: var(--text-14); }
+  @media (min-width: 640px) { th { width: 38%; } .price { width: 6rem; } }
   @media (max-width: 639px) {
     tr { display: grid; grid-template-columns: 1fr auto; }
     .notes { grid-column: 1 / -1; padding-top: 0; }

@@ -1,0 +1,103 @@
+---
+/** One health tips article: who wrote it, the text, a plain note on what it is not, and more to read. */
+import { getCollection, render } from 'astro:content';
+import { site, allSites } from '@/config';
+import { slotPhoto } from '@/config/photo-slots';
+import { formatDate } from '@/core/format';
+import { hasPhoto } from '@/core/photos';
+import { articleSchema } from '@/core/schema';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
+import Photo from '@/core/ui/Photo.astro';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants, telHref } from '@/layouts/site';
+import { postCards } from '@/modules/blog/posts';
+import { firstName, initials } from '@/modules/providers/registration';
+import CtaBand from '@/sections/CtaBand.astro';
+import TipsBand from '@/sections/TipsBand.astro';
+
+export async function getStaticPaths() {
+  if (!isOn('blog', site)) return [];
+  return (await getCollection('blog')).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const post = entry.data;
+const { Content } = await render(entry);
+const filed = (slot: string) => (hasPhoto(slot) ? slotPhoto(slot) : undefined);
+const author = (await getCollection('providers')).map((e) => e.data).find((p) => p.slug === post.author);
+if (!author) throw new Error(`Blog post ${entry.id} names an unknown author: ${post.author}`);
+const more = postCards(await getCollection('blog'), filed).filter((p) => p.id !== entry.id);
+// Same subject first, then the newest of the rest.
+const related = [...more.filter((p) => p.category === post.category), ...more.filter((p) => p.category !== post.category)].slice(0, 3);
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id) }));
+const date = post.date.toISOString().slice(0, 10);
+const bookingOn = isOn('booking', site);
+const schema = articleSchema({
+  headline: post.title,
+  description: post.summary,
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  datePublished: date,
+  author: { name: author.name, jobTitle: author.role, url: new URL(`/team/${author.slug}/`, Astro.site).href },
+  publisher: site.clinic.name,
+});
+---
+
+<BaseLayout title={post.title} description={post.summary} schema={schema}>
+  <PageHeader title={post.title} eyebrow={post.category} lede={post.summary} crumbs={[{ label: 'Health tips', href: '/blog/' }, { label: post.title }]} photo={filed(post.photoSlot)}>
+    <p class="meta">
+      <span>By <a href={`/team/${author.slug}/`}>{author.name}</a>, {author.role.toLowerCase()}</span>
+      {variants.map((v) => <time datetime={date} data-market-only={v.id}>{formatDate(date, v.market.locale)}</time>)}
+      <span class="read"><Icon name="clock" size={16} /> {post.minutes} min read</span>
+    </p>
+  </PageHeader>
+
+  <article class="wrap page-body cols">
+    <div class="main">
+      <div class="prose"><Content /></div>
+      <p class="general" data-general-note>
+        <Icon name="shield" size={20} />
+        <span>This article is general information, not personal health advice. It cannot take account of your own history. See a registered clinician about your situation.</span>
+      </p>
+    </div>
+    <aside class="panel author" aria-label="About the author">
+      <div class="face"><Photo slot={author.photoSlot} alt={`${author.name}, ${author.role}`} ratio="1 / 1" sizes="6rem" initials={initials(author.name)} /></div>
+      <p class="by">Written by</p>
+      <h2><a href={`/team/${author.slug}/`}>{author.name}</a></h2>
+      <p class="role">{author.role}</p>
+      <p class="bio">{author.bio}</p>
+      {bookingOn && author.acceptingNew && <Button href={`/book/?provider=${author.slug}`} arrow>Book with {firstName(author.name)}</Button>}
+    </aside>
+  </article>
+
+  {related.length > 0 && <TipsBand posts={related} variants={variants} title="More health tips" eyebrow="Keep reading" lede="" />}
+  <CtaBand variants={variants} bookLabel={site.preset.copy.bookLabel} bookingOn={bookingOn} lede="Reading only goes so far. Come and talk it through." />
+</BaseLayout>
+
+<style>
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-5); max-width: none; color: var(--color-ink-muted); font-size: var(--text-14); }
+  .meta a { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-primary-text); font-weight: 700; }
+  .read { display: inline-flex; align-items: center; gap: var(--space-1); }
+
+  .cols { align-items: start; }
+  .main { display: grid; gap: var(--space-6); }
+  .prose { font-size: var(--text-18); }
+  .general { display: flex; gap: var(--space-3); padding: var(--space-4) var(--space-5); background: var(--color-surface); border-left: 4px solid var(--color-primary); border-radius: var(--radius-control); color: var(--color-ink-muted); font-size: var(--text-14); }
+  .general :global(svg) { flex: none; margin-top: 2px; color: var(--color-primary-text); }
+
+  .author { display: grid; gap: var(--space-2); justify-items: start; }
+  .face { width: 6rem; margin-bottom: var(--space-2); }
+  .face :global(.photo), .face :global(.ph) { border: 0; border-radius: 50%; }
+  .by { color: var(--color-ink-muted); font-size: var(--text-14); font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; }
+  .author h2 { font-size: var(--text-24); }
+  .author h2 a { text-decoration: none; }
+  .author h2 a:hover { text-decoration: underline; }
+  .role { color: var(--color-primary-text); font-weight: 600; }
+  .bio { margin-bottom: var(--space-2); color: var(--color-ink-muted); }
+  @media (min-width: 1024px) {
+    .cols { grid-template-columns: minmax(0, 1fr) 21rem; gap: var(--space-9); }
+    .author { position: sticky; top: calc(var(--header-h) + var(--utility-h) + var(--space-5)); }
+  }
+</style>

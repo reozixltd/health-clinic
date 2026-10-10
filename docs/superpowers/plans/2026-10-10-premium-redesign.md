@@ -149,10 +149,10 @@ Starts after Task 0, because it needs the schemas.
 - `posts.ts`: `sortPosts(posts)`, newest first; `postDate(date, locale)`.
 - `articleSchema(post, author, site)` in `core/schema.ts`.
 
-- [ ] Add e2e steps: `/blog/` lists six posts; an article has one h1, an author link to `/team/<slug>/`, Article JSON-LD and the general-information note; `/about/` has the story and awards; neither route exists on Hollybank.
-- [ ] Service detail gains treats, timeline (`ol`), price facts, accordion FAQ, clinician cards. Team detail gains qualifications, interests, availability.
-- [ ] Booking form: restyle progress, choices, validation states. No logic change.
-- [ ] Build, test, check. Commit `feat: rich inner pages, about and blog`.
+- [x] Add e2e steps: `/blog/` lists six posts; an article has one h1, an author link to `/team/<slug>/`, Article JSON-LD and the general-information note; `/about/` has the story and awards; neither route exists on Hollybank.
+- [x] Service detail gains treats, timeline (`ol`), price facts, accordion FAQ, clinician cards. Team detail gains qualifications, interests, availability.
+- [x] Booking form: restyle progress, choices, validation states. No logic change.
+- [x] Build, test, check. Commit `feat: rich inner pages, about and blog`.
 
 ### Task 5: Imagery
 

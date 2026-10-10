@@ -1,0 +1,27 @@
+---
+/** Health tips: every article, newest first. */
+import { getCollection } from 'astro:content';
+import { site, allSites } from '@/config';
+import { slotPhoto } from '@/config/photo-slots';
+import { hasPhoto } from '@/core/photos';
+import PageHeader from '@/core/ui/PageHeader.astro';
+import { indexPaths } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants } from '@/layouts/site';
+import { postCards } from '@/modules/blog/posts';
+import Newsletter from '@/sections/Newsletter.astro';
+import TipsBand from '@/sections/TipsBand.astro';
+
+export function getStaticPaths() {
+  return indexPaths('blog', site);
+}
+
+const posts = postCards(await getCollection('blog'), (slot) => (hasPhoto(slot) ? slotPhoto(slot) : undefined));
+const about = (await getCollection('about')).map((e) => e.data)[0];
+---
+
+<BaseLayout title="Health tips" description={`Short, practical health reading from the clinicians at ${site.clinic.name}.`}>
+  <PageHeader title="Health tips" eyebrow="From our clinicians" lede="Short, practical reading on backs, teeth, sleep and getting moving again, written by the people who work here." />
+  <TipsBand posts={posts} variants={marketVariants(site, allSites())} title="Latest articles" eyebrow={`${posts.length} short reads`} lede="General information to help you ask better questions. It is not a substitute for seeing someone." all={false} />
+  {about && <Newsletter heading={about.newsletter.heading} text={about.newsletter.text} />}
+</BaseLayout>

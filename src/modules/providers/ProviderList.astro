@@ -26,10 +26,10 @@ const terms = (p: Props['providers'][number]) => normalise([p.name, p.role, ...p
 <ul class="grid" data-provider-list data-reveal-group>
   {providers.map((p) => (
     <li data-provider data-search={terms(p)}>
-      <Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="1 / 1" sizes="(min-width: 1024px) 280px, 100vw" class="pic" />
+      <div class="pic"><Photo slot={p.photoSlot} alt={`${p.name}, ${p.role}`} initials={initials(p.name)} ratio="4 / 5" sizes="(min-width: 1024px) 24rem, (min-width: 640px) 50vw, 100vw" /></div>
       <h2><a href={`/team/${p.slug}/`}>{p.name}</a></h2>
       <p class="role">{p.role}</p>
-      <p class="lang">Speaks {p.languages.join(', ')}</p>
+      <p class="lang"><Icon name="globe" size={16} /> <span class="visually-hidden">Speaks</span> {p.languages.join(', ')}</p>
       {p.acceptingNew ? (
         <p class="open"><Icon name="badge-check" size={18} /> Taking new patients</p>
       ) : (
@@ -45,22 +45,34 @@ const terms = (p: Props['providers'][number]) => normalise([p.name, p.role, ...p
 </script>
 
 <style>
-  .filter { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); }
+  .filter { display: grid; gap: var(--space-2); max-width: 32rem; margin-bottom: var(--space-3); }
   .filter__label { font-weight: 600; }
-  .filter__control { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-control); box-shadow: var(--shadow-1); color: var(--color-ink-muted); }
-  .filter__control input { flex: 1; min-height: var(--target-field); background: transparent; border: 1px solid transparent; }
-  .count { margin: 0 0 var(--space-4); color: var(--color-ink-muted); }
-  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
-  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-  li { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-5); background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1); }
+  .filter__control { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-4); background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-pill); box-shadow: var(--shadow-1); color: var(--color-ink-muted); }
+  .filter__control input { flex: 1; min-width: 0; min-height: var(--target-field); background: transparent; border: 1px solid transparent; }
+  .count { margin: 0 0 var(--space-5); color: var(--color-ink-muted); }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  li {
+    position: relative; display: grid; gap: var(--space-1); align-content: start; padding: var(--space-3) var(--space-3) var(--space-5);
+    background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-1);
+    transition: border-color var(--dur-2) var(--ease-out);
+  }
   /* `hidden` is how the filter hides a card, so it has to beat this element's own display. */
   :global(li[data-provider][hidden]) { display: none; }
-  h2 { font-size: var(--text-20); }
-  h2 a { display: inline-flex; align-items: center; min-height: var(--target); text-decoration: none; }
-  .pic { border-radius: var(--radius-card); }
-  .role, .lang { margin: 0; color: var(--color-ink-muted); }
-  .open { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--color-success); font-weight: 600; font-size: var(--text-14); }
-  .shut { margin: 0; color: var(--color-warning); font-weight: 600; font-size: var(--text-14); }
-  @media (hover: hover) and (pointer: fine) { :global(html:not([data-motion='off'])) li:hover :global(.photo img) { transform: scale(1.03); } }
+  .pic { margin-bottom: var(--space-3); }
+  .pic :global(.photo) { border: 0; border-radius: calc(var(--radius-card) - 4px); }
+  li > :not(.pic) { padding-inline: var(--space-2); }
+  h2 { font-size: var(--text-24); }
+  /* One link per card, stretched over the whole box, so the photo is part of the target. */
+  h2 a { text-decoration: none; }
+  h2 a::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-card); }
+  .role { color: var(--color-primary-text); font-weight: 600; }
+  .lang { display: flex; align-items: center; gap: var(--space-2); color: var(--color-ink-muted); font-size: var(--text-14); }
+  .open { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); color: var(--color-success); font-weight: 600; font-size: var(--text-14); }
+  .shut { margin-top: var(--space-2); color: var(--color-warning); font-weight: 600; font-size: var(--text-14); }
+  @media (hover: hover) and (pointer: fine) {
+    li:hover { border-color: var(--color-primary); }
+    :global(html:not([data-motion='off'])) li:hover :global(.photo img) { transform: scale(1.03); }
+  }
 </style>

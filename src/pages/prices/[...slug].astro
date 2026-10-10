@@ -6,7 +6,7 @@ import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket } from '@/layouts/site';
 import PriceList from '@/modules/price-list/PriceList.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 
 export function getStaticPaths() {
   return indexPaths('price-list', site);
@@ -21,8 +21,8 @@ const threshold = clinic.estimateThreshold ?? 500;
 ---
 
 <BaseLayout title="Prices" description={`Our prices for common treatments at ${clinic.name}. ${market.taxNote}.`}>
-  <PageHeader title="Our prices" lede="What common treatments cost, listed up front." />
-  <div class="wrap">
+  <PageHeader title="Our prices" eyebrow="Clear pricing" lede="What common treatments cost, listed up front." crumbs={[{ label: 'Prices' }]} />
+  <div class="wrap page-body">
     <PriceList items={items} market={market} reviewedLabel={formatDate(reviewedAt, market.locale)} />
     {isOn('estimates', site) && (
       <p class="after">For treatment likely to cost {formatMoney(threshold, market.currency, market.locale)} or more, we give you a written estimate first. <a href="/estimates/">Ask for an estimate</a>.</p>
@@ -31,6 +31,6 @@ const threshold = clinic.estimateThreshold ?? 500;
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
-  .after { margin: 0; max-width: var(--measure); }
+  .after { font-size: var(--text-18); }
+  .after a { color: var(--color-primary-text); font-weight: 600; }
 </style>

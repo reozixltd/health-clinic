@@ -4,7 +4,7 @@ date: 2026-07-28
 author: sam-whitlock
 summary: A few small daily habits that help keep your teeth and gums comfortable between visits, with no lecture attached.
 photoSlot: blog-dental-clean
-minutes: 2
+minutes: 3
 category: Dental
 ---
 

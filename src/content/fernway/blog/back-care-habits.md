@@ -4,7 +4,7 @@ date: 2026-09-22
 author: priya-nair
 summary: Simple, ordinary habits that many people find help a sore lower back, plus a few signs that mean it is time to see someone.
 photoSlot: blog-back-care
-minutes: 2
+minutes: 3
 category: Physiotherapy
 ---
 

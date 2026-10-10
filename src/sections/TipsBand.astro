@@ -1,5 +1,5 @@
 ---
-/** The latest health tips: three article cards and a link to the rest. */
+/** Health tips as article cards: the latest three on the home page, all of them on the blog index, related ones under an article. */
 import { formatDate } from '@/core/format';
 import Badge from '@/core/ui/Badge.astro';
 import Icon from '@/core/ui/Icon.astro';
@@ -11,14 +11,19 @@ interface Props {
   /** `date` as YYYY-MM-DD. */
   posts: { id: string; title: string; summary: string; date: string; minutes: number; category: string; photo?: { slot: string; alt: string } }[];
   variants: { id: MarketId; market: MarketPack }[];
+  title?: string;
+  eyebrow?: string;
+  lede?: string;
+  /** Link to every article. Off on the page that already lists them all. */
+  all?: boolean;
 }
-const { posts, variants } = Astro.props;
+const { posts, variants, title = 'Latest health tips', eyebrow = 'From our clinicians', lede = 'Short, practical reading, written by the people who work here.', all = true } = Astro.props;
 ---
 
 <section id="tips" class="section" aria-labelledby="tips-title">
   <div class="wrap">
-    <SectionHeading id="tips-title" title="Latest health tips" eyebrow="From our clinicians" lede="Short, practical reading, written by the people who work here.">
-      <a class="text-link all" href="/blog/">All health tips <Icon name="arrow-right" size={18} /></a>
+    <SectionHeading id="tips-title" title={title} eyebrow={eyebrow} lede={lede}>
+      {all && <a class="text-link all" href="/blog/">All health tips <Icon name="arrow-right" size={18} /></a>}
     </SectionHeading>
     <ul class="grid" data-reveal-group>
       {posts.map((p) => (

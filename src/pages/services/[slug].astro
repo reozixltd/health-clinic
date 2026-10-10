@@ -1,15 +1,20 @@
 ---
+/** One service: what it helps with, what happens, how care usually unfolds, who offers it and the questions people ask. */
 import { getCollection, render } from 'astro:content';
 import { site, allSites } from '@/config';
 import { slotPhoto } from '@/config/photo-slots';
+import { hasPhoto } from '@/core/photos';
 import { serviceSchema } from '@/core/schema';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 import { isOn } from '@/domain/modules';
-import Photo from '@/core/ui/Photo.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { configuredMarket, marketVariants } from '@/layouts/site';
+import { configuredMarket, marketVariants, telHref } from '@/layouts/site';
+import { initials } from '@/modules/providers/registration';
 import { fromPriceFor } from '@/modules/services/from-price';
 import ServiceBody from '@/modules/services/ServiceBody.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import CtaBand from '@/sections/CtaBand.astro';
 
 export async function getStaticPaths() {
   if (!isOn('services', site)) return [];
@@ -20,10 +25,11 @@ const { entry } = Astro.props;
 const service = entry.data;
 const { Content } = await render(entry);
 const providers = isOn('providers', site) ? (await getCollection('providers')).map((p) => p.data) : [];
-const clinicians = providers.filter((p) => service.providers.includes(p.slug));
+const clinicians = providers.filter((p) => service.providers.includes(p.slug)).map((p) => ({ ...p, initials: initials(p.name) }));
 const market = configuredMarket(site);
-const variants = marketVariants(site, allSites());
-const photo = slotPhoto(service.photoSlot);
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id) }));
+const bookingOn = isOn('booking', site);
+const feesHref = isOn('fees', site) ? '/fees/' : isOn('price-list', site) ? '/prices/' : undefined;
 const schema = serviceSchema({
   name: service.title,
   description: service.summary,
@@ -34,23 +40,25 @@ const schema = serviceSchema({
 ---
 
 <BaseLayout title={service.title} description={service.seoDescription} schema={schema}>
-  <PageHeader title={service.title} lede={service.summary} />
-  {photo && (
-    <div class="shot">
-      <Photo slot={photo.slot} alt={photo.alt} ratio="16 / 9" sizes="(min-width: 800px) 760px, 100vw" priority />
-    </div>
-  )}
-  <ServiceBody
-    service={service}
-    clinicians={clinicians}
-    variants={variants}
-    bookLabel={isOn('booking', site) ? 'Book this' : undefined}
+  <PageHeader
+    title={service.title}
+    eyebrow="Service"
+    lede={service.summary}
+    crumbs={[{ label: 'Services', href: '/services/' }, { label: service.title }]}
+    photo={service.photoSlot && hasPhoto(service.photoSlot) ? slotPhoto(service.photoSlot) : undefined}
   >
+    <p class="actions">
+      {bookingOn && <Button href={`/book/?service=${service.slug}`} arrow>Book this</Button>}
+      <span class="len"><Icon name="clock" size={18} /> {service.duration}</span>
+    </p>
+  </PageHeader>
+  <ServiceBody service={service} clinicians={clinicians} variants={variants} bookLabel={bookingOn ? site.preset.copy.bookLabel : undefined} feesHref={feesHref}>
     <Content />
   </ServiceBody>
+  <CtaBand variants={variants} bookLabel={site.preset.copy.bookLabel} bookingOn={bookingOn} lede="Questions before you book? Call and we will talk it through." />
 </BaseLayout>
 
 <style>
-  .shot { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-6); }
-  .shot > :global(.photo) { max-width: var(--measure); }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin-top: var(--space-2); }
+  .len { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-ink-muted); font-weight: 600; }
 </style>

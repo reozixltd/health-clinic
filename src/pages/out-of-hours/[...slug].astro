@@ -3,7 +3,8 @@ import { site } from '@/config';
 import { routesFor } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, hoursText, telHref } from '@/layouts/site';
-import PageHeader from '@/sections/PageHeader.astro';
+import Icon from '@/core/ui/Icon.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 
 export function getStaticPaths() {
   return routesFor(site).includes('/out-of-hours/') ? [{ params: { slug: undefined } }] : [];
@@ -18,19 +19,28 @@ const href = emergency.href ?? telHref(number, market.id);
 
 <BaseLayout title="Out of hours" description={`How to reach a vet when ${clinic.name} is closed.`}>
   <PageHeader title="Out of hours care" lede={emergency.text} />
-  <div class="wrap">
-    <p class="call"><a href={href}>{number}</a></p>
-    <h2>Our opening hours</h2>
-    <ul>
-      {clinic.hours.map((h) => <li>{hoursText(h)}</li>)}
-    </ul>
-    <p>If your pet is in danger, call straight away. Do not wait for a message to be returned.</p>
+  <div class="wrap page-body cols">
+    <section class="panel call" aria-labelledby="call">
+      <h2 id="call">Call this number</h2>
+      <p class="num"><Icon name="phone" size={28} /> <a href={href}>{number}</a></p>
+      <p>If your pet is in danger, call straight away. Do not wait for a message to be returned.</p>
+    </section>
+    <section class="panel" aria-labelledby="hours">
+      <h2 id="hours">Our opening hours</h2>
+      <ul>
+        {clinic.hours.map((h) => <li>{hoursText(h)}</li>)}
+      </ul>
+    </section>
   </div>
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-4); }
-  .wrap > * { margin: 0; max-width: var(--measure); }
-  .call a { display: inline-flex; align-items: center; min-height: var(--target); font-size: var(--text-36); font-weight: 700; }
-  ul { padding-left: var(--space-5); }
+  .cols { align-items: start; }
+  .panel { display: grid; gap: var(--space-3); }
+  h2 { font-size: var(--text-24); }
+  .call { background: var(--color-danger-soft); }
+  .num { display: flex; align-items: center; gap: var(--space-3); color: var(--color-danger); }
+  .num a { display: inline-flex; align-items: center; min-height: var(--target); color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-36); font-weight: 600; }
+  ul { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 768px) { .cols { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } }
 </style>

@@ -28,9 +28,9 @@ if (SITE_ID !== 'hollybank') {
   await step('service FAQ answers show link text, not markdown', async () => {
     await withPage({}, async (page) => {
       await page.goto(`${BASE}/services/consultations/`);
-      const faq = await page.locator('main dl').innerText();
+      const faq = await page.locator('main #faq').innerText();
       expect(!faq.includes(']('), `raw markdown in the FAQ: ${faq.slice(-120)}`);
-      expect((await page.locator('main dl dd a[href="/estimates/"]').count()) === 1, 'estimates link missing from the FAQ');
+      expect((await page.locator('main #faq a[href="/estimates/"]').count()) === 1, 'estimates link missing from the FAQ');
     });
   });
 

@@ -6,7 +6,9 @@ import BookingForm from '@/modules/booking/BookingForm.astro';
 import ConfirmationPreview from '@/modules/reminders/ConfirmationPreview.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { configuredMarket, marketVariants, telHref } from '@/layouts/site';
-import PageHeader from '@/sections/PageHeader.astro';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 
 export function getStaticPaths() {
   return indexPaths('booking', site);
@@ -35,7 +37,7 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
 ---
 
 <BaseLayout title={`Request an appointment | ${site.clinic.name}`} description={`Ask for a time at ${site.clinic.name}. It takes about two minutes and we confirm ${site.booking.confirmPromise}.`} hideMobileBar>
-  <PageHeader title="Request an appointment" lede={`It takes about two minutes. We'll confirm the time ${site.booking.confirmPromise}.`} />
+  <PageHeader title="Request an appointment" eyebrow="Book online" crumbs={[{ label: 'Book' }]} lede={`It takes about two minutes. We'll confirm the time ${site.booking.confirmPromise}.`} />
   <div id="booking-root">
     <BookingForm
       clinicName={site.clinic.name}
@@ -47,9 +49,13 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
       providers={data.providers}
     />
     <section class="sent" id="booking-sent" aria-labelledby="sent-title" tabindex="-1" hidden>
-      <h2 id="sent-title">Appointment request sent</h2>
-      <p>We'll confirm by SMS {site.booking.confirmPromise}.</p>
-      {confirmation && <ConfirmationPreview body={confirmation.body} clinicName={site.clinic.name} />}
+      <div class="panel">
+        <span class="tick"><Icon name="check" size={28} /></span>
+        <h2 id="sent-title">Appointment request sent</h2>
+        <p>We'll confirm by SMS {site.booking.confirmPromise}.</p>
+        {confirmation && <ConfirmationPreview body={confirmation.body} clinicName={site.clinic.name} />}
+        <Button href="/" variant="secondary">Back to the home page</Button>
+      </div>
     </section>
   </div>
   <script type="application/json" id="booking-data" set:html={json} is:inline></script>
@@ -97,5 +103,14 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
 </script>
 
 <style>
-  .sent { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-8); display: grid; gap: var(--space-3); }
+  .sent { width: min(100% - var(--gutter) * 2, 40rem); margin-inline: auto; padding-block: var(--space-7) var(--space-5); }
+  .sent:focus { outline: none; }
+  .panel { display: grid; gap: var(--space-3); justify-items: start; }
+  .tick { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; background: var(--color-success-soft); border-radius: 50%; color: var(--color-success); }
+  h2 { font-size: var(--text-28); }
+  /* Once sent, the message leads and the filled card sits under it as the summary. */
+  #booking-root:has(#booking-sent:not([hidden])) { display: grid; }
+  #booking-root:has(#booking-sent:not([hidden])) :global(.book) { order: 2; grid-template-columns: minmax(0, 40rem); justify-content: center; padding-top: 0; }
+  #booking-root:has(#booking-sent:not([hidden])) :global(.book__card) { grid-column: 1; position: static; }
+  #booking-root:has(#booking-sent:not([hidden])) :global(.book__main) { display: none; }
 </style>

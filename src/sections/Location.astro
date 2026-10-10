@@ -33,6 +33,7 @@ const embed = ({ lat, lng }: Clinic['map']) =>
               <span>{c.address.street}<br />{c.address.locality} {c.address.region} {c.address.postcode}</span>
             </address>
             <OpenStatus hours={c.hours} timeZone={c.timeZone} fallback={hours[0] ?? ''} />
+            <h3>Opening hours</h3>
             <ul class="week" data-week data-tz={c.timeZone}>
               {weekHours(c.hours).map((d) => <li data-day={d.day}><span>{d.day}</span><span>{d.text}</span></li>)}
             </ul>
@@ -62,7 +63,8 @@ const embed = ({ lat, lng }: Clinic['map']) =>
   }
   address { display: flex; gap: var(--space-3); font-size: var(--text-18); font-style: normal; font-weight: 600; }
   address :global(svg) { flex: none; margin-top: 3px; color: var(--color-primary); }
-  .week { width: 100%; margin: 0; padding: 0; list-style: none; }
+  h3 { font-family: var(--font-body); font-size: var(--text-14); font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--color-ink-muted); }
+  .week { width: 100%; margin: calc(-1 * var(--space-2)) 0 0; padding: 0; list-style: none; }
   .week li { display: flex; justify-content: space-between; gap: var(--space-4); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); color: var(--color-ink-muted); }
   .week li[aria-current] { background: var(--color-accent); color: var(--color-primary-text); font-weight: 700; }
   .access { color: var(--color-ink-muted); font-size: var(--text-14); }

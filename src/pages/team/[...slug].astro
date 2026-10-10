@@ -1,23 +1,24 @@
 ---
-import { indexPaths } from '@/domain/modules';
+/** The clinical directory: every clinician, searchable by name, specialty or language. */
 import { getCollection } from 'astro:content';
-import { site } from '@/config';
+import { site, allSites } from '@/config';
+import PageHeader from '@/core/ui/PageHeader.astro';
+import { indexPaths, isOn } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants, telHref } from '@/layouts/site';
 import ProviderList from '@/modules/providers/ProviderList.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import CtaBand from '@/sections/CtaBand.astro';
 
 export function getStaticPaths() {
   return indexPaths('providers', site);
 }
 
 const providers = (await getCollection('providers')).map((p) => p.data).sort((a, b) => a.name.localeCompare(b.name));
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id) }));
 ---
 
 <BaseLayout title="Our team" description={`The clinicians at ${site.clinic.name}.`}>
-  <PageHeader eyebrow="Clinical directory" title="Our team" lede="Registered clinicians, with their registration numbers and languages." />
-  <div class="wrap"><ProviderList providers={providers} /></div>
+  <PageHeader eyebrow="Clinical directory" title="Our team" lede="Registered clinicians, with their registration numbers and languages." crumbs={[{ label: 'Team' }]} />
+  <div class="wrap page-body"><div><ProviderList providers={providers} /></div></div>
+  <CtaBand variants={variants} bookLabel={site.preset.copy.bookLabel} bookingOn={isOn('booking', site)} lede="Not sure who to see? Call and we will match you with the right person." />
 </BaseLayout>
-
-<style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
-</style>

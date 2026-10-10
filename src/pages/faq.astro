@@ -1,31 +1,42 @@
 ---
 import { getCollection } from 'astro:content';
 import { site } from '@/config';
-import { faqSchema } from '@/core/schema';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import PageHeader from '@/sections/PageHeader.astro';
 import { linkHtml, plainText } from '@/core/inline';
+import { faqSchema } from '@/core/schema';
+import Accordion from '@/core/ui/Accordion.astro';
+import Button from '@/core/ui/Button.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
+import { isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 
 const faqs = (await getCollection('faqs')).map((f) => f.data);
 const schema = faqSchema(faqs.map((f) => ({ q: f.q, a: plainText(f.a) })));
 ---
 
 <BaseLayout title="Questions and answers" description={`Common questions about ${site.clinic.name}.`} schema={schema}>
-  <PageHeader title="Questions and answers" lede="Short answers to what people ask us most." />
-  <div class="wrap">
-    {faqs.map((f) => (
-      <section>
-        <h2>{f.q}</h2>
-        <p set:html={linkHtml(f.a)} />
-      </section>
-    ))}
+  <PageHeader title="Questions and answers" eyebrow="Good to know" lede="Short answers to what people ask us most." />
+  <div class="wrap page-body cols">
+    <div class="list" data-reveal-group>
+      {faqs.map((f) => <Accordion summary={f.q}><p set:html={linkHtml(f.a)} /></Accordion>)}
+    </div>
+    <aside class="panel ask">
+      <h2>Still not sure?</h2>
+      <p>Ask us. A real person at the front desk answers, and no question is too small.</p>
+      <Button href="/contact/" variant="secondary" arrow>Contact us</Button>
+      {isOn('booking', site) && <Button href="/book/" arrow>{site.preset.copy.bookLabel}</Button>}
+    </aside>
   </div>
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); }
-  section { max-width: var(--measure); padding: var(--space-4) 0; border-top: 1px solid var(--color-line); }
-  h2 { margin: 0 0 var(--space-2); font-size: var(--text-24); }
-  p { margin: 0; }
-  p :global(a) { display: inline-flex; align-items: center; min-height: var(--target); }
+  .cols { align-items: start; }
+  .list { border-top: 1px solid var(--color-line); }
+  .list :global(.body a) { color: var(--color-primary-text); font-weight: 600; }
+  .ask { display: grid; gap: var(--space-3); justify-items: start; }
+  .ask h2 { font-size: var(--text-24); }
+  .ask p { color: var(--color-ink-muted); }
+  @media (min-width: 900px) {
+    .cols { grid-template-columns: minmax(0, 1fr) 20rem; gap: var(--space-8); }
+    .ask { position: sticky; top: calc(var(--header-h) + var(--utility-h) + var(--space-5)); }
+  }
 </style>

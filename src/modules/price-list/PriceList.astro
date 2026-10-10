@@ -17,7 +17,7 @@ const groups = groupPrices(items);
 <div class="prices">
   <p class="note">{market.taxNote}. Last reviewed {reviewedLabel}.</p>
   {groups.map((g, i) => (
-    <section aria-labelledby={`price-group-${i}`}>
+    <section class="panel" aria-labelledby={`price-group-${i}`}>
       <h2 id={`price-group-${i}`}>{g.group}</h2>
       <table>
         <thead class="sr-only"><tr><th scope="col">Item</th><th scope="col">Price</th></tr></thead>
@@ -32,14 +32,14 @@ const groups = groupPrices(items);
 </div>
 
 <style>
-  .prices { display: grid; gap: var(--space-6); }
-  .note { margin: 0; font-weight: 600; }
-  section { display: grid; gap: var(--space-3); }
-  h2 { margin: 0; font-size: var(--text-24); }
+  .prices { display: grid; gap: var(--space-5); max-width: 56rem; }
+  .note { color: var(--color-ink-muted); font-weight: 600; }
+  section { display: grid; gap: var(--space-2); }
+  h2 { font-size: var(--text-24); }
   table { width: 100%; border-collapse: collapse; }
-  tr { border-top: 1px solid var(--color-line); }
-  th, td { padding: var(--space-3) var(--space-2); text-align: left; vertical-align: top; }
-  th { font-weight: 400; }
-  td { text-align: right; font-weight: 600; white-space: nowrap; }
+  tr + tr { border-top: 1px solid var(--color-line); }
+  th, td { padding: var(--space-3) 0; text-align: left; vertical-align: top; }
+  th { padding-right: var(--space-4); font-weight: 400; }
+  td { text-align: right; font-weight: 700; white-space: nowrap; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>

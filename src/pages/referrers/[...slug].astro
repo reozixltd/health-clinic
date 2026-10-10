@@ -5,7 +5,7 @@ import { indexPaths } from '@/domain/modules';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { marketVariants, telHref } from '@/layouts/site';
 import ReferralForm from '@/modules/referrals/ReferralForm.astro';
-import PageHeader from '@/sections/PageHeader.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 
 export function getStaticPaths() {
   return indexPaths('referrals', site);
@@ -17,35 +17,32 @@ const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHr
 ---
 
 <BaseLayout title="For referrers" description={`Refer a patient to ${clinic.name}.`}>
-  <PageHeader title="For referrers" lede="Send us a patient and we will take it from there." />
-  <div class="wrap">
-    <section aria-labelledby="treat">
+  <PageHeader title="For referrers" eyebrow="Health professionals" lede="Send us a patient and we will take it from there." crumbs={[{ label: 'Referrers' }]} />
+  <div class="wrap page-body cols">
+    <div class="prose">
+      <h2 id="how">How to refer</h2>
+      <p>Fill in the form with your details, the patient's first name and phone number, the service and how soon. We contact the patient to book them in.</p>
+      <p>
+        Prefer to call? Ring us on{" "}
+        {variants.map((v) => <a data-market-only={v.id} href={v.tel}>{v.clinic.phone}</a>)}.
+      </p>
+      <h2 id="secure">Clinical details</h2>
+      <p>This form does not take clinical details. Please send them through your secure channel or by fax, not here.</p>
       <h2 id="treat">What we treat</h2>
       <ul>
         {services.map((s) => <li><a href={`/services/${s.slug}/`}>{s.title}</a>: {s.summary}</li>)}
       </ul>
+    </div>
+    <section class="panel" aria-labelledby="form">
+      <h2 id="form">Referral form</h2>
+      <ReferralForm siteId={site.id} demo={site.demoMode} services={services} variants={variants} />
     </section>
-    <section aria-labelledby="how">
-      <h2 id="how">How to refer</h2>
-      <p>Fill in the form below with your details, the patient's first name and phone number, the service and how soon. We contact the patient to book them in.</p>
-      <p>
-        Prefer to call? Ring us on
-        {variants.map((v) => <a data-market-only={v.id} href={v.tel}>{v.clinic.phone}</a>)}.
-      </p>
-    </section>
-    <section aria-labelledby="secure">
-      <h2 id="secure">Clinical details</h2>
-      <p>This form does not take clinical details. Please send them through your secure channel or by fax, not here.</p>
-    </section>
-    <section aria-labelledby="form"><h2 id="form">Referral form</h2><ReferralForm siteId={site.id} demo={site.demoMode} services={services} variants={variants} /></section>
   </div>
 </BaseLayout>
 
 <style>
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-6); }
-  .wrap > section { max-width: var(--measure); }
-  h2 { font-size: var(--text-24); margin-bottom: var(--space-3); }
-  p { margin: 0 0 var(--space-3); }
-  ul { padding-left: var(--space-5); display: grid; gap: var(--space-2); }
-  a { text-decoration: underline; }
+  .cols { align-items: start; }
+  .panel { display: grid; gap: var(--space-5); }
+  .panel h2 { font-size: var(--text-24); }
+  @media (min-width: 1024px) { .cols { grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); gap: var(--space-8); } }
 </style>

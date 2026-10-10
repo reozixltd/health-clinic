@@ -30,7 +30,7 @@ const names = ['Service', vet ? 'Vet' : 'Clinician', vet ? 'Pet' : 'Patient', 'W
   <div class="book__card"><AppointmentCard {clinicName} {preset} locale={variants[0]!.market.locale} /></div>
   <div class="book__main">
     <ol class="progress" aria-label="Steps">
-      {names.map((n, i) => <li data-progress={['service', 'clinician', 'patient', 'when', 'you', 'check'][i]} aria-current={i === 0 ? 'step' : undefined}><span class="progress__num" aria-hidden="true">{i + 1}</span> {n}</li>)}
+      {names.map((n, i) => <li data-progress={['service', 'clinician', 'patient', 'when', 'you', 'check'][i]} aria-current={i === 0 ? 'step' : undefined}><span class="progress__num" aria-hidden="true">{i + 1}</span> <span class="progress__label">{n}</span></li>)}
     </ol>
     <noscript><p class="note">This form needs JavaScript. Call us on {phones.map((v) => <a data-market-only={v.id} href={v.href}>{v.phone}</a>)} to ask for a time.</p></noscript>
     <form novalidate>
@@ -46,45 +46,64 @@ const names = ['Service', vet ? 'Vet' : 'Clinician', vet ? 'Pet' : 'Patient', 'W
 </div>
 
 <style is:global>
-  .book { display: grid; gap: var(--space-5); max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4) var(--space-8); }
+  .book { display: grid; gap: var(--space-6); width: min(100% - var(--gutter) * 2, var(--wrap)); margin-inline: auto; padding-block: var(--space-7) var(--space-9); }
   .book__main { display: grid; gap: var(--space-5); align-content: start; min-width: 0; }
   @media (min-width: 1024px) {
-    .book { grid-template-columns: minmax(0, 1fr) 22rem; gap: var(--space-7); }
+    .book { grid-template-columns: minmax(0, 1fr) 22rem; gap: var(--space-8); }
     .book__main { grid-column: 1; grid-row: 1; }
-    .book__card { grid-column: 2; grid-row: 1; position: sticky; top: var(--space-5); align-self: start; }
+    .book__card { grid-column: 2; grid-row: 1; position: sticky; top: calc(var(--header-h) + var(--utility-h) + var(--space-5)); align-self: start; }
   }
-  .book form, .book .step { display: grid; gap: var(--space-4); }
+  .book form { display: grid; gap: var(--space-4); padding: var(--space-5) var(--space-4); background: var(--color-card); border-radius: var(--radius-panel); box-shadow: var(--shadow-1); }
+  @media (min-width: 640px) { .book form { padding: var(--space-6); } }
+  .book .step { display: grid; gap: var(--space-4); }
   .book .step[hidden] { display: none; }
-  .book .step > h2 { font-size: var(--text-24); }
-  .book .progress { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: 0; padding: 0; list-style: none; font-size: var(--text-14); color: var(--color-ink-muted); }
+  .book .step > h2 { font-size: var(--text-28); }
+
+  /* Stepper: a disc per step on one line. Steps behind the current one read as done. */
+  .book .progress { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; font-size: var(--text-14); color: var(--color-ink-muted); }
+  .book .progress li { position: relative; display: grid; justify-items: center; gap: var(--space-2); text-align: center; }
+  .book .progress li + li::before { content: ''; position: absolute; top: calc(1rem - 1px); right: 50%; width: 100%; height: 2px; background: var(--color-line); }
+  .book .progress__num { position: relative; z-index: 1; display: grid; place-items: center; width: 2rem; height: 2rem; background: var(--color-card); border: 2px solid var(--color-line); border-radius: 50%; font-weight: 700; }
   .book .progress li[aria-current='step'] { color: var(--color-ink); font-weight: 700; }
-  .book .progress__num { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 1px solid var(--color-ink-muted); border-radius: 50%; }
-  .book .progress li[aria-current='step'] .progress__num { background: var(--color-accent); border-color: var(--color-ink); }
+  .book .progress li[aria-current='step'] .progress__num { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-ink); }
+  .book .progress li:has(~ li[aria-current='step']) .progress__num { background: var(--color-accent); border-color: var(--color-primary); color: var(--color-primary-text); }
+  .book .progress li[aria-current='step']::before, .book .progress li:has(~ li[aria-current='step'])::before { background: var(--color-primary); }
+  .book .progress__label { white-space: nowrap; }
+  @media (max-width: 559px) {
+    .book .progress li:not([aria-current]) .progress__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  }
+
   .book fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
   .book legend { font-weight: 600; padding: 0; margin-bottom: var(--space-2); }
-  .book .choices { display: grid; gap: var(--space-2); }
+  .book input[type='radio'], .book input[type='checkbox'] { accent-color: var(--color-primary); }
+  .book .choices { display: grid; gap: var(--space-3); }
   .book .choices--row { grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); }
-  .book .choice { display: flex; align-items: flex-start; gap: var(--space-3); min-height: var(--target); padding: var(--space-3); background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); cursor: pointer; transition: background-color var(--dur-fill) ease; }
-  .book .choice:has(input:checked) { background: var(--color-accent); border-color: var(--color-ink); color: var(--color-ink); }
+  .book .choice { display: flex; align-items: flex-start; gap: var(--space-3); min-height: var(--target); padding: var(--space-4); background: var(--color-card); border: 1px solid var(--color-field-border); border-radius: var(--radius-card); cursor: pointer; transition: background-color var(--dur-fill) ease, border-color var(--dur-1) ease; }
+  .book .choices--row > .choices--row { grid-column: 1 / -1; }
+  .book .choices--row .choice { padding: var(--space-3); }
+  .book [data-when-fields] fieldset ~ fieldset { margin-top: var(--space-5); }
+  @media (max-width: 479px) { .book .choices--row .choice { gap: var(--space-2); padding-inline: var(--space-2); } }
+  @media (hover: hover) and (pointer: fine) { .book .choice:hover { border-color: var(--color-primary); } }
+  .book .choice:has(input:checked) { background: var(--color-accent); border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); color: var(--color-ink); }
   .book .choice:has(input:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 2px; }
   .book .choice input { margin-top: 0.2rem; width: 1.125rem; height: 1.125rem; flex: none; }
   .book .choice__text { display: grid; gap: var(--space-1); }
-  .book .choice__text span { font-size: var(--text-14); }
+  .book .choice__text span { color: var(--color-ink-muted); font-size: var(--text-14); }
+  .book .choice:has(input:checked) .choice__text span { color: var(--color-ink); }
   .book .choice[hidden] { display: none; }
   .book .pair { display: grid; gap: var(--space-4); }
   @media (min-width: 640px) { .book .pair { grid-template-columns: 1fr 1fr; } }
   .book .field { display: grid; gap: var(--space-1); }
   .book .field label { font-weight: 600; }
-  .book .field input { min-height: var(--target); padding: 0 var(--space-3); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); background: var(--color-card); font-size: var(--text-16); }
-  .book .field input[aria-invalid='true'] { border-color: var(--color-danger); border-width: 2px; }
+  .book .field input, .book select { min-height: var(--target-field); padding: 0 var(--space-3); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); background: var(--color-card); font-size: var(--text-16); }
+  .book .field input[aria-invalid='true'] { border-color: var(--color-danger); border-width: 2px; background: var(--color-danger-soft); }
   .book .field__error { margin: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }
   .book .field__error:empty { display: none; }
-  .book select { min-height: var(--target); padding: 0 var(--space-3); border: 1px solid var(--color-field-border); border-radius: var(--radius-control); background: var(--color-card); }
-  .book .nav { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .book .nav { display: flex; flex-wrap: wrap; gap: var(--space-3); padding-top: var(--space-2); }
   .book .err { margin: 0; color: var(--color-danger); font-size: var(--text-14); font-weight: 600; }
   .book .err:empty, .book .status:empty { display: none; }
   .book .status { padding: var(--space-3); border: 2px solid var(--color-danger); background: var(--color-danger-soft); border-radius: var(--radius-control); font-weight: 600; }
-  .book .note { padding: var(--space-3); background: var(--color-surface); border-radius: var(--radius-control); }
+  .book .note { padding: var(--space-3) var(--space-4); background: var(--color-surface); border-radius: var(--radius-control); }
   .book .ticks { display: grid; gap: var(--space-3); }
   .book .tick label { display: flex; gap: var(--space-3); align-items: flex-start; min-height: var(--target); }
   .book .tick input { width: 1.25rem; height: 1.25rem; flex: none; margin-top: 0.15rem; }

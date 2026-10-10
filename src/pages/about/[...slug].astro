@@ -1,0 +1,117 @@
+---
+/** About: the founder's story, how the clinic grew, what it holds, who works here and who it is hiring. */
+import { getCollection } from 'astro:content';
+import { site, allSites } from '@/config';
+import { photoAlt, slotPhoto } from '@/config/photo-slots';
+import { hasPhoto } from '@/core/photos';
+import Badge from '@/core/ui/Badge.astro';
+import Button from '@/core/ui/Button.astro';
+import Icon from '@/core/ui/Icon.astro';
+import type { IconName } from '@/core/ui/icons';
+import PageHeader from '@/core/ui/PageHeader.astro';
+import SectionHeading from '@/core/ui/SectionHeading.astro';
+import { indexPaths, isOn } from '@/domain/modules';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { marketVariants, telHref } from '@/layouts/site';
+import { providersBySlug } from '@/modules/providers/lookup';
+import CtaBand from '@/sections/CtaBand.astro';
+import StoryBand from '@/sections/StoryBand.astro';
+import TeamRow from '@/sections/TeamRow.astro';
+
+export function getStaticPaths() {
+  return indexPaths('about', site);
+}
+
+const { clinic, preset } = site;
+const about = (await getCollection('about')).map((e) => e.data)[0];
+if (!about) throw new Error('The about module is on but about.json is missing');
+const providers = (await getCollection('providers')).map((e) => e.data).sort((a, b) => (a.joined ?? 0) - (b.joined ?? 0) || a.name.localeCompare(b.name));
+const awards = (await getCollection('awards')).map((e) => e.data).sort((a, b) => b.year - a.year);
+const lead = (await getCollection('gallery')).map((e) => e.data.photoSlot).find(hasPhoto);
+const founder = providersBySlug(providers).get(about.founder);
+const variants = marketVariants(site, allSites()).map((v) => ({ ...v, tel: telHref(v.clinic.phone, v.id) }));
+const storyPhoto = about.story.photoSlot && hasPhoto(about.story.photoSlot) ? slotPhoto(about.story.photoSlot) : undefined;
+---
+
+<BaseLayout title={`About ${clinic.name}`} description={`${about.mission} The story of ${clinic.name}, founded in ${about.founded}.`}>
+  <PageHeader title={`About ${clinic.name}`} eyebrow={`Caring since ${about.founded}`} lede={about.mission} crumbs={[{ label: 'About' }]} photo={lead ? { slot: lead, alt: photoAlt[lead] ?? '' } : undefined} />
+
+  <StoryBand heading={about.story.heading} paragraphs={about.story.paragraphs} mission={about.mission} founded={about.founded} founder={{ name: founder?.name ?? clinic.name, role: about.founderRole }} photo={storyPhoto} />
+
+  <section id="milestones" class="section band" aria-labelledby="milestones-title">
+    <div class="wrap split">
+      <SectionHeading id="milestones-title" title="How we got here" eyebrow="Milestones" lede={`From two rooms in ${about.founded} to ${providers.length} clinicians under one roof.`} class="head" />
+      <ol class="timeline" data-reveal-group>
+        {about.milestones.map((m) => (
+          <li>
+            <span class="timeline__when">{m.year}</span>
+            <p>{m.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  {awards.length > 0 && (
+    <section id="awards" class="section" aria-labelledby="awards-title">
+      <div class="wrap">
+        <SectionHeading id="awards-title" title="Awards and accreditations" eyebrow="Checked by others" lede="Standards we are assessed against, and recognition we are proud of." />
+        <ul class="awards" data-reveal-group>
+          {awards.map((a) => (
+            <li class="panel">
+              <span class="medal"><Icon name={a.icon as IconName} size={24} /></span>
+              <Badge tone={a.kind === 'award' ? 'accent' : 'success'}>{a.kind === 'award' ? 'Award' : 'Accreditation'}</Badge>
+              <h3>{a.name}</h3>
+              <p>{a.issuer}, {a.year}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {isOn('providers', site) && <TeamRow providers={providers} variants={variants} lede="The people you will meet, each with a registration you can check." />}
+
+  <section id="careers" class="section band" aria-labelledby="careers-title">
+    <div class="wrap">
+      <SectionHeading id="careers-title" title={about.careers.heading} eyebrow="Careers" lede={about.careers.text} />
+      <ul class="roles" data-reveal-group>
+        {about.careers.roles.map((r) => (
+          <li class="panel">
+            <h3>{r.title}</h3>
+            <Badge>{r.hours}</Badge>
+            <p>{r.text}</p>
+          </li>
+        ))}
+      </ul>
+      {variants.map((v) => (
+        <p class="apply" data-market-only={v.id}>
+          <Button href={`mailto:${v.clinic.email}?subject=${encodeURIComponent(`Working at ${clinic.name}`)}`} variant="secondary" arrow>Email us your CV</Button>
+          <span>No role that fits? Write anyway. We keep good letters.</span>
+        </p>
+      ))}
+    </div>
+  </section>
+
+  <CtaBand variants={variants} bookLabel={preset.copy.bookLabel} bookingOn={isOn('booking', site)} lede="Come and see the place for yourself." />
+</BaseLayout>
+
+<style>
+  .band { background: var(--color-surface); }
+  .split { display: grid; gap: var(--space-5); }
+  @media (min-width: 900px) {
+    .split { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: var(--space-9); align-items: start; }
+    .split > :global(.head) { position: sticky; top: calc(var(--header-h) + var(--utility-h) + var(--space-5)); margin-bottom: 0; }
+  }
+  .timeline__when { font-family: var(--font-display); font-size: var(--text-24); font-weight: 560; letter-spacing: 0; }
+  .timeline > li::before { top: 0.6em; }
+
+  .awards, .roles { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 640px) { .awards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 900px) { .awards, .roles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); } }
+  .awards li, .roles li { display: grid; gap: var(--space-2); align-content: start; justify-items: start; }
+  .awards p, .roles p { color: var(--color-ink-muted); }
+  .medal { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; margin-bottom: var(--space-2); border-radius: 50%; background: var(--color-accent); color: var(--color-primary-text); }
+  h3 { font-size: var(--text-20); }
+  .apply { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); max-width: none; margin-top: var(--space-6); color: var(--color-ink-muted); }
+</style>

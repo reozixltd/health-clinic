@@ -2,16 +2,19 @@
 /** A Markdown content page from the policies collection (HTML allowed, so data-market-only blocks work). */
 import { getEntry, render } from 'astro:content';
 import { formatDate } from '@/core/format';
+import Icon from '@/core/ui/Icon.astro';
+import PageHeader from '@/core/ui/PageHeader.astro';
 import { site } from '@/config';
 import BaseLayout from './BaseLayout.astro';
 
 interface Props {
   policy: string;
   lede?: string;
+  eyebrow?: string;
   /** Show the "Last updated" line (legal pages). */
   dated?: boolean;
 }
-const { policy, lede, dated = false } = Astro.props;
+const { policy, lede, eyebrow, dated = false } = Astro.props;
 const entry = await getEntry('policies', policy);
 if (!entry) throw new Error(`Missing policy content: ${policy}`);
 const { Content } = await render(entry);
@@ -19,25 +22,16 @@ const updated = entry.data.updated.toISOString().slice(0, 10);
 ---
 
 <BaseLayout title={entry.data.title} description={`${entry.data.title} at ${site.clinic.name}.`}>
-  <section class="page-header">
-    <h1>{entry.data.title}</h1>
-    {lede && <p>{lede}</p>}
-  </section>
-  <div class="wrap">
+  <PageHeader title={entry.data.title} lede={lede} eyebrow={eyebrow}>
+    {dated && <p class="updated"><Icon name="clock" size={16} /> Last updated <time datetime={updated}>{formatDate(updated, site.market.locale)}</time></p>}
+  </PageHeader>
+  <div class="wrap page-body">
     <slot name="before" />
     <div class="prose"><Content /></div>
-    {dated && <p class="updated">Last updated {formatDate(updated, site.market.locale)}</p>}
     <slot />
   </div>
 </BaseLayout>
 
 <style>
-  .page-header { max-width: 72rem; margin: 0 auto; padding: var(--space-7) var(--space-4) var(--space-5); display: grid; gap: var(--space-3); }
-  .page-header p { font-size: var(--text-18); color: var(--color-ink-muted); }
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 var(--space-4); display: grid; gap: var(--space-5); }
-  .prose { max-width: var(--measure); }
-  .prose :global(h2) { font-size: var(--text-24); margin: var(--space-5) 0 var(--space-2); }
-  .prose :global(p), .prose :global(ul), .prose :global(ol) { margin: 0 0 var(--space-3); }
-  .prose :global(a) { display: inline-flex; align-items: center; min-height: var(--target); }
-  .updated { margin: 0; color: var(--color-ink-muted); }
+  .updated { display: flex; align-items: center; gap: var(--space-2); color: var(--color-ink-muted); font-size: var(--text-14); }
 </style>
