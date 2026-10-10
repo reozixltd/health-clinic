@@ -7,6 +7,8 @@ if (!['fernway-au', 'fernway-ca', 'hollybank'].includes(SITE_ID)) {
 
 const SERVICE = { 'fernway-au': 'physiotherapy', 'fernway-ca': 'physiotherapy', hollybank: 'vaccinations' }[SITE_ID];
 const PAGES = ['/', `/services/${SERVICE}/`, '/contact/', '/team/'];
+/** Hollybank ships no portraits, so its team shows initials tiles. Fernway has a portrait for everyone. */
+const PORTRAITS = SITE_ID !== 'hollybank';
 
 /**
  * Every <img> in main has alt text and a file that decodes. Lazy images in a closed lightbox, a hidden
@@ -56,16 +58,31 @@ await step('home shows the first-visit and exterior photos', async () => {
     await page.goto(`${BASE}/`);
     expect((await page.locator('#first-visit img').count()) === 1, 'first-visit photo missing');
     // The exterior slot goes to the location band, or to the facilities band on a site without the full home page: one of them, never both.
-    expect((await page.locator('#location img, #facilities img').count()) === 1, 'exterior photo should appear exactly once');
+    expect((await page.locator(PORTRAITS ? '#location img' : '#location img, #facilities img').count()) === 1, 'exterior photo should appear exactly once');
   });
 });
 
-await step('clinicians without a portrait show an initials tile with their name as its label', async () => {
+if (PORTRAITS) await step('every team card holds a portrait that loads', async () => {
+  await withPage({}, async (page) => {
+    await page.goto(`${BASE}/team/`);
+    expect((await page.locator('.initials').count()) === 0, 'a clinician is missing a portrait');
+    const cards = await page.locator('[data-provider]').evaluateAll((els) => Promise.all(els.map(async (li) => {
+      const img = li.querySelector('img');
+      if (!img) return false;
+      img.loading = 'eager';
+      await img.decode().catch(() => {});
+      return img.naturalWidth > 0;
+    })));
+    expect(cards.length >= 4, `team cards found: ${cards.length}`);
+    expect(cards.every(Boolean), 'a team card has no loaded portrait');
+  });
+});
+
+if (!PORTRAITS) await step('clinicians without a portrait show an initials tile with their name as its label', async () => {
   await withPage({}, async (page) => {
     await page.goto(`${BASE}/team/`);
     const tiles = page.locator('.initials');
-    // A site with a portrait for every clinician has no tile to check.
-    if ((await tiles.count()) === 0) return;
+    expect((await tiles.count()) > 0, 'no initials tile on a site without portraits');
     const first = tiles.first();
     const label = await first.getAttribute('aria-label');
     const text = (await first.innerText()).trim();
@@ -157,7 +174,7 @@ function radiusFor(inset, depth = PROBE_DEPTH) {
   return Math.round(best * 10) / 10;
 }
 
-await step('the initials tile curves by its own width, control radius small and card radius large', async () => {
+if (!PORTRAITS) await step('the initials tile curves by its own width, control radius small and card radius large', async () => {
   await withPage({ deviceScaleFactor: RADIUS_SCALE }, async (page) => {
     // Every initials tile in the shipped design is card sized, because the team band and /team/
     // are card grids. So the two branches are read off one tile rather than off two pages that

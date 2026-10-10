@@ -1,13 +1,13 @@
-# Photo credits
+| `provider-priya-nair` | RDNE Stock project | https://www.pexels.com/photo/7580821/ | Pexels Licence | Woman in a navy blazer, arms crossed, smiling, plain pale wall (cropped to a portrait) || `founder-priya` | RDNE Stock project | https://www.pexels.com/photo/7580948/ | Pexels Licence | Woman in a grey blazer seated at a pale desk, smiling, pink flowers in the foreground |# Photo credits
 
 The demo photos are free-licence stock from Pexels. The people shown are models, not clinic staff or patients. A clinic replaces any of them by saving its own photo over the file with the same slot name.
 
 | Slot | Photographer | Source page (https://www.pexels.com/photo/<id>/) | Licence (Pexels Licence) | Shows |
 |---|---|---|---|---|
-| `clinic-exterior` | Erik Mclean | https://www.pexels.com/photo/8266714/ | Pexels Licence | White clad building with a glass entrance and a pale timber deck, daylight, no people |
-| `reception` | Los Muertos Crew (signage retouched out) | https://www.pexels.com/photo/8459996/ | Pexels Licence | Bright white reception hall with a desk, timber doors and blue waiting chairs, no people |
+| `clinic-exterior` | Erik Mclean (warmed slightly) | https://www.pexels.com/photo/8266714/ | Pexels Licence | White clad building with a glass entrance and a pale timber deck, daylight, no people |
+| `reception` | Los Muertos Crew (signage retouched out, warmed slightly) | https://www.pexels.com/photo/8459996/ | Pexels Licence | Bright white reception hall with a desk, timber doors and blue waiting chairs, no people |
 | `treatment-room-physio` | Ivan Babydov | https://www.pexels.com/photo/7789602/ | Pexels Licence | Pale treatment room with a couch, desk and orange chair, no people |
-| `treatment-room-dental` | MM Dental | https://www.pexels.com/photo/9062525/ | Pexels Licence | White dental surgery with a chair, light and radiator, no people |
+| `treatment-room-dental` | MM Dental (warmed slightly) | https://www.pexels.com/photo/9062525/ | Pexels Licence | White dental surgery with a chair, light and radiator, no people |
 | `consulting-room-psychology` | Rachel Claire | https://www.pexels.com/photo/4846436/ | Pexels Licence | Bright room with floor to ceiling windows, two rose armchairs, plant and framed prints, no people |
 | `vet-exterior` | Alexey K. | https://www.pexels.com/photo/31506191/ | Pexels Licence | Exterior of a veterinary building |
 | `vet-reception` | DOAN THANH BINH | https://www.pexels.com/photo/36631639/ | Pexels Licence | Veterinary reception interior |

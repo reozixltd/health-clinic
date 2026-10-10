@@ -42,11 +42,11 @@
 
 ### P1: Photos
 
-- [ ] Search Pexels (search pages answer `curl` with a browser user agent; image CDN is `images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&cs=tinysrgb&w=1600`) and Unsplash CDN.
-- [ ] Download each candidate into its own new empty folder under the scratchpad, view it, and accept only warm, natural-light, non-watermarked photos.
-- [ ] Save accepted files as `src/assets/images/<slot>.jpg`, long edge 1600px for rooms and 1000px for portraits, 320px for avatars.
-- [ ] Write `CREDITS.md` at the repo root: slot, what it shows, photographer, source page URL, licence.
-- [ ] Portraits match each clinician's name and role; the six share a plain light background style. `founder-priya` is from the same shoot as `provider-priya-nair` or does not show an identifiable face.
+- [x] Search Pexels (search pages answer `curl` with a browser user agent; image CDN is `images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&cs=tinysrgb&w=1600`) and Unsplash CDN.
+- [x] Download each candidate into its own new empty folder under the scratchpad, view it, and accept only warm, natural-light, non-watermarked photos.
+- [x] Save accepted files as `src/assets/images/<slot>.jpg`, long edge 1600px for rooms and 1000px for portraits, 320px for avatars.
+- [x] Write `CREDITS.md` at the repo root: slot, what it shows, photographer, source page URL, licence.
+- [x] Portraits match each clinician's name and role; the six share a plain light background style. `founder-priya` is from the same shoot as `provider-priya-nair` or does not show an identifiable face.
 
 Slots: see the spec, "Photos".
 
@@ -54,10 +54,10 @@ Slots: see the spec, "Photos".
 
 Starts after Task 0, because it needs the schemas.
 
-- [ ] Write `about.json`, `awards.json`, `funds.json`, `conditions.json`, `gallery.json`, six `blog/*.md`.
-- [ ] Extend the six `providers/*.md`, five `services/*.md` and `reviews.json` (nine reviews).
-- [ ] Check every invented award, accreditation and fund name against a web search and rename any that matches a real organisation.
-- [ ] Validate each JSON file parses.
+- [x] Write `about.json`, `awards.json`, `funds.json`, `conditions.json`, `gallery.json`, six `blog/*.md`.
+- [x] Extend the six `providers/*.md`, five `services/*.md` and `reviews.json` (nine reviews).
+- [x] Check every invented award, accreditation and fund name against a web search and rename any that matches a real organisation.
+- [x] Validate each JSON file parses.
 
 ---
 
@@ -162,10 +162,10 @@ Starts after Task 0, because it needs the schemas.
 - Create: `CREDITS.md`; delete `docs/photo-credits.md`
 - Test: `tests/unit/photos.test.ts`, `tests/e2e/photos.e2e.mjs`
 
-- [ ] View every delivered photo. Replace any that is off-tone, watermarked or mismatched.
-- [ ] Register slots and alt text. `photoRoles.fernway` becomes `{ hero: 'hero-consult', exterior: 'clinic-exterior', firstVisit: 'treatment-room-physio' }`.
-- [ ] `photos.e2e`: initials-tile steps run on Hollybank only; Fernway asserts every team card holds a loaded `<img>`; exterior photo is asserted in `#location`.
-- [ ] Build, test, check. Commit `feat: photography, credits and branded placeholder`.
+- [x] View every delivered photo. Replace any that is off-tone, watermarked or mismatched.
+- [x] Register slots and alt text. `photoRoles.fernway` becomes `{ hero: 'hero-consult', exterior: 'clinic-exterior', firstVisit: 'treatment-room-physio' }`.
+- [x] `photos.e2e`: initials-tile steps run on Hollybank only; Fernway asserts every team card holds a loaded `<img>`; exterior photo is asserted in `#location`.
+- [x] Build, test, check. Commit `feat: photography, credits and branded placeholder`.
 
 ### Task 6: Motion
 

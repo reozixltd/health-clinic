@@ -140,11 +140,12 @@ const { eyebrow, headline, lead, preset, variants, bookingOn, emergencyOn, photo
     background: var(--color-card); border: var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-2);
     font-size: var(--text-14); line-height: 1.3;
   }
-  .float--a { left: var(--space-3); bottom: calc(-1 * var(--space-5)); }
-  .float--b { right: var(--space-3); top: var(--space-3); }
+  /* Top left and bottom right: clear of the face in a photo whose subject sits upper right. */
+  .float--a { left: var(--space-3); top: calc(-1 * var(--space-4)); }
+  .float--b { right: var(--space-3); bottom: calc(-1 * var(--space-5)); }
   @media (min-width: 1024px) {
-    .float--a { left: calc(-1 * var(--space-7)); bottom: var(--space-7); }
-    .float--b { right: calc(-1 * var(--space-4)); top: var(--space-7); }
+    .float--a { left: calc(-1 * var(--space-7)); top: var(--space-8); }
+    .float--b { right: calc(-1 * var(--space-4)); bottom: var(--space-7); }
   }
   .float__icon { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; background: var(--color-accent); border-radius: 50%; color: var(--color-primary-text); }
   .float__icon--star { background: var(--color-warning-soft); color: var(--color-star); }
